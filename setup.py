@@ -9,8 +9,12 @@ class Client:
         self.conn = conn
         self.addr = addr
         Client.count += 1
-    def login(self, name):
-        self.name = name
+        print('Got connection from', self.addr)
+        conn.send('Thank you for connecting')
+    def disconnect(self):
+        conn = self.conn
+        conn.close()
+
 
 s = socket.socket()         # Create a socket object
 host = socket.gethostname() # Get local machine name
@@ -23,9 +27,7 @@ while online:
     c, addr = s.accept()     # Establish connection with client.
     if c:
         client.append(Client(c, addr))
-    print 'Got connection from', addr
-    c.send('Thank you for connecting')
-    c.close()                # Close the connection
+                    # Close the connection
 
 # Elements to be done
 # 1. Accept connections
