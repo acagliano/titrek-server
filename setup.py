@@ -22,7 +22,7 @@ s.listen(5)                 # Now wait for client connection.
 while online:
     c, addr = s.accept()     # Establish connection with client.
     if c:
-        clients[] = Client(c, addr);
+        client.append(Client(c, addr))
     print 'Got connection from', addr
     c.send('Thank you for connecting')
     c.close()                # Close the connection
