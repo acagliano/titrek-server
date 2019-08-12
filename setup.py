@@ -13,66 +13,19 @@ import json
 import os,sys
 
 
-#Some useful error dictionaries
-#These are mostly used for mnemonics
-#Something the server returns upon returning from user input
-InputError={
-    "success":b'\000',
-    "invalid":b'\001',
-    "duplicate":b'\002',
-    "missing":b'\003'
-}
-#returned from the registration routine
-RegisterError={
-    "success":b'\000\001\000',
-    "invalid":b'\000\001\001',
-    "duplicate":b'\000\001\002',
-    "missing":b'\000\001\003'
-}
-#returned from the login routine
-LoginError={
-    "success":b'\000\002\000',
-    "invalid":b'\000\002\001',
-    "duplicate":b'\000\002\002',
-    "missing":b'\000\002\003'
-}
-#returned from the disconect routine
-DisconnectError={
-    "success":b'\000\003\000'
-}
-#server control codes
-ControlCode={
-    "servresponse":b'\000',
-    "register":b'\001',
-    "login":b'\002',
-    "disconnect":b'\003',
-    "message":b'\00e',
-    "debug":b'\00f',
-    "servinfo":b'\0ff'
-}
-#server response codes. The same as server control codes for simplicity.
-ResponseCodes={
-    "register":b'\000\001',
-    "login":b'\000\002',
-    "disconnect":b'\000\003',
-    "message":b'\000\00e',
-    "debug":b'\000\00f',
-    "servinfo":b'\000\0ff'
-}
-
+from trekCodes import *
 
 class Client:
     count = 0
     
-    def __init__(self, conn, addr):
-        self.conn = conn
-        self.addr = addr
+    def __init__(self, addr):
+        self.addr=(addr,port)
         self.closed = False
         self.logged_in = False
         self.user = ''
         Client.count += 1
         print('Got connection from', self.addr)
-        conn.send(b'Thank you for connecting')
+        sock.sendto(bytes(list(ResponseCodes["message"])+list('Thank you for connecting')))
     
     def handle_connection(self, data):
         while True:
@@ -92,6 +45,9 @@ class Client:
                 pass            # send a message to the server
             elif data.startswith(ControlCode["debug"]):
                 print(str(data[1:])) # send a debug message to the server console
+            elif data.startswith(ControlCode["ping"]):
+                print("Ping? Pong!")
+                sock.sendto(bytes(list(ResponseCodes["message"])+list("pong!")),self.addr)
             else:
                 pass            # Will be handed off to game handler
 
@@ -103,10 +59,9 @@ class Client:
             Max = info['server']['max_clients']
             output = list('{},{},{},{}'.format(version, client, Client.count, Max))
             #send the info packet prefixed with response code.
-            conn.send(bytes(list(ResponseCodes['servinfo'])+output))
+            sock.sendto(bytes(list(ResponseCodes['servinfo'])+output),self.addr)
 
     def register(self, data):
-        conn = self.conn
         user, passw, passw2 = data.split(b',')
         if passw != passw2:
             conn.send(RegisterError['invalid'])  # Error: passwords not same
@@ -122,10 +77,9 @@ class Client:
             json.dump(accounts, accounts_file)
         self.user = user
         self.logged_in = True
-        conn.send(RegisterError['success'])       # Register successful
+        sock.sendto(RegisterError['success'],self.addr)       # Register successful
     
     def log_in(self, data):
-        conn = self.conn
         user, passw = data.split(b',')
         passw_md5 = hashlib.md5(passw).hexdigest()  # Generate md5 hash of password
         with open('accounts.json', 'r') as accounts_file:
@@ -140,12 +94,10 @@ class Client:
                     else:
                         conn.send(LoginError['invalid'])  # Error: incorrect password
                         return
-        conn.send(LoginError['missing'])  # Error: user does not exist
+        sock.sendto(LoginError['missing'],self.addr)  # Error: user does not exist
             
     def disconnect(self):
-        conn = self.conn
-        conn.send(DisconnectError['success']) #Let the user know if disconnected. Might be useful eventually.
-        conn.close()
+        sock.sendto(DisconnectError['success'],self.addr) #Let the user know if disconnected. Might be useful eventually.
         Client.count -= 1
         self.closed = False
 
@@ -155,6 +107,9 @@ def writePidFile():
     f.write(pid)
     f.close()
 
+def destroyPidFile():
+    os.system('rm /var/run/trekserv.pid')
+
 def servloop():
     online = True
     while online:
@@ -163,8 +118,8 @@ def servloop():
                 clients.remove(client)
             data, addr = sock.recvfrom(1024)     # Establish connection with client.
             if data:
-                clients[addr] = Client(data)
-                _thread.start_new_thread(clients[Client.count-1].handle_connection, data)
+                clients[addr] = Client(addr)
+                _thread.start_new_thread(clients[-1].handle_connection, data)
 
 
 
@@ -180,6 +135,7 @@ try:
 except KeyboardInterrupt:
     s.close()
 
+destroyPidFile()
 
 
 
