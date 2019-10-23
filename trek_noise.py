@@ -6,7 +6,8 @@ class TrekNoise:
 		self.seed=seed
 	def getRandom(self,pos,mod):
 		#I need to use a better algorithm. :|
-		return (self.seed+pos.x+pos.y*256+pos.z*65536)%mod
+		random.seed(pow(self.seed+pos.x+pos.y*256+pos.z*65536,7,0x100000000))
+		return random.randint(0,mod)
 
 if __name__=='__main__':
 	from trek_vec3 import Vec3
@@ -17,7 +18,7 @@ if __name__=='__main__':
 	else:
 		n=0; j=2003
 		for c in seed:
-			n+=j*ord(c); j*=1789
+			n = (n+j*ord(c))%0x100000000; j = (j*1789)%0x100000000
 		seed=n
 	print("Seed:",hex(seed))
 	noise=TrekNoise(seed)
