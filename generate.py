@@ -1,5 +1,6 @@
 
-import planetoids, npcs, trekCodes as tc, trek_constants as _, trek_noise as tn, trek_vec3 as tv3,os
+import planetoids, npcs, trekCodes as tc, trek_constants as _, trek_noise as tn, trek_vec3 as tv3
+import os,json
 
 def getSectorName(pos):
 	return "data/sector_"+str(pos.x)+"_"+str(pos.y)+"_"+str(pos.z)
