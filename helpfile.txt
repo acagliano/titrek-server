@@ -1,0 +1,11 @@
+
+help                    show this document
+stop                    stop the server
+gen seed x y z          generate/regenerate an area of space
+
+
+kick username           kick the player with username username
+ban username            ban the player with username username
+ipban ip                ban ip address ip
+
+

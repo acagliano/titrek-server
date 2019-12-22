@@ -25,14 +25,16 @@ RegisterError={
     "success":b'\000\001\000',
     "invalid":b'\000\001\001',
     "duplicate":b'\000\001\002',
-    "missing":b'\000\001\003'
+    "missing":b'\000\001\003',
+    "banned":b'\000\002\004'
 }
 #returned from the login routine
 LoginError={
     "success":b'\000\002\000',
     "invalid":b'\000\002\001',
     "duplicate":b'\000\002\002',
-    "missing":b'\000\002\003'
+    "missing":b'\000\002\003',
+    "banned":b'\000\002\004'
 }
 #returned from the disconect routine
 DisconnectError={
