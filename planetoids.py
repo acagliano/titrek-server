@@ -5,7 +5,7 @@ from trek_constants import *
 
 #Mass is measured in TKg (Trillion Kilograms)
 class Planetoid:
-	def __init__(self,data={},name="anon",ID=0,mass=5.97*pow(10,10),position=Vec3(),composition={},velocity=Vec3()):
+	def __init__(self,data={},name="anon",ID=0,mass=5.97*pow(10,10),position=Vec3(),velocity=Vec3(),composition={},lifetime=10**6):
 		self.data=data
 		self.name=name
 		self.ID=ID
@@ -13,6 +13,7 @@ class Planetoid:
 		self.position=position
 		self.composition=composition
 		self.velocity=velocity
+		self.lifetime=lifetime
 	def hypot(self,pos):
 		return self.position.diff(pos).hypot()
 	def attract(self,body,dist,dt):
@@ -22,27 +23,23 @@ class Planetoid:
 		body.position.translate(body.velocity)
 		self.position.translate(self.velocity)
 	def update(self,bodies,dt=1):
+		self.lifetime-=dt
 		for bod in bodies:
 			dist=self.hypot(bod.position)
 			if dist < GRAVITY_AFFECT_RADIUS:
 				self.attract(bod,dist,dt)
 
 class Star(Planetoid):
-	def __init__(self,lifetime=10**6,*args,**kwargs):
+	def __init__(self,*args,**kwargs):
 		super().__init__(*args,**kwargs)
-		self.lifetime=lifetime
 	def update(self,bodies,dt=1):
 		super().update(bodies,dt)
-		self.lifetime-=dt
 
 class Planet(Planetoid):
-	def __init__(self,life,*args,**kwargs):
+	def __init__(self,*args,**kwargs):
 		super().__init__(*args,**kwargs)
-		self.life=life
 	def update(self,bodies,dt=1):
 		super().update(bodies,dt)
-		if self.life<25:
-			self.life-=self.life/pow(10,self.life/5)
 
 class Asteroid(Planetoid):
 	def __init__(self,*args,**kwargs):
@@ -51,10 +48,11 @@ class Asteroid(Planetoid):
 		super().update(bodies,dt)
 
 if __name__=='__main__':
-	import random
-	system=Star(composition={"Hydrogen":99,"Carbon":1},mass=6*pow(10,17))
-	planets=[Planet(composition={"Carbon":18,"Hydrogen":10,"Nitrogen":52,"Oxygen":30},mass=random.randint(2,80)*pow(10,9), life=random.randint(0,50)//3)]
-	position=[Vec3(random.randint(1,100),random.randint(1,100),random.randint(1,100))]*8
-
+	from generate import *
+	import random,time
+	random.seed(time.time)
+	rand=random.random()
+	print("generating sector [0,0,0] with seed ["+str(rand)+"]")
+	generateSector(rand,Vec3(0,0,0))
 
 
