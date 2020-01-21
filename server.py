@@ -26,16 +26,7 @@ class Server:
                 os.makedirs(directory)
             except:
                 pass
-        try:
-            with open("bans/userban.txt") as f:
-                BANNED_USERS = f.read().splitlines()
-        except:
-            pass
-        try:
-            with open("bans/ipban.txt") as f:
-                BANNED_IPS = f.read().splitlines()
-        except:
-            pass
+        self.loadbans()
         self.mlog = open("logs/messages.txt","a+")
         self.elog = open("logs/errors.txt","a+")
         self.ilog = open("logs/log.txt","a+")
@@ -56,6 +47,18 @@ class Server:
             self.s.close()
 
         #destroyPidFile()
+    
+    def loadbans(self):
+        try:
+            with open("bans/userban.txt") as f:
+                BANNED_USERS = f.read().splitlines()
+        except:
+            pass
+        try:
+            with open("bans/ipban.txt") as f:
+                BANNED_IPS = f.read().splitlines()
+        except:
+            pass
     
     def log(self,*args):
         print(*args)
@@ -98,14 +101,23 @@ class Server:
         for client in self.clients:
             if client.username==username:
                 client.disconnect()
-    
+                self.clients.remove(client)
+
+    def kickip(self,ip):
+        for client in self.clients:
+            if client.addr==ip:
+                client.disconnect()
+                self.clients.remove(client)
+
     def ban(self,username):
         self.kick(username)
         self.banlist.write(username+"\n")
-    
+        self.loadbans()
+
     def ipban(self,ip):
         self.kickip(ip)
         self.ipbanlist.write(ip+"\n")
+        self.loadbans()
     
     def console(self):
         while True:
