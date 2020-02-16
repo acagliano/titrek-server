@@ -1,4 +1,5 @@
-#!/usr/bin/python           # This is server.py file
+#!/usr/bin/env python
+# This is server.py file
 
 #TITrek server python3
 #Authors:
