@@ -39,6 +39,7 @@ class Server:
         self.generator = Generator()
         self.space = Space(self.log)
 
+        socket.settimeout(0)
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)         # Create a socket object
         self.host = socket.gethostname() # Get local machine name
         self.port = 1701                # Reserve a port for your service.
@@ -81,21 +82,23 @@ class Server:
     def main(self):
         _thread.start_new_thread(self.console, ())
         self.online = True
-        _thread.start_new_thread(self.handle_client, ())
         while self.online:
-            for client in self.clients.keys():
+            for conn in self.clients.keys():
                 if client.closed:
-                    del self.clients[client]
-                if data:
-                    client=self.clients[client]
+                    del self.clients[conn]
+                self.sock.listen(1)
+                try:
+                    conn, addr = self.sock.accept()
+                    self.clients[conn] = Client(addr,conn,self)
+                except:
+                    pass
+                data = conn.recv(1024)
+                if len(data):
+                    client=self.clients[conn]
                     if addr in BANNED_IPS:
                         conn.send(OutboundCodes['BANNED'])
-                    self.clients[conn] = Client(addr,conn,self)
                     _thread.start_new_thread(self.clients[conn].handle_connection, conn)
 
-    def handle_client(self):
-        conn, addr = self.sock.accept()
-        self.clients[conn] = Client(addr,conn,self)
 
     def stop(self):
         self.log("Shutting down.")
