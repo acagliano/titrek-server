@@ -39,7 +39,7 @@ class Server:
         self.generator = Generator()
         self.space = Space(self.log)
 
-        self.s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)         # Create a socket object
+        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)         # Create a socket object
         self.host = socket.gethostname() # Get local machine name
         self.port = 1701                # Reserve a port for your service.
         self.clients = {}
@@ -85,7 +85,8 @@ class Server:
             for client in self.clients:  # Remove clients with terminated connections
                 if client.closed:
                     self.clients.remove(client)
-                data, addr = sock.recvfrom(1024)     # Establish connection with client.
+                conn, addr = sock.accept()
+                data = connection.recv(1024)
                 if data:
                     if addr in BANNED_IPS:
                         sock.sendto(OutboundCodes['BANNED'],addr)
