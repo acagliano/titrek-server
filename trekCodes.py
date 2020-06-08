@@ -13,52 +13,34 @@
 
 #These are mostly used for mnemonics
 
-#returned from user input
-InputError={
-    "success":b'\000',
-    "invalid":b'\001',
-    "duplicate":b'\002',
-    "missing":b'\003'
+OutboundCodes = {
+    "REGISTER":0,
+    "LOGIN":1,
+    "DISCONNECT":2,
+    "PING":0x000d,
+    "MESSAGE":0x000e,
+    "DEBUG":0x000f,
+    "SERVINFO":0x00ff
 }
-#returned from the registration routine
-RegisterError={
-    "success":b'\000\001\000',
-    "invalid":b'\000\001\001',
-    "duplicate":b'\000\001\002',
-    "missing":b'\000\001\003',
-    "banned":b'\000\002\004'
+
+InboundCodes = {
+    "REGISTER":0,
+    "LOGIN":1,
+    "DISCONNECT":2,
+    "PLAYER_MOV":3,
+    "CHUNK_REQ":4,
+    "PING":0x000d,
+    "MESSAGE":0x000e,
+    "DEBUG":0x00ff
 }
-#returned from the login routine
-LoginError={
-    "success":b'\000\002\000',
-    "invalid":b'\000\002\001',
-    "duplicate":b'\000\002\002',
-    "missing":b'\000\002\003',
-    "banned":b'\000\002\004'
-}
-#returned from the disconect routine
-DisconnectError={
-    "success":b'\000\003\000'
-}
-#server control codes
-ControlCode={
-    "servresponse":b'\000',
-    "register":b'\001',
-    "login":b'\002',
-    "disconnect":b'\003',
-    "ping":b'\00d',
-    "message":b'\00e',
-    "debug":b'\00f',
-    "servinfo":b'\0ff'
-}
-#server response codes. The same as server control codes for simplicity.
-ResponseCodes={
-    "register":b'\000\001',
-    "login":b'\000\002',
-    "disconnect":b'\000\003',
-    "ping":b'\00d',
-    "message":b'\000\00e',
-    "debug":b'\000\00f',
-    "servinfo":b'\000\0ff'
+
+#returned from the registration and login routines
+ResponseCodes = {
+    "SUCCESS":0,
+    "INVALID":1,
+    "DUPLICATE":2,
+    "MISSING":3,
+    "BANNED":4,
+    "VERSION_MISMATCH":5
 }
 

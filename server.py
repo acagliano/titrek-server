@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python3
 # This is server.py file
 
 #TITrek server python3
@@ -11,12 +11,14 @@ import socket               # Import socket module
 import _thread
 import hashlib
 import json
-import os,sys
+import os,sys,time
 
 
 from trekCodes import *
+from generate import *
+from trekSpace import *
+from trek_vec3 import *
 
-SERVERPASSWORD = "titrek-eZ80TICE"
 BANNED_USERS = []
 BANNED_IPS = []
 
@@ -28,11 +30,14 @@ class Server:
             except:
                 pass
         self.loadbans()
-        self.mlog = open("logs/messages.txt","a+")
-        self.elog = open("logs/errors.txt","a+")
-        self.ilog = open("logs/log.txt","a+")
+        self.mlogf = open("logs/messages.txt","a+")
+        self.elogf = open("logs/errors.txt","a+")
+        self.ilogf = open("logs/log.txt","a+")
         self.banlist = open("bans/userban.txt","a+")
         self.ipbanlist = open("bans/ipban.txt","a+")
+
+        self.generator = Generator()
+        self.space = Space(self.log)
 
         self.s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)         # Create a socket object
         self.host = socket.gethostname() # Get local machine name
@@ -41,13 +46,11 @@ class Server:
         self.s.bind((self.host, self.port))                 # Now wait for client connection.
     
     def run(self):
-        #writePidFile()
         try:
             self.main()
         except KeyboardInterrupt:
             self.s.close()
 
-        #destroyPidFile()
     
     def loadbans(self):
         try:
@@ -60,11 +63,20 @@ class Server:
                 BANNED_IPS = f.read().splitlines()
         except:
             pass
-    
+
     def log(self,*args):
         print(*args)
         for arg in args:
-            self.ilog.write(arg+"\n")
+            self.ilogf.write(str(arg)+" ")
+        self.ilogf.write("\n")
+    
+    def elog(self,*args):
+        self.log(*args)
+        for arg in args:
+            self.elogf.write(str(arg)+" ")
+        self.elogf.write("\n")
+    
+    
     
     def main(self):
         _thread.start_new_thread(self.console, ())
@@ -76,28 +88,24 @@ class Server:
                 data, addr = sock.recvfrom(1024)     # Establish connection with client.
                 if data:
                     if addr in BANNED_IPS:
-                        sock.sendto(LoginError['banned'],addr)
+                        sock.sendto(OutboundCodes['BANNED'],addr)
                     self.clients[addr] = Client(addr)
                     _thread.start_new_thread(self.clients[addr].handle_connection, data, self.handle_event)
 
 
     def stop(self):
         self.log("Shutting down.")
+        self.space.save("space")
         self.online = False
         for client in self.clients:
             client.disconnect()
             self.clients.remove(client)
         self.banlist.close()
         self.ipbanlist.close()
-        self.mlog.close()
-        self.elog.close()
-        self.ilog.close()
+        self.mlogf.close()
+        self.elogf.close()
+        self.ilogf.close()
 
-    def handle_event(self,event):
-        event = str(event)
-        if event.startswith("stop-server "+SERVERPASSWORD):
-            self.stop()
-    
     def kick(self,username):
         for client in self.clients:
             if client.username==username:
@@ -120,32 +128,93 @@ class Server:
         self.ipbanlist.write(ip+"\n")
         self.loadbans()
     
+    def backup(self,sname,x,y,z):
+        fname = "x"+str(x)+"y"+str(y)+"z"+str(z)+".dat"
+        try:
+            with open("space/"+fname,"rb") as f:
+                pass
+            try:
+                os.makedirs("backups/"+sname+"/space")
+            except:
+                pass
+            os.system("cp space/"+fname+" backups/"+sname+"/space/"+fname)
+        except:
+            self.log("WARNING: failed to back up")
+
+    def restore(self,sname,x,y,z):
+        fname = "x"+str(x)+"y"+str(y)+"z"+str(z)+".dat"
+        try:
+            with open("backups/space/"+fname,"rb") as f:
+                pass
+            try:
+                os.makedirs("space")
+            except:
+                pass
+            os.system("cp backups/"+sname+"/"+fname+" space/"+fname)
+        except:
+            self.log("WARNING: failed to restore")
+
+    def backupAll(self,sname):
+        try:
+            os.makedirs("backups/"+sname)
+        except:
+            pass
+        try:
+            os.system("cp -r space backups/"+sname)
+        except:
+            self.log("WARNING: failed to backup")
+
+    def restoreAll(self,sname):
+        try:
+            os.makedirs("space")
+        except:
+            pass
+        try:
+            os.system("cp -r backups/"+sname+" space")
+        except:
+            self.log("WARNING: failed to restore")
+
+
     def console(self):
         while True:
             try:
                 line = input(">")
-                self.ilog.write(">"+line+"\n")
+                self.ilogf.write(">"+line+"\n")
                 line = line.split()
                 if line[0]=="help":
                     try:
                         with open("helpfile.txt") as f:
-                            self.log(f.read())
+                            print(f.read())
                     except:
                         print("No help document availible.")
                 elif line[0]=="stop":
                     self.stop(); break
+                elif line[0]=="save":
+                    self.space.save("space/data")
+                elif line[0]=="seed":
+                    self.generator.seed(hash(line[1]))
                 elif line[0]=="gen":
-                    self.generator.gen(int(line[1]),Vec3(line[2],line[3],line[4]))
+                    x,y,z=float(line[1])*1e6,float(line[2])*1e6,float(line[3])*1e6
+                    self.space.append(self.generator.generate(Vec3(x,y,z)))
                 elif line[0]=="kick":
                     self.kick(line[1])
                 elif line[0]=="ban":
                     self.ban(line[1])
                 elif line[0]=="ipban":
                     self.ipban(line[1])
+                elif line[0]=="backup":
+                    self.backup(line[1],int(line[2]),int(line[3]),int(line[4]))
+                elif line[0]=="restore":
+                    self.restore(line[1],int(line[2]),int(line[3]),int(line[4]))
+                elif line[0]=="backup-all":
+                    self.backupAll(line[1])
+                elif line[0]=="restore-all":
+                    self.restoreAll(line[1])
             except KeyboardInterrupt:
-                self.stop(); break
+                self.stop()
+                break
             except Exception as e:
-                self.log("Internal Error:",e,"\nprobable malformed input.")
+                self.elog("Internal Error:",e)
 
 
 class Client:
@@ -159,31 +228,35 @@ class Client:
         Client.count += 1
         self.server = server
         server.log('Got connection from', self.addr)
-        sock.sendto(bytes(list(ResponseCodes["message"])+list('Thank you for connecting')))
-    
+        sock.sendto(bytes(list(OutboundCodes["message"])+list('Thank you for connecting')),self.addr)
+
     def handle_connection(self,data):
         while True:
             if not data:
                 continue   #looks better imho :P
-            if data.startswith(ControlCode["register"]):
+            if data[3]==InboundCodes["REGISTER"]:
                 self.register(data[1:])
-            elif data.startswith(ControlCode["login"]):
+            elif data[3]==InboundCodes["LOGIN"]:
                 self.log_in(data[1:])
-            elif data.startswith(ControlCode["disconnect"]):
+            elif data[3]==InboundCodes["DISCONNECT"]:
                 self.disconnect()
                 break
-            elif data.startswith(ControlCode["servinfo"]):
+            elif data[3]==InboundCodes["SERVINFO"]:
                 self.servinfo()
-                break
-            elif data.startswith(ControlCode["message"]):
+            elif data[3]==InboundCodes["MESSAGE"]:
                 pass    # send a message to the server
-            elif data.startswith(ControlCode["debug"]):
+            elif data.startswith(InboundCodes["DEBUG"]:
                 self.server.log(str(data[1:])) # send a debug message to the server console
-            elif data.startswith(ControlCode["ping"]):
+            elif data[3]==(ControlCode["PING"]:
                 self.server.log("Ping? Pong!")
-                sock.sendto(bytes(list(ResponseCodes["message"])+list("pong!")),self.addr)
-            else:
-                self.server.handle_event(data)            # Will be handed off to game handler
+                sock.sendto(bytes([OutboundCodes["MESSAGE"]]+list("pong!")),self.addr)
+            elif data[3]==InboundCodes["PLAYER_MOVE"]:
+                pass
+            elif data[3]==InboundCodes["CHUNK_REQUEST"]:
+                x = data[4]+data[5]*256+data[6]*65536
+                y = data[7]+data[8]*256+data[9]*65536
+                z = data[10]+data[11]*256+data[12]*65536
+                self.space.gather_chunk(Vec3(x,y,z))
 
     def servinfo(self):
         with open('servinfo.json', 'r+') as info_file:
@@ -193,30 +266,30 @@ class Client:
             Max = info['server']['max_clients']
             output = list('{},{},{},{}'.format(version, client, Client.count, Max))
             #send the info packet prefixed with response code.
-            sock.sendto(bytes(list(ResponseCodes['servinfo'])+output),self.addr)
+            sock.sendto(bytes(list(TypeCodes['MESSAGE'])+output),self.addr)
 
     def register(self, data):
         user, passw, passw2 = data.split(b',')
         if passw != passw2:
-            conn.send(RegisterError['invalid'])  # Error: passwords not same
+            conn.send(RegisterError['INVALID'])  # Error: passwords not same
             return
         passw_md5 = hashlib.md5(passw).hexdigest()  # Generate md5 hash of password
         with open('accounts.json', 'r+') as accounts_file:
             accounts = json.load(accounts_file)
             for account in accounts:
                 if account['user'] == user:
-                    conn.send(RegisterError['duplicate'])  # Error: user already exists
+                    conn.send(ResponseCodes['DUPLICATE'])  # Error: user already exists
                     return
             accounts.append({'user':user, 'passw_md5': passw_md5})
             json.dump(accounts, accounts_file)
         self.user = user
         self.logged_in = True
-        sock.sendto(RegisterError['success'],self.addr)       # Register successful
+        sock.sendto(ResponseCodes['SUCCESS'],self.addr)       # Register successful
     
     def log_in(self, data):
         user, passw = data.split(b',')
         if user in BANNED_USERS:
-            conn.send(LoginError['banned'])
+            conn.send(ResponseCodes['BANNED'])
             return
         passw_md5 = hashlib.md5(passw).hexdigest()  # Generate md5 hash of password
         with open('accounts.json', 'r') as accounts_file:
@@ -226,27 +299,17 @@ class Client:
                     if account['passw_md5'] == passw_md5:
                         self.user = user
                         self.logged_in = True
-                        conn.send(LoginError['success'])   # Log in successful
+                        conn.send(ResponseCodes['SUCCESS'])   # Log in successful
                         return
                     else:
-                        conn.send(LoginError['invalid'])  # Error: incorrect password
+                        conn.send(ResponseCodes['INVALID'])  # Error: incorrect password
                         return
-        sock.sendto(LoginError['missing'],self.addr)  # Error: user does not exist
+        sock.sendto(ResponseCodes['MISSING'],self.addr)  # Error: user does not exist
             
     def disconnect(self):
-        sock.sendto(DisconnectError['success'],self.addr) #Let the user know if disconnected. Might be useful eventually.
+        sock.sendto(OutboundCodes['SUCCESS'],self.addr) #Let the user know if disconnected. Might be useful eventually.
         Client.count -= 1
         self.closed = False
-
-def writePidFile():
-    pid = str(os.getpid())
-    f = open('/var/run/trekserv.pid', 'w')
-    f.write(pid)
-    f.close()
-
-def destroyPidFile():
-    os.system('rm /var/run/trekserv.pid')
-
 
 server = Server()
 server.run()
