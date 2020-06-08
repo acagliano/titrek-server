@@ -39,8 +39,8 @@ class Server:
         self.generator = Generator()
         self.space = Space(self.log)
 
-        socket.settimeout(0)
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)         # Create a socket object
+        self.sock.settimeout(0)
         self.host = socket.gethostname() # Get local machine name
         self.port = 1701                # Reserve a port for your service.
         self.clients = {}
