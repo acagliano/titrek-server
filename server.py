@@ -39,11 +39,11 @@ class Server:
         self.generator = Generator()
         self.space = Space(self.log)
 
-        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)         # Create a socket object
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)         # Create a socket object
         self.host = socket.gethostname() # Get local machine name
         self.port = 1701                # Reserve a port for your service.
         self.clients = {}
-        self.s.bind((self.host, self.port))                 # Now wait for client connection.
+        self.sock.bind((self.host, self.port))                 # Now wait for client connection.
     
     def run(self):
         try:
@@ -75,24 +75,27 @@ class Server:
         for arg in args:
             self.elogf.write(str(arg)+" ")
         self.elogf.write("\n")
-    
-    
+
+
     
     def main(self):
         _thread.start_new_thread(self.console, ())
         self.online = True
+        _thread.start_new_thread(self.handle_client, ())
         while self.online:
-            for client in self.clients:  # Remove clients with terminated connections
+            for client in self.clients.keys():
                 if client.closed:
-                    self.clients.remove(client)
-                conn, addr = sock.accept()
-                data = connection.recv(1024)
+                    del self.clients[client]
                 if data:
+                    client=self.clients[client]
                     if addr in BANNED_IPS:
-                        sock.sendto(OutboundCodes['BANNED'],addr)
-                    self.clients[addr] = Client(addr)
-                    _thread.start_new_thread(self.clients[addr].handle_connection, data, self.handle_event)
+                        conn.send(OutboundCodes['BANNED'])
+                    self.clients[conn] = Client(addr,conn,self)
+                    _thread.start_new_thread(self.clients[conn].handle_connection, conn)
 
+    def handle_client(self):
+        conn, addr = self.sock.accept()
+        self.clients[conn] = Client(addr,conn,self)
 
     def stop(self):
         self.log("Shutting down.")
@@ -108,16 +111,18 @@ class Server:
         self.ilogf.close()
 
     def kick(self,username):
-        for client in self.clients:
+        for conn in self.clients.keys():
+            client = self.clients[conn]
             if client.username==username:
                 client.disconnect()
-                self.clients.remove(client)
+                del self.clients[conn]
 
     def kickip(self,ip):
-        for client in self.clients:
+        for conn in self.clients.keys():
+            client = self.clients[conn]
             if client.addr==ip:
                 client.disconnect()
-                self.clients.remove(client)
+                del self.clients[conn]
 
     def ban(self,username):
         self.kick(username)
@@ -221,15 +226,15 @@ class Server:
 class Client:
     count = 0
     
-    def __init__(self, addr, server):
-        self.addr=(addr,port)
+    def __init__(self, conn, addr, server):
+        self.conn = conn
         self.closed = False
         self.logged_in = False
         self.user = ''
         Client.count += 1
         self.server = server
         server.log('Got connection from', self.addr)
-        sock.sendto(bytes(list(OutboundCodes["message"])+list('Thank you for connecting')),self.addr)
+        conn.send(bytes(list(OutboundCodes["message"])+list('Thank you for connecting')))
 
     def handle_connection(self,data):
         while True:
@@ -246,11 +251,11 @@ class Client:
                 self.servinfo()
             elif data[3]==InboundCodes["MESSAGE"]:
                 pass    # send a message to the server
-            elif data.startswith(InboundCodes["DEBUG"]:
+            elif data[3]==InboundCodes["DEBUG"]:
                 self.server.log(str(data[1:])) # send a debug message to the server console
-            elif data[3]==(ControlCode["PING"]:
+            elif data[3]==ControlCode["PING"]:
                 self.server.log("Ping? Pong!")
-                sock.sendto(bytes([OutboundCodes["MESSAGE"]]+list("pong!")),self.addr)
+                self.conn.send(bytes([OutboundCodes["MESSAGE"]]+list("pong!")))
             elif data[3]==InboundCodes["PLAYER_MOVE"]:
                 pass
             elif data[3]==InboundCodes["CHUNK_REQUEST"]:
@@ -267,30 +272,30 @@ class Client:
             Max = info['server']['max_clients']
             output = list('{},{},{},{}'.format(version, client, Client.count, Max))
             #send the info packet prefixed with response code.
-            sock.sendto(bytes(list(TypeCodes['MESSAGE'])+output),self.addr)
+            self.conn.send(bytes(list(TypeCodes['MESSAGE'])+output))
 
     def register(self, data):
         user, passw, passw2 = data.split(b',')
         if passw != passw2:
-            conn.send(RegisterError['INVALID'])  # Error: passwords not same
+            self.conn.send(RegisterError['INVALID'])  # Error: passwords not same
             return
         passw_md5 = hashlib.md5(passw).hexdigest()  # Generate md5 hash of password
         with open('accounts.json', 'r+') as accounts_file:
             accounts = json.load(accounts_file)
             for account in accounts:
                 if account['user'] == user:
-                    conn.send(ResponseCodes['DUPLICATE'])  # Error: user already exists
+                    self.conn.send(ResponseCodes['DUPLICATE'])  # Error: user already exists
                     return
             accounts.append({'user':user, 'passw_md5': passw_md5})
             json.dump(accounts, accounts_file)
         self.user = user
         self.logged_in = True
-        sock.sendto(ResponseCodes['SUCCESS'],self.addr)       # Register successful
+        self.conn.send(ResponseCodes['SUCCESS'])       # Register successful
     
     def log_in(self, data):
         user, passw = data.split(b',')
         if user in BANNED_USERS:
-            conn.send(ResponseCodes['BANNED'])
+            self.conn.send(ResponseCodes['BANNED'])
             return
         passw_md5 = hashlib.md5(passw).hexdigest()  # Generate md5 hash of password
         with open('accounts.json', 'r') as accounts_file:
@@ -300,15 +305,15 @@ class Client:
                     if account['passw_md5'] == passw_md5:
                         self.user = user
                         self.logged_in = True
-                        conn.send(ResponseCodes['SUCCESS'])   # Log in successful
+                        self.conn.send(ResponseCodes['SUCCESS'])   # Log in successful
                         return
                     else:
-                        conn.send(ResponseCodes['INVALID'])  # Error: incorrect password
+                        self.conn.send(ResponseCodes['INVALID'])  # Error: incorrect password
                         return
-        sock.sendto(ResponseCodes['MISSING'],self.addr)  # Error: user does not exist
-            
+        self.conn.send(ResponseCodes['MISSING'])  # Error: user does not exist
+
     def disconnect(self):
-        sock.sendto(OutboundCodes['SUCCESS'],self.addr) #Let the user know if disconnected. Might be useful eventually.
+        self.conn.send(OutboundCodes['SUCCESS']) #Let the user know if disconnected. Might be useful eventually.
         Client.count -= 1
         self.closed = False
 
