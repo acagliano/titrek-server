@@ -17,6 +17,14 @@ class Generator:
 		self._seed=seed
 		with open("space/SEED.txt",'w') as f:
 			f.write(str(seed))
+	def generate_all(self):
+		x=y=z=0
+		for i in range(250):
+			x+=random.randint(-6e8,6e8)*1e7
+			z+=random.randint(-6e8,6e8)*1e7
+			y=random.randint(-1e8,1e8)*1e5
+			for planet in self.generate(Vec3(x,y,z)):
+				yield planet
 	def generate(self,vec3):
 		if self._seed is None:
 			self.seed(random.random())
@@ -47,12 +55,18 @@ def PlanetoidSystem(seed,pos):
 	random.seed(seed)
 	x=float(pos['x']); y=float(pos['y']); z=float(pos['z'])
 	mass = random.randint(1e29,9e32)
-	yield random.choice(StandardStarList)+{"position":Vec3(x,y,z),"velocity":Vec3(),"name":"Sol"}
+	r=random.choice(StandardStarList)
+	a={"position":Vec3(x,y,z),"velocity":Vec3(),"name":"Sol"}
+	for name in r.keys(): a[name] = r[name]
+	yield a
 	rad = random.randint(80,300)*1e19
 	grav = GRAVITATIONAL_CONSTANT*mass
 	for i in range(random.randint(2,10)):
-		x+=random.randint(-6e9,61e8)
-		z+=random.randint(-6e9,61e8)
+		x+=random.randint(-6e9,6e9)
+		z+=random.randint(-6e9,6e9)
 		y=random.randint(-1e9,1e9)
-		yield random.choice(StandardPlanetList)+{"position":Vec3(x,y,z),"velocity":Vec3(),"name":"Planet "+chr(i+0x41)}
+		r=random.choice(StandardPlanetList)
+		a={"position":Vec3(x,y,z),"velocity":Vec3(),"name":"Planet "+chr(i+0x41)}
+		for name in r.keys(): a[name] = r[name]
+		yield a
 

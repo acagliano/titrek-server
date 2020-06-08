@@ -9,7 +9,7 @@ class Space:
 			for fname in self.walk("space/data"):
 				try:
 					with open(fname) as f:
-						self.space.append(json.loads(f.read()))
+						self.space.extend(json.loads(f.read()))
 				except:
 					self.log("Warning: could not load file \""+fname+"\"")
 		except:
@@ -26,10 +26,10 @@ class Space:
 			os.makedirs(dname)
 		except:
 			pass
-		num=0
-		for obj in self.space:
+		num=0; L=50
+		for I in range(0,len(self.space),L):
 			with open(dname+"/obj"+str(num)+".json",'w') as f:
-				json.dump(obj,f)
+				json.dump(self.space[I:I+L],f)
 			num+=1
 	def append(self,obj):
 		self.space.append(obj)

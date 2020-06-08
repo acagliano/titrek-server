@@ -24,7 +24,7 @@ BANNED_IPS = []
 
 class Server:
     def __init__(self):
-        for directory in ["logs","space","players","terrain","cache","missions","notes","bans"]:
+        for directory in ["logs","space/data","players","terrain","cache","missions","notes","bans"]:
             try:
                 os.makedirs(directory)
             except:
@@ -50,7 +50,7 @@ class Server:
         try:
             self.main()
         except KeyboardInterrupt:
-            self.s.close()
+            self.sock.close()
 
     
     def loadbans(self):
@@ -102,7 +102,7 @@ class Server:
 
     def stop(self):
         self.log("Shutting down.")
-        self.space.save("space")
+        self.space.save("space/data")
         self.online = False
         for client in self.clients:
             client.disconnect()
@@ -136,33 +136,6 @@ class Server:
         self.kickip(ip)
         self.ipbanlist.write(ip+"\n")
         self.loadbans()
-    
-    def backup(self,sname,x,y,z):
-        fname = "x"+str(x)+"y"+str(y)+"z"+str(z)+".dat"
-        try:
-            with open("space/"+fname,"rb") as f:
-                pass
-            try:
-                os.makedirs("backups/"+sname+"/space")
-            except:
-                pass
-            os.system("cp space/"+fname+" backups/"+sname+"/space/"+fname)
-        except:
-            self.log("WARNING: failed to back up")
-
-    def restore(self,sname,x,y,z):
-        fname = "x"+str(x)+"y"+str(y)+"z"+str(z)+".dat"
-        try:
-            with open("backups/space/"+fname,"rb") as f:
-                pass
-            try:
-                os.makedirs("space")
-            except:
-                pass
-            os.system("cp backups/"+sname+"/"+fname+" space/"+fname)
-        except:
-            self.log("WARNING: failed to restore")
-
     def backupAll(self,sname):
         try:
             os.makedirs("backups/"+sname)
@@ -202,9 +175,9 @@ class Server:
                     self.space.save("space/data")
                 elif line[0]=="seed":
                     self.generator.seed(hash(line[1]))
-                elif line[0]=="gen":
-                    x,y,z=float(line[1])*1e6,float(line[2])*1e6,float(line[3])*1e6
-                    self.space.append(self.generator.generate(Vec3(x,y,z)))
+                elif line[0]=="generate":
+                    for gen in self.generator.generate_all():
+                        self.space.append(gen)
                 elif line[0]=="kick":
                     self.kick(line[1])
                 elif line[0]=="ban":
@@ -212,12 +185,8 @@ class Server:
                 elif line[0]=="ipban":
                     self.ipban(line[1])
                 elif line[0]=="backup":
-                    self.backup(line[1],int(line[2]),int(line[3]),int(line[4]))
-                elif line[0]=="restore":
-                    self.restore(line[1],int(line[2]),int(line[3]),int(line[4]))
-                elif line[0]=="backup-all":
                     self.backupAll(line[1])
-                elif line[0]=="restore-all":
+                elif line[0]=="restore":
                     self.restoreAll(line[1])
             except KeyboardInterrupt:
                 self.stop()

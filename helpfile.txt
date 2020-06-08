@@ -1,8 +1,8 @@
 
 help                      show this document
 stop                      stop the server
-gen x y z                 generate/regenerate an area of space
-seed [seed]               set the global seed
+generate                  generate the map
+seed [seed]               set the map seed
 
 
 kick username             kick the player with username username
@@ -10,9 +10,7 @@ ban username              ban the player with username username
 ipban ip                  ban ip address ip
 
 
-backup save_name x y z    backup an area of space
-restore save_name x y z   restore an area of space
-backup-all save_name      backup all space
-restore-all save_name     restore all space
+backup save_name          backup the map
+restore save_name         restore the map
 
 
