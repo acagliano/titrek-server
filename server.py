@@ -82,8 +82,9 @@ class Server:
     def main(self):
         _thread.start_new_thread(self.console, ())
         self.online = True
+        last_save_time = start_time = time.time()
         while self.online:
-            start_time = time.time()
+            loop_time = time.time()
             for conn in self.clients.keys():
                 if client.closed:
                     del self.clients[conn]
@@ -99,9 +100,14 @@ class Server:
                     if addr in BANNED_IPS:
                         conn.send(OutboundCodes['BANNED'])
                     _thread.start_new_thread(self.clients[conn].handle_connection, conn)
-            elasped_time = time.time()-start_time
-            if elasped_time<50:
-                time.sleep((50-elasped_time)/1000)
+            cur_time = time.time()
+            elasped_time = cur_time-loop_time
+            if (cur_time-last_save_time)>=600:
+                last_save_time = time.time()
+                self.log("Autosaving...")
+                _thread.start_new_thread(self.space.save, ("space/data", ))
+            if elasped_time<0.05:
+                time.sleep((0.05-elasped_time))
             else:
                 self.log("server is behind!",elasped_time-50,"mspt")
 
