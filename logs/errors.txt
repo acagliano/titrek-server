@@ -1,2 +1,3 @@
 Internal Error: list index out of range 
 Internal Error: list index out of range 
+Internal Error: 2nd arg must be a tuple 

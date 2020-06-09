@@ -83,6 +83,7 @@ class Server:
         _thread.start_new_thread(self.console, ())
         self.online = True
         while self.online:
+            start_time = time.time()
             for conn in self.clients.keys():
                 if client.closed:
                     del self.clients[conn]
@@ -98,15 +99,20 @@ class Server:
                     if addr in BANNED_IPS:
                         conn.send(OutboundCodes['BANNED'])
                     _thread.start_new_thread(self.clients[conn].handle_connection, conn)
+            elasped_time = time.time()-start_time
+            if elasped_time<50:
+                time.sleep((50-elasped_time)/1000)
+            else:
+                self.log("server is behind!",elasped_time-50,"mspt")
 
 
     def stop(self):
         self.log("Shutting down.")
         self.space.save("space/data")
         self.online = False
-        for client in self.clients:
-            client.disconnect()
-            self.clients.remove(client)
+        for client in self.clients.keys():
+            self.clients[client].disconnect()
+            del self.clients[client]
         self.banlist.close()
         self.ipbanlist.close()
         self.mlogf.close()
@@ -172,12 +178,11 @@ class Server:
                 elif line[0]=="stop":
                     self.stop(); break
                 elif line[0]=="save":
-                    self.space.save("space/data")
+                    _thread.start_new_thread(self.space.save, ("space/data", ))
                 elif line[0]=="seed":
                     self.generator.seed(hash(line[1]))
                 elif line[0]=="generate":
-                    for gen in self.generator.generate_all():
-                        self.space.append(gen)
+                    _thread.start_new_thread(self.generate, ())
                 elif line[0]=="kick":
                     self.kick(line[1])
                 elif line[0]=="ban":
@@ -188,12 +193,20 @@ class Server:
                     self.backupAll(line[1])
                 elif line[0]=="restore":
                     self.restoreAll(line[1])
+                elif line[0]=="list":
+                    for client in self.clients.values():
+                        print(str(client))
             except KeyboardInterrupt:
                 self.stop()
                 break
             except Exception as e:
                 self.elog("Internal Error:",e)
 
+    def generate(self):
+        self.log("Generating space...")
+        for gen in self.generator.generate_all():
+            self.space.append(gen)
+        self.log("Finished generating")
 
 class Client:
     count = 0
@@ -207,6 +220,9 @@ class Client:
         self.server = server
         server.log('Got connection from', self.addr)
         conn.send(bytes(list(OutboundCodes["message"])+list('Thank you for connecting')))
+
+    def __str__(self):
+        return user+" ("+str(self.addr)+")"
 
     def handle_connection(self,data):
         while True:
