@@ -19,11 +19,12 @@ class Generator:
 			f.write(str(seed))
 	def generate_all(self):
 		x=y=z=0
-		for i in range(250):
+		for i in range(2000):
 			x+=random.randint(-6e8,6e8)*1e7
 			z+=random.randint(-6e8,6e8)*1e7
 			y=random.randint(-1e8,1e8)*1e5
 			for planet in self.generate(Vec3(x,y,z)):
+				planet["name"] = "system "+str(i)+"; "+planet["name"]
 				yield planet
 	def generate(self,vec3):
 		if self._seed is None:
