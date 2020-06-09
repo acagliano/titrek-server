@@ -98,7 +98,7 @@ class Server:
                 if len(data):
                     client=self.clients[conn]
                     if addr in BANNED_IPS:
-                        conn.send(OutboundCodes['BANNED'])
+                        client.send([ControlCodes['BANNED']])
                     _thread.start_new_thread(self.clients[conn].handle_connection, conn)
             cur_time = time.time()
             elasped_time = cur_time-loop_time
@@ -225,34 +225,37 @@ class Client:
         Client.count += 1
         self.server = server
         server.log('Got connection from', self.addr)
-        conn.send(bytes(list(OutboundCodes["message"])+list('Thank you for connecting')))
+        self.send(conn,list(ControlCodes["message"])+list('Thank you for connecting'))
 
     def __str__(self):
         return user+" ("+str(self.addr)+")"
+
+    def send(self,data):
+        self.conn.send(bytes([L&0xFF,(L//0x100)&0xFF,(L//0x10000)&0xFF]+data))
 
     def handle_connection(self,data):
         while True:
             if not data:
                 continue   #looks better imho :P
-            if data[3]==InboundCodes["REGISTER"]:
+            if data[3]==ControlCodes["REGISTER"]:
                 self.register(data[1:])
-            elif data[3]==InboundCodes["LOGIN"]:
+            elif data[3]==ControlCodes["LOGIN"]:
                 self.log_in(data[1:])
-            elif data[3]==InboundCodes["DISCONNECT"]:
+            elif data[3]==ControlCodes["DISCONNECT"]:
                 self.disconnect()
                 break
-            elif data[3]==InboundCodes["SERVINFO"]:
+            elif data[3]==ControlCodes["SERVINFO"]:
                 self.servinfo()
-            elif data[3]==InboundCodes["MESSAGE"]:
+            elif data[3]==ControlCodes["MESSAGE"]:
                 pass    # send a message to the server
-            elif data[3]==InboundCodes["DEBUG"]:
+            elif data[3]==ControlCodes["DEBUG"]:
                 self.server.log(str(data[1:])) # send a debug message to the server console
             elif data[3]==ControlCode["PING"]:
                 self.server.log("Ping? Pong!")
-                self.conn.send(bytes([OutboundCodes["MESSAGE"]]+list("pong!")))
-            elif data[3]==InboundCodes["PLAYER_MOVE"]:
+                self.send([ControlCodes["MESSAGE"]]+list("pong!"))
+            elif data[3]==ControlCodes["PLAYER_MOVE"]:
                 pass
-            elif data[3]==InboundCodes["CHUNK_REQUEST"]:
+            elif data[3]==ControlCodes["CHUNK_REQUEST"]:
                 x = data[4]+data[5]*256+data[6]*65536
                 y = data[7]+data[8]*256+data[9]*65536
                 z = data[10]+data[11]*256+data[12]*65536
@@ -266,30 +269,30 @@ class Client:
             Max = info['server']['max_clients']
             output = list('{},{},{},{}'.format(version, client, Client.count, Max))
             #send the info packet prefixed with response code.
-            self.conn.send(bytes(list(TypeCodes['MESSAGE'])+output))
+            self.send(list(ControlCodes['MESSAGE'])+output)
 
     def register(self, data):
         user, passw, passw2 = data.split(b',')
         if passw != passw2:
-            self.conn.send(RegisterError['INVALID'])  # Error: passwords not same
+            self.send([ControlCodes['INVALID']])  # Error: passwords not same
             return
         passw_md5 = hashlib.md5(passw).hexdigest()  # Generate md5 hash of password
         with open('accounts.json', 'r+') as accounts_file:
             accounts = json.load(accounts_file)
             for account in accounts:
                 if account['user'] == user:
-                    self.conn.send(ResponseCodes['DUPLICATE'])  # Error: user already exists
+                    self.send([ControlCodes['DUPLICATE']])  # Error: user already exists
                     return
             accounts.append({'user':user, 'passw_md5': passw_md5})
             json.dump(accounts, accounts_file)
         self.user = user
         self.logged_in = True
-        self.conn.send(ResponseCodes['SUCCESS'])       # Register successful
+        self.send([ControlCodes['SUCCESS']])       # Register successful
     
     def log_in(self, data):
         user, passw = data.split(b',')
         if user in BANNED_USERS:
-            self.conn.send(ResponseCodes['BANNED'])
+            self.send([ControlCodes['BANNED']])
             return
         passw_md5 = hashlib.md5(passw).hexdigest()  # Generate md5 hash of password
         with open('accounts.json', 'r') as accounts_file:
@@ -299,15 +302,15 @@ class Client:
                     if account['passw_md5'] == passw_md5:
                         self.user = user
                         self.logged_in = True
-                        self.conn.send(ResponseCodes['SUCCESS'])   # Log in successful
+                        self.send([ControlCodes['SUCCESS']])   # Log in successful
                         return
                     else:
-                        self.conn.send(ResponseCodes['INVALID'])  # Error: incorrect password
+                        self.send([ControlCodes['INVALID']])  # Error: incorrect password
                         return
-        self.conn.send(ResponseCodes['MISSING'])  # Error: user does not exist
+        self.send([ControlCodes['MISSING']])  # Error: user does not exist
 
     def disconnect(self):
-        self.conn.send(OutboundCodes['SUCCESS']) #Let the user know if disconnected. Might be useful eventually.
+        self.send([ControlCodes['DISCONNECT']]) #Let the user know if disconnected. Might be useful eventually.
         Client.count -= 1
         self.closed = False
 

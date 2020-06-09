@@ -13,34 +13,23 @@
 
 #These are mostly used for mnemonics
 
-OutboundCodes = {
-    "REGISTER":0,
-    "LOGIN":1,
-    "DISCONNECT":2,
-    "PING":0x000d,
-    "MESSAGE":0x000e,
-    "DEBUG":0x000f,
-    "SERVINFO":0x00ff
-}
-
-InboundCodes = {
+ControlCodes = {
     "REGISTER":0,
     "LOGIN":1,
     "DISCONNECT":2,
     "PLAYER_MOV":3,
     "CHUNK_REQ":4,
-    "PING":0x000d,
-    "MESSAGE":0x000e,
-    "DEBUG":0x00ff
-}
-
 #returned from the registration and login routines
-ResponseCodes = {
-    "SUCCESS":0,
-    "INVALID":1,
-    "DUPLICATE":2,
-    "MISSING":3,
-    "BANNED":4,
-    "VERSION_MISMATCH":5
+    "SUCCESS":0xd0,
+    "INVALID":0xd1,
+    "DUPLICATE":0xd2,
+    "MISSING":0xd3,
+    "BANNED":0xd4,
+    "VERSION_MISMATCH":0xd5,
+#Message codes
+    "PING":0xfc,
+    "MESSAGE":0xfd,
+    "DEBUG":0xfe,
+    "SERVINFO":0xff
 }
 
