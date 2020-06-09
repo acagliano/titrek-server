@@ -109,7 +109,7 @@ class Server:
             if elasped_time<0.05:
                 time.sleep((0.05-elasped_time))
             else:
-                self.log("server is behind!",elasped_time-50,"mspt")
+                self.log("server is behind!",elasped_time-0.05,"mspt")
 
 
     def stop(self):
