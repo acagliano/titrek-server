@@ -231,6 +231,7 @@ class Client:
         return user+" ("+str(self.addr)+")"
 
     def send(self,data):
+        L=len(data)
         self.conn.send(bytes([L&0xFF,(L//0x100)&0xFF,(L//0x10000)&0xFF]+data))
 
     def handle_connection(self,data):
@@ -259,7 +260,8 @@ class Client:
                 x = data[4]+data[5]*256+data[6]*65536
                 y = data[7]+data[8]*256+data[9]*65536
                 z = data[10]+data[11]*256+data[12]*65536
-                self.space.gather_chunk(Vec3(x,y,z))
+                chunk = self.space.gather_chunk(Vec3(x,y,z))
+                out = []
 
     def servinfo(self):
         with open('servinfo.json', 'r+') as info_file:

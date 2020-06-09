@@ -30,5 +30,9 @@ class Space:
 			with open(dname+"/obj"+str(num)+".json",'w') as f:
 				json.dump(self.space[I:min(I+L,len(self.space))],f)
 			num+=1
+
 	def append(self,obj):
 		self.space.append(obj)
+
+	def gather_chunk(self,vec3):
+		pass
