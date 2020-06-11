@@ -14,6 +14,11 @@ case $1 in
 	status)
 		sudo systemctl status trek-srv
 		;;
+	update)
+		sudo systemctl stop trek-srv
+		git pull
+		sudo systemctl start trek-srv
+		;;
 	*)
 		echo "Usage: trek start|stop|restart|status"
 esac
