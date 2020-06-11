@@ -1,0 +1,18 @@
+#!/bin/sh
+
+case $1
+	start)
+		sudo systemctl start trek-srv
+		;;
+	stop)
+		sudo systemctl stop trek-srv
+		;;
+	restart)
+		sudo systemctl stop trek-srv
+		sudo systemctl start trek-srv
+		;;
+	status)
+		sudo systemctl status trek-srv
+	*)
+		echo "Usage: trek start|stop|restart|status"
+esac
