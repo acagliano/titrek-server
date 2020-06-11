@@ -22,6 +22,8 @@ from trek_vec3 import *
 BANNED_USERS = []
 BANNED_IPS = []
 
+PACKET_DEBUG = False
+
 class Server:
     def __init__(self):
         for directory in ["logs","space/data","players","terrain","cache","missions","notes","bans"]:
@@ -66,14 +68,14 @@ class Server:
         except:
             pass
 
-    def log(self,*args):
-        print(*args)
+    def log(self,*args,**kwargs):
+        print(*args,**kwargs)
         for arg in args:
             self.ilogf.write(str(arg)+" ")
         self.ilogf.write("\n")
     
-    def elog(self,*args):
-        self.log(*args)
+    def elog(self,*args,**kwargs):
+        self.log(*args,**kwargs)
         for arg in args:
             self.elogf.write(str(arg)+" ")
         self.elogf.write("\n")
@@ -86,6 +88,12 @@ class Server:
         last_save_time = start_time = time.time()
         while self.online:
             loop_time = time.time()
+            self.sock.listen(1)
+            try:
+                conn, addr = self.sock.accept()
+                self.clients[conn] = Client(addr,conn,self)
+            except:
+                pass
             for conn in self.clients.keys():
                 if client.closed:
                     del self.clients[conn]
@@ -97,8 +105,6 @@ class Server:
                 data = conn.recv(1024)
                 if len(data):
                     client=self.clients[conn]
-                    if addr in BANNED_IPS:
-                        client.send([ControlCodes['BANNED']])
                     _thread.start_new_thread(self.clients[conn].handle_connection, conn)
             cur_time = time.time()
             elasped_time = cur_time-loop_time
@@ -202,6 +208,10 @@ class Server:
                 elif line[0]=="list":
                     for client in self.clients.values():
                         print(str(client))
+                elif line[0]=="debug-on":
+                    PACKET_DEBUG = True
+                elif line[0]=="debug-off":
+                    PACKET_DEBUG = False
             except KeyboardInterrupt:
                 self.stop()
                 break
@@ -224,42 +234,44 @@ class Client:
         self.user = ''
         Client.count += 1
         self.server = server
-        server.log('Got connection from', self.addr)
-        self.send(conn,list(ControlCodes["message"])+list('Thank you for connecting'))
+        self.log=server.log
+        self.send(list(ControlCodes["message"])+list('Thank you for connecting'))
 
     def __str__(self):
         return user+" ("+str(self.addr)+")"
 
     def send(self,data):
-        L=len(data)
-        self.conn.send(bytes([L&0xFF,(L//0x100)&0xFF,(L//0x10000)&0xFF]+data))
+        self.conn.send(bytes(data))
 
     def handle_connection(self,data):
-        while True:
-            if not data:
-                continue   #looks better imho :P
-            if data[3]==ControlCodes["REGISTER"]:
+        if data:
+            if PACKET_DEBUG:
+                o=[]
+                for c in data:
+                    if c>0 and c<0x80: o.append(c)
+                    else: o.append(".")
+                self.log("recieved packet: ","".join(o))
+            if data[0]==ControlCodes["REGISTER"]:
                 self.register(data[1:])
-            elif data[3]==ControlCodes["LOGIN"]:
+            elif data[0]==ControlCodes["LOGIN"]:
                 self.log_in(data[1:])
-            elif data[3]==ControlCodes["DISCONNECT"]:
+            elif data[0]==ControlCodes["DISCONNECT"]:
                 self.disconnect()
-                break
-            elif data[3]==ControlCodes["SERVINFO"]:
+            elif data[0]==ControlCodes["SERVINFO"]:
                 self.servinfo()
-            elif data[3]==ControlCodes["MESSAGE"]:
-                pass    # send a message to the server
-            elif data[3]==ControlCodes["DEBUG"]:
+            elif data[0]==ControlCodes["MESSAGE"]:
+                self.log("[",self.user,"]",data[1:])    # send a message to the server
+            elif data[0]==ControlCodes["DEBUG"]:
                 self.server.log(str(data[1:])) # send a debug message to the server console
-            elif data[3]==ControlCode["PING"]:
+            elif data[0]==ControlCode["PING"]:
                 self.server.log("Ping? Pong!")
                 self.send([ControlCodes["MESSAGE"]]+list("pong!"))
-            elif data[3]==ControlCodes["PLAYER_MOVE"]:
+            elif data[0]==ControlCodes["PLAYER_MOVE"]:
                 pass
-            elif data[3]==ControlCodes["CHUNK_REQUEST"]:
-                x = data[4]+data[5]*256+data[6]*65536
-                y = data[7]+data[8]*256+data[9]*65536
-                z = data[10]+data[11]*256+data[12]*65536
+            elif data[0]==ControlCodes["CHUNK_REQUEST"]:
+                x = data[1]+data[2]*256+data[3]*65536
+                y = data[4]+data[5]*256+data[6]*65536
+                z = data[7]+data[8]*256+data[9]*65536
                 chunk = self.space.gather_chunk(Vec3(x,y,z))
                 out = []
 
@@ -274,8 +286,10 @@ class Client:
             self.send(list(ControlCodes['MESSAGE'])+output)
 
     def register(self, data):
-        user, passw, passw2 = data.split(b',')
+        user, passw, passw2 = data.split(bytes([0]),maxsplit=3)
+        self.log("Registering user:",user)
         if passw != passw2:
+            self.log("[",user,"] Registration failed. Passwords do not match.")
             self.send([ControlCodes['INVALID']])  # Error: passwords not same
             return
         passw_md5 = hashlib.md5(passw).hexdigest()  # Generate md5 hash of password
@@ -283,18 +297,22 @@ class Client:
             accounts = json.load(accounts_file)
             for account in accounts:
                 if account['user'] == user:
+                    self.log("[",user,"] Already registered.")
                     self.send([ControlCodes['DUPLICATE']])  # Error: user already exists
                     return
             accounts.append({'user':user, 'passw_md5': passw_md5})
             json.dump(accounts, accounts_file)
         self.user = user
         self.logged_in = True
+        self.log("[",user,"] has been successfuly registered!")
         self.send([ControlCodes['SUCCESS']])       # Register successful
     
     def log_in(self, data):
-        user, passw = data.split(b',')
+        user, passw = data.split(bytes([0]),maxsplit=2)
+        self.log("Logging in user:",user)
         if user in BANNED_USERS:
             self.send([ControlCodes['BANNED']])
+            self.log("[",user,"]Banned user attempted login.")
             return
         passw_md5 = hashlib.md5(passw).hexdigest()  # Generate md5 hash of password
         with open('accounts.json', 'r') as accounts_file:
@@ -304,11 +322,14 @@ class Client:
                     if account['passw_md5'] == passw_md5:
                         self.user = user
                         self.logged_in = True
+                        self.log("[",user,"] has successfuly logged in!")
                         self.send([ControlCodes['SUCCESS']])   # Log in successful
                         return
                     else:
+                        self.log("[",user,"] entered incorrect password.")
                         self.send([ControlCodes['INVALID']])  # Error: incorrect password
                         return
+        self.log("[",user,"] could not find user.")
         self.send([ControlCodes['MISSING']])  # Error: user does not exist
 
     def disconnect(self):
