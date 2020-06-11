@@ -42,7 +42,6 @@ class Server:
         self.space = Space(self.log)
 
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)         # Create a socket object
-        self.sock.settimeout(0)
         self.port = 51701                # Reserve a port for your service.
         self.clients = {}
         self.sock.bind(('', self.port))                 # Now wait for client connection.
@@ -83,8 +82,8 @@ class Server:
     
     def main(self):
         _thread.start_new_thread(self.console, ())
+        _thread.start_new_thread(self.autoSaveHandler, ())
         self.online = True
-        last_save_time = start_time = time.time()
         while self.online:
             loop_time = time.time()
             try:
@@ -93,17 +92,16 @@ class Server:
                 _thread.start_new_thread(self.clients[conn].handle_connection)
             except:
                 pass
-                    
+    
+    def autoSaveHandler(self):
+        last_save_time = start_time = time.time()
+        while self.online:
             cur_time = time.time()
-            elasped_time = cur_time-loop_time
             if (cur_time-last_save_time)>=600:
                 last_save_time = time.time()
                 self.log("Autosaving...")
                 _thread.start_new_thread(self.space.save, ("space/data", ))
-            if elasped_time<0.05:
-                time.sleep((0.05-elasped_time))
-            else:
-                self.log("server is behind!",elasped_time-0.05,"mspt")
+            time.sleep(60)
 
 
     def stop(self):
@@ -234,13 +232,14 @@ class Client:
         self.conn.send(bytes(data))
 
     def handle_connection(self):
-        data = self.conn.recv(1024)
-        if len(data):
+        while True:
+            data = self.conn.recv(1024)
             if PACKET_DEBUG:
                 o=[]
                 for c in data:
-                    if c>0 and c<0x80: o.append(c)
-                    else: o.append(".")
+                    if c>=0x20 and c<0x80: o.append(chr(c)+"   ")
+                    elif c<0x10: o.append("\\x0"+hex(c)[2:])
+                    else: o.append("\\x"+hex(c)[2:])
                 self.log("recieved packet: ","".join(o))
             if data[0]==ControlCodes["REGISTER"]:
                 self.register(data[1:])
