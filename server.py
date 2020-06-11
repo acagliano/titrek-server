@@ -242,6 +242,8 @@ class Client:
                     elif c<0x10: o.append("\\x0"+hex(c)[2:])
                     else: o.append("\\x"+hex(c)[2:])
                 self.log("recieved packet: ","".join(o))
+            if not data:
+                continue
             if not len(data):
                 continue
             try:
