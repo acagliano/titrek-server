@@ -92,8 +92,8 @@ class Server:
             try:
                 conn, addr = self.sock.accept()
                 self.clients[conn] = Client(addr,conn,self)
-            except Exception as e:
-                self.elog(e)
+            except:
+                pass
             for conn in self.clients.keys():
                 if client.closed:
                     del self.clients[conn]
