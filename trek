@@ -1,6 +1,6 @@
 #!/bin/sh
 
-case $1
+case $1 in
 	start)
 		sudo systemctl start trek-srv
 		;;
@@ -13,6 +13,7 @@ case $1
 		;;
 	status)
 		sudo systemctl status trek-srv
+		;;
 	*)
 		echo "Usage: trek start|stop|restart|status"
 esac
