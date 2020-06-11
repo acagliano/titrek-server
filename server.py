@@ -86,7 +86,7 @@ class Server:
         while self.online:
             self.sock.listen(1)
             conn, addr = self.sock.accept()
-            self.clients[conn] = Client(addr,conn,self)
+            self.clients[conn] = Client(conn,addr,self)
             _thread.start_new_thread(self.clients[conn].handle_connection)
     
     def autoSaveHandler(self):
