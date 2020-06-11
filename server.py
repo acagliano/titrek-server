@@ -280,7 +280,7 @@ class Client:
         self.log("Registering user:",user)
         if passw != passw2:
             self.log("[",user,"] Registration failed. Passwords do not match.")
-            self.send([ControlCodes["REGISTER"],ControlCodes['INVALID']])  # Error: passwords not same
+            self.send([ControlCodes["REGISTER"],ResponseCodes['INVALID']])  # Error: passwords not same
             return
         passw_md5 = hashlib.md5(passw).hexdigest()  # Generate md5 hash of password
         with open('players/accounts.json', 'r+') as accounts_file:
@@ -288,21 +288,21 @@ class Client:
             for account in accounts:
                 if account['user'] == user:
                     self.log("[",user,"] Already registered.")
-                    self.send([ControlCodes["REGISTER"],ControlCodes['DUPLICATE']])  # Error: user already exists
+                    self.send([ControlCodes["REGISTER"],ResponseCodes['DUPLICATE']])  # Error: user already exists
                     return
             accounts.append({'user':user, 'passw_md5': passw_md5})
             json.dump(accounts, accounts_file)
         self.user = user
         self.logged_in = True
         self.log("[",user,"] has been successfuly registered!")
-        self.send([ControlCodes["REGISTER"],ControlCodes['SUCCESS']])       # Register successful
+        self.send([ControlCodes["REGISTER"],ResponseCodes['SUCCESS']])       # Register successful
     
     def log_in(self, data):
         user, passw = data.split(bytes([0]),maxsplit=1)
         user = str(user)
         self.log("Logging in user:",user)
         if user in BANNED_USERS:
-            self.send([ControlCodes["LOGIN"],ControlCodes['BANNED']])
+            self.send([ControlCodes["LOGIN"],ResponseCodes['BANNED']])
             self.log("[",user,"] Banned user attempted login.")
             return
         passw_md5 = hashlib.md5(passw).hexdigest()  # Generate md5 hash of password
@@ -315,17 +315,17 @@ class Client:
                             self.user = user
                             self.logged_in = True
                             self.log("[",user,"] has successfuly logged in!")
-                            self.send([ControlCodes["LOGIN"],ControlCodes['SUCCESS']])   # Log in successful
+                            self.send([ControlCodes["LOGIN"],ResponseCodes['SUCCESS']])   # Log in successful
                             return
                         else:
                             self.log("[",user,"] entered incorrect password.")
-                            self.send([ControlCodes["LOGIN"],ControlCodes['INVALID']])  # Error: incorrect password
+                            self.send([ControlCodes["LOGIN"],ResponseCodes['INVALID']])  # Error: incorrect password
                             return
         except:
             with open('players/accounts.json','w') as f:
                 f.write("[]")
         self.log("[",user,"] could not find user.")
-        self.send([ControlCodes["LOGIN"],ControlCodes['MISSING']])  # Error: user does not exist
+        self.send([ControlCodes["LOGIN"],ResponseCodes['MISSING']])  # Error: user does not exist
 
     def disconnect(self):
         self.send([ControlCodes['DISCONNECT']]) #Let the user know if disconnected. Might be useful eventually.

@@ -20,12 +20,6 @@ ControlCodes = {
     "PLAYER_MOV":3,
     "CHUNK_REQ":4,
 #returned from the registration and login routines
-    "SUCCESS":0xd0,
-    "INVALID":0xd1,
-    "DUPLICATE":0xd2,
-    "MISSING":0xd3,
-    "BANNED":0xd4,
-    "VERSION_MISMATCH":0xd5,
 #Message codes
     "PING":0xfc,
     "MESSAGE":0xfd,
@@ -33,3 +27,11 @@ ControlCodes = {
     "SERVINFO":0xff
 }
 
+ResponseCodes = {
+    "SUCCESS":0x0,
+    "INVALID":0x1,
+    "DUPLICATE":0x2,
+    "MISSING":0x3,
+    "BANNED":0x4,
+    "VERSION_MISMATCH":0x5,
+}
