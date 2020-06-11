@@ -219,7 +219,7 @@ class Client:
         self.log=server.log
         if PACKET_DEBUG:
             self.log("Got client from ", addr)
-        self.send([ControlCodes["MESSAGE"]]+list('Thank you for connecting'))
+        self.send([ControlCodes["MESSAGE"]]+list(b'Thank you for connecting'))
 
     def __str__(self):
         return user+" ("+str(self.addr)+")"
@@ -251,7 +251,7 @@ class Client:
                 self.server.log(str(data[1:])) # send a debug message to the server console
             elif data[0]==ControlCode["PING"]:
                 self.server.log("Ping? Pong!")
-                self.send([ControlCodes["MESSAGE"]]+list("pong!"))
+                self.send([ControlCodes["MESSAGE"]]+list(b"pong!"))
             elif data[0]==ControlCodes["PLAYER_MOVE"]:
                 pass
             elif data[0]==ControlCodes["CHUNK_REQUEST"]:
@@ -267,7 +267,7 @@ class Client:
             version = info['server']['version']
             client = info['server']['client_req']
             Max = info['server']['max_clients']
-            output = list('{},{},{},{}'.format(version, client, Client.count, Max))
+            output = list(b'{},{},{},{}'.format(version, client, Client.count, Max))
             #send the info packet prefixed with response code.
             self.send([ControlCodes['MESSAGE']]+output)
 
