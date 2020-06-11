@@ -92,8 +92,8 @@ class Server:
             try:
                 conn, addr = self.sock.accept()
                 self.clients[conn] = Client(addr,conn,self)
-            except:
-                pass
+            except Exception as e:
+                self.elog(e)
             for conn in self.clients.keys():
                 if client.closed:
                     del self.clients[conn]
@@ -235,6 +235,8 @@ class Client:
         Client.count += 1
         self.server = server
         self.log=server.log
+        if PACKET_DEBUG:
+            self.log("Got client from ", addr)
         self.send(list(ControlCodes["message"])+list('Thank you for connecting'))
 
     def __str__(self):
