@@ -85,13 +85,9 @@ class Server:
         _thread.start_new_thread(self.autoSaveHandler, ())
         self.online = True
         while self.online:
-            loop_time = time.time()
-            try:
-                conn, addr = self.sock.accept()
-                self.clients[conn] = Client(addr,conn,self)
-                _thread.start_new_thread(self.clients[conn].handle_connection)
-            except:
-                pass
+            conn, addr = self.sock.accept()
+            self.clients[conn] = Client(addr,conn,self)
+            _thread.start_new_thread(self.clients[conn].handle_connection)
     
     def autoSaveHandler(self):
         last_save_time = start_time = time.time()
