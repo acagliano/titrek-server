@@ -228,6 +228,7 @@ class Client:
 
     def send(self,data):
         self.conn.send(bytes(data))
+        self.log("Sent packet:",data)
 
     def handle_connection(self):
         while self.server.online:
@@ -275,6 +276,7 @@ class Client:
 
     def register(self, data):
         user, passw, passw2 = data.split(bytes([0]),maxsplit=2)
+        user = str(user)
         self.log("Registering user:",user)
         if passw != passw2:
             self.log("[",user,"] Registration failed. Passwords do not match.")
@@ -297,6 +299,7 @@ class Client:
     
     def log_in(self, data):
         user, passw = data.split(bytes([0]),maxsplit=1)
+        user = str(user)
         self.log("Logging in user:",user)
         if user in BANNED_USERS:
             self.send([ControlCodes['BANNED']])
