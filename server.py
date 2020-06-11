@@ -49,8 +49,9 @@ class Server:
     def run(self):
         try:
             self.main()
-        except KeyboardInterrupt:
+        except:
             self.sock.close()
+            self.sock.release()
 
     
     def loadbans(self):
@@ -279,7 +280,7 @@ class Client:
             self.send([ControlCodes['INVALID']])  # Error: passwords not same
             return
         passw_md5 = hashlib.md5(passw).hexdigest()  # Generate md5 hash of password
-        with open('accounts.json', 'r+') as accounts_file:
+        with open('players/accounts.json', 'r+') as accounts_file:
             accounts = json.load(accounts_file)
             for account in accounts:
                 if account['user'] == user:
@@ -301,20 +302,24 @@ class Client:
             self.log("[",user,"]Banned user attempted login.")
             return
         passw_md5 = hashlib.md5(passw).hexdigest()  # Generate md5 hash of password
-        with open('accounts.json', 'r') as accounts_file:
-            accounts = json.load(accounts_file)
-            for account in accounts:
-                if account['user'] == user:
-                    if account['passw_md5'] == passw_md5:
-                        self.user = user
-                        self.logged_in = True
-                        self.log("[",user,"] has successfuly logged in!")
-                        self.send([ControlCodes['SUCCESS']])   # Log in successful
-                        return
-                    else:
-                        self.log("[",user,"] entered incorrect password.")
-                        self.send([ControlCodes['INVALID']])  # Error: incorrect password
-                        return
+        try:
+            with open('players/accounts.json', 'r') as accounts_file:
+                accounts = json.load(accounts_file)
+                for account in accounts:
+                    if account['user'] == user:
+                        if account['passw_md5'] == passw_md5:
+                            self.user = user
+                            self.logged_in = True
+                            self.log("[",user,"] has successfuly logged in!")
+                            self.send([ControlCodes['SUCCESS']])   # Log in successful
+                            return
+                        else:
+                            self.log("[",user,"] entered incorrect password.")
+                            self.send([ControlCodes['INVALID']])  # Error: incorrect password
+                            return
+        except:
+            with open('players/accounts.json','w') as f:
+                f.write("[]")
         self.log("[",user,"] could not find user.")
         self.send([ControlCodes['MISSING']])  # Error: user does not exist
 
