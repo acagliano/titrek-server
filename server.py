@@ -219,7 +219,7 @@ class Client:
         self.log=server.log
         if PACKET_DEBUG:
             self.log("Got client from ", addr)
-        self.send(list(ControlCodes["MESSAGE"])+list('Thank you for connecting'))
+        self.send([ControlCodes["MESSAGE"]]+list('Thank you for connecting'))
 
     def __str__(self):
         return user+" ("+str(self.addr)+")"
@@ -269,7 +269,7 @@ class Client:
             Max = info['server']['max_clients']
             output = list('{},{},{},{}'.format(version, client, Client.count, Max))
             #send the info packet prefixed with response code.
-            self.send(list(ControlCodes['MESSAGE'])+output)
+            self.send([ControlCodes['MESSAGE']]+output)
 
     def register(self, data):
         user, passw, passw2 = data.split(bytes([0]),maxsplit=3)
