@@ -227,8 +227,10 @@ class Client:
         return user+" ("+str(self.addr)+")"
 
     def send(self,data):
-        self.conn.send(bytes(data))
-        self.log("Sent packet:",data)
+        if self.conn.send(bytes(data)):
+            self.log("Sent packet:",data)
+        else:
+            self.log("Failed to send packet:",data)
 
     def handle_connection(self):
         while self.server.online:
