@@ -7,11 +7,7 @@
 # Adam "beckadamtheinventor" Beckingham
 #This is the server program for Star Trek CE.
 
-import socket               # Import socket module
-import threading
-import hashlib
-import json
-import os,sys,time
+import socket,multiprocessing,ctypes,hashlib,json,os,sys,time
 
 
 from trekCodes import *
@@ -23,6 +19,7 @@ BANNED_USERS = []
 BANNED_IPS = []
 
 PACKET_DEBUG = False
+
 
 class Server:
     def __init__(self):
@@ -46,16 +43,17 @@ class Server:
         self.port = 51701                # Reserve a port for your service.
         self.clients = {}
         self.sock.bind(('', self.port))                 # Now wait for client connection.
-    
-    def run(self):
-        try:
-            self.main()
-        except Exception as e:
-            self.sock.close()
-            self.sock.release()
-            print("Fatal error:",e)
 
-    
+    def run(self):
+        self.online = True
+        self.threads = [multiprocessing.Process(target=self.autoSaveHandler)]
+        self.threads[0].start()
+        self.main_thread = multiprocessing.Process(target=self.main)
+        self.main_thread.start()
+        self.console()
+        self.sock.close()
+
+
     def loadbans(self):
         try:
             with open("bans/userban.txt") as f:
@@ -83,14 +81,12 @@ class Server:
 
     
     def main(self):
-        threading.Thread(target=self.console)
-        threading.Thread(target=self.autoSaveHandler)
-        self.online = True
         while self.online:
             self.sock.listen(1)
             conn, addr = self.sock.accept()
             self.clients[conn] = Client(conn,addr,self)
-            self.threads.append(threading.Thread(target=self.clients[conn].handle_connection))
+            self.threads.append(self.threads.append(multiprocessing.Process(target=self.clients[conn].handle_connection)))
+            self.threads[-1].start()
 
     def autoSaveHandler(self):
         last_save_time = start_time = time.time()
@@ -99,7 +95,7 @@ class Server:
             if (cur_time-last_save_time)>=600:
                 last_save_time = time.time()
                 self.log("Autosaving...")
-                threading.Thread(target=self.space.save, args=("space/data", ))
+                multiprocessing.Process(target=self.space.save,args=("space/data", )).start()
             time.sleep(60)
 
 
@@ -110,6 +106,9 @@ class Server:
         for client in self.clients.keys():
             self.clients[client].disconnect()
             del self.clients[client]
+        for thread in self.threads:
+            thread.terminate()
+        self.main_thread.terminate()
         self.banlist.close()
         self.ipbanlist.close()
         self.mlogf.close()
@@ -175,11 +174,11 @@ class Server:
                 elif line[0]=="stop":
                     self.stop(); break
                 elif line[0]=="save":
-                    thread.Threading(target=self.space.save, args=("space/data", ))
+                    multiprocessing.Process(target=self.space.save,args=("space/data", )).start()
                 elif line[0]=="seed":
                     self.generator.seed(hash(line[1]))
                 elif line[0]=="generate":
-                    threading.Threading(target=self.generate)
+                    multiprocessing.Process(target=self.generate)
                 elif line[0]=="kick":
                     self.kick(line[1])
                 elif line[0]=="ban":
