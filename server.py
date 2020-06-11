@@ -46,7 +46,7 @@ class Server:
         self.port = 1701                # Reserve a port for your service.
         self.clients = {}
         self.sock.bind(('', self.port))                 # Now wait for client connection.
-        self.sock.listen()
+        self.sock.listen(5)
     
     def run(self):
         try:
