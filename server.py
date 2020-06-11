@@ -242,29 +242,34 @@ class Client:
                     elif c<0x10: o.append("\\x0"+hex(c)[2:])
                     else: o.append("\\x"+hex(c)[2:])
                 self.log("recieved packet: ","".join(o))
-            if data[0]==ControlCodes["REGISTER"]:
-                self.register(data[1:])
-            elif data[0]==ControlCodes["LOGIN"]:
-                self.log_in(data[1:])
-            elif data[0]==ControlCodes["DISCONNECT"]:
-                self.disconnect()
-            elif data[0]==ControlCodes["SERVINFO"]:
-                self.servinfo()
-            elif data[0]==ControlCodes["MESSAGE"]:
-                self.log("[",self.user,"]",data[1:])    # send a message to the server
-            elif data[0]==ControlCodes["DEBUG"]:
-                self.server.log(str(data[1:])) # send a debug message to the server console
-            elif data[0]==ControlCode["PING"]:
-                self.server.log("Ping? Pong!")
-                self.send([ControlCodes["MESSAGE"]]+list(b"pong!"))
-            elif data[0]==ControlCodes["PLAYER_MOVE"]:
+            if not len(data):
+                continue
+            try:
+                if data[0]==ControlCodes["REGISTER"]:
+                    self.register(data[1:])
+                elif data[0]==ControlCodes["LOGIN"]:
+                    self.log_in(data[1:])
+                elif data[0]==ControlCodes["DISCONNECT"]:
+                    self.disconnect()
+                elif data[0]==ControlCodes["SERVINFO"]:
+                    self.servinfo()
+                elif data[0]==ControlCodes["MESSAGE"]:
+                    self.log("[",self.user,"]",data[1:])    # send a message to the server
+                elif data[0]==ControlCodes["DEBUG"]:
+                    self.server.log(str(data[1:])) # send a debug message to the server console
+                elif data[0]==ControlCode["PING"]:
+                    self.server.log("Ping? Pong!")
+                    self.send([ControlCodes["MESSAGE"]]+list(b"pong!"))
+                elif data[0]==ControlCodes["PLAYER_MOVE"]:
+                    pass
+                elif data[0]==ControlCodes["CHUNK_REQUEST"]:
+                    x = int.from_bytes(data[1:4],'little')
+                    y = int.from_bytes(data[4:7],'little')
+                    z = int.from_bytes(data[7:10],'little')
+                    chunk = self.space.gather_chunk(Vec3(x,y,z))
+                    out = []
+            except:
                 pass
-            elif data[0]==ControlCodes["CHUNK_REQUEST"]:
-                x = int.from_bytes(data[1:4],'little')
-                y = int.from_bytes(data[4:7],'little')
-                z = int.from_bytes(data[7:10],'little')
-                chunk = self.space.gather_chunk(Vec3(x,y,z))
-                out = []
         self.send([ControlCodes["DISCONNECT"]])
     def servinfo(self):
         with open('servinfo.json', 'r+') as info_file:
