@@ -8,7 +8,7 @@
 #This is the server program for Star Trek CE.
 
 import socket               # Import socket module
-import _thread
+import threading
 import hashlib
 import json
 import os,sys,time
@@ -42,6 +42,7 @@ class Server:
         self.space = Space(self.log)
 
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)         # Create a socket object
+        self.sock.settimeout(None)
         self.port = 51701                # Reserve a port for your service.
         self.clients = {}
         self.sock.bind(('', self.port))                 # Now wait for client connection.
@@ -82,15 +83,15 @@ class Server:
 
     
     def main(self):
-        _thread.start_new_thread(self.console, ())
-        _thread.start_new_thread(self.autoSaveHandler, ())
+        threading.Thread(target=self.console)
+        threading.Thread(target=self.autoSaveHandler)
         self.online = True
         while self.online:
             self.sock.listen(1)
             conn, addr = self.sock.accept()
             self.clients[conn] = Client(conn,addr,self)
-            _thread.start_new_thread(self.clients[conn].handle_connection, ())
-    
+            self.threads.append(threading.Thread(target=self.clients[conn].handle_connection))
+
     def autoSaveHandler(self):
         last_save_time = start_time = time.time()
         while self.online:
@@ -98,7 +99,7 @@ class Server:
             if (cur_time-last_save_time)>=600:
                 last_save_time = time.time()
                 self.log("Autosaving...")
-                _thread.start_new_thread(self.space.save, ("space/data", ))
+                threading.Thread(target=self.space.save, args=("space/data", ))
             time.sleep(60)
 
 
@@ -174,11 +175,11 @@ class Server:
                 elif line[0]=="stop":
                     self.stop(); break
                 elif line[0]=="save":
-                    _thread.start_new_thread(self.space.save, ("space/data", ))
+                    thread.Threading(target=self.space.save, args=("space/data", ))
                 elif line[0]=="seed":
                     self.generator.seed(hash(line[1]))
                 elif line[0]=="generate":
-                    _thread.start_new_thread(self.generate, ())
+                    threading.Threading(target=self.generate)
                 elif line[0]=="kick":
                     self.kick(line[1])
                 elif line[0]=="ban":
@@ -230,7 +231,7 @@ class Client:
         self.conn.send(bytes(data))
 
     def handle_connection(self):
-        while True:
+        while self.server.online:
             data = self.conn.recv(1024)
             if PACKET_DEBUG:
                 o=[]
@@ -262,7 +263,7 @@ class Client:
                 z = data[7]+data[8]*256+data[9]*65536
                 chunk = self.space.gather_chunk(Vec3(x,y,z))
                 out = []
-
+        self.send([ControlCodes["DISCONNECT"]])
     def servinfo(self):
         with open('servinfo.json', 'r+') as info_file:
             info = json.load(info_file)
