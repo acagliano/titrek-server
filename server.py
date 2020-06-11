@@ -89,7 +89,6 @@ class Server:
             for conn in self.clients.keys():
                 if client.closed:
                     del self.clients[conn]
-                self.sock.listen(1)
                 try:
                     conn, addr = self.sock.accept()
                     self.clients[conn] = Client(addr,conn,self)
