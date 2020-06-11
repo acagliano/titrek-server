@@ -14,3 +14,7 @@ backup save_name          backup the map
 restore save_name         restore the map
 
 
+list                      list logged in players
+debug-on                  turn on debug messages
+debug-off                 turn off debug messages
+
