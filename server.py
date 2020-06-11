@@ -85,7 +85,7 @@ class Server:
             self.sock.listen(1)
             conn, addr = self.sock.accept()
             self.clients[conn] = Client(conn,addr,self)
-            self.threads.append(self.threads.append(multiprocessing.Process(target=self.clients[conn].handle_connection)))
+            self.threads.append(multiprocessing.Process(target=self.clients[conn].handle_connection))
             self.threads[-1].start()
 
     def autoSaveHandler(self):
