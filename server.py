@@ -272,7 +272,7 @@ class Client:
             self.send([ControlCodes['MESSAGE']]+output)
 
     def register(self, data):
-        user, passw, passw2 = data.split(bytes([0]),maxsplit=3)
+        user, passw, passw2 = data.split(bytes([0]),maxsplit=2)
         self.log("Registering user:",user)
         if passw != passw2:
             self.log("[",user,"] Registration failed. Passwords do not match.")
@@ -294,7 +294,7 @@ class Client:
         self.send([ControlCodes['SUCCESS']])       # Register successful
     
     def log_in(self, data):
-        user, passw = data.split(bytes([0]),maxsplit=2)
+        user, passw = data.split(bytes([0]),maxsplit=1)
         self.log("Logging in user:",user)
         if user in BANNED_USERS:
             self.send([ControlCodes['BANNED']])
