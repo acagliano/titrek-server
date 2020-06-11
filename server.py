@@ -87,7 +87,7 @@ class Server:
             self.sock.listen(1)
             conn, addr = self.sock.accept()
             self.clients[conn] = Client(conn,addr,self)
-            _thread.start_new_thread(self.clients[conn].handle_connection)
+            _thread.start_new_thread(self.clients[conn].handle_connection, ())
     
     def autoSaveHandler(self):
         last_save_time = start_time = time.time()
