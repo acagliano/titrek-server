@@ -49,9 +49,10 @@ class Server:
     def run(self):
         try:
             self.main()
-        except:
+        except Exception as e:
             self.sock.close()
             self.sock.release()
+            print("Fatal error:",e)
 
     
     def loadbans(self):
