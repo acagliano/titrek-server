@@ -87,24 +87,13 @@ class Server:
         last_save_time = start_time = time.time()
         while self.online:
             loop_time = time.time()
-            self.sock.listen(1)
             try:
                 conn, addr = self.sock.accept()
                 self.clients[conn] = Client(addr,conn,self)
+                _thread.start_new_thread(self.clients[conn].handle_connection)
             except:
                 pass
-            for conn in self.clients.keys():
-                if client.closed:
-                    del self.clients[conn]
-                try:
-                    conn, addr = self.sock.accept()
-                    self.clients[conn] = Client(addr,conn,self)
-                except:
-                    pass
-                data = conn.recv(1024)
-                if len(data):
-                    client=self.clients[conn]
-                    _thread.start_new_thread(self.clients[conn].handle_connection, conn)
+                    
             cur_time = time.time()
             elasped_time = cur_time-loop_time
             if (cur_time-last_save_time)>=600:
@@ -244,8 +233,9 @@ class Client:
     def send(self,data):
         self.conn.send(bytes(data))
 
-    def handle_connection(self,data):
-        if data:
+    def handle_connection(self):
+        data = self.conn.recv(1024)
+        if len(data):
             if PACKET_DEBUG:
                 o=[]
                 for c in data:
