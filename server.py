@@ -258,9 +258,9 @@ class Client:
             elif data[0]==ControlCodes["PLAYER_MOVE"]:
                 pass
             elif data[0]==ControlCodes["CHUNK_REQUEST"]:
-                x = data[1]+data[2]*256+data[3]*65536
-                y = data[4]+data[5]*256+data[6]*65536
-                z = data[7]+data[8]*256+data[9]*65536
+                x = int.from_bytes(data[1:4],'little')
+                y = int.from_bytes(data[4:7],'little')
+                z = int.from_bytes(data[7:10],'little')
                 chunk = self.space.gather_chunk(Vec3(x,y,z))
                 out = []
         self.send([ControlCodes["DISCONNECT"]])
