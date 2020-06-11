@@ -45,7 +45,6 @@ class Server:
         self.port = 51701                # Reserve a port for your service.
         self.clients = {}
         self.sock.bind(('', self.port))                 # Now wait for client connection.
-        self.sock.listen(5)
     
     def run(self):
         try:
@@ -85,6 +84,7 @@ class Server:
         _thread.start_new_thread(self.autoSaveHandler, ())
         self.online = True
         while self.online:
+            self.sock.listen(1)
             conn, addr = self.sock.accept()
             self.clients[conn] = Client(addr,conn,self)
             _thread.start_new_thread(self.clients[conn].handle_connection)
@@ -219,7 +219,7 @@ class Client:
         self.log=server.log
         if PACKET_DEBUG:
             self.log("Got client from ", addr)
-        self.send(list(ControlCodes["message"])+list('Thank you for connecting'))
+        self.send(list(ControlCodes["MESSAGE"])+list('Thank you for connecting'))
 
     def __str__(self):
         return user+" ("+str(self.addr)+")"
