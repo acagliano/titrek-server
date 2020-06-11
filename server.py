@@ -244,7 +244,7 @@ class Client:
                 self.log("recieved packet: ","".join(o))
             if not data:
                 continue
-            if not len(data):
+            if len(data)==0:
                 continue
             try:
                 if data[0]==ControlCodes["REGISTER"]:
