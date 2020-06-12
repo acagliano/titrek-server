@@ -243,7 +243,6 @@ class Client:
 
     def handle_connection(self):
         while self.server.online:
-            self.recv_time = time.time()
             data = self.conn.recv(1024)
             if PACKET_DEBUG:
                 o=[]
@@ -256,7 +255,6 @@ class Client:
                 continue
             if len(data)==0:
                 continue
-            time.sleep(0.2)
             try:
                 if data[0]==ControlCodes["REGISTER"]:
                     self.register(data[1:])
