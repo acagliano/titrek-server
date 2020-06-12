@@ -215,6 +215,7 @@ class Client:
         self.conn = conn
         self.closed = False
         self.logged_in = False
+        self.recv_time = 0
         self.user = ''
         Client.count += 1
         self.server = server
