@@ -7,7 +7,7 @@
 # Adam "beckadamtheinventor" Beckingham
 #This is the server program for Star Trek CE.
 
-import socket,multiprocessing,ctypes,hashlib,json,os,sys,time
+import socket,multiprocessing,ctypes,hashlib,json,os,sys,time,math
 
 
 from trekCodes import *
@@ -219,14 +219,25 @@ class Client:
         Client.count += 1
         self.server = server
         self.log=server.log
+        self.max_acceleration = 5 #accelerate at a maximum of 100m/s^2
         if PACKET_DEBUG:
             self.log("Got client from ", addr)
         self.send([ControlCodes["MESSAGE"]]+list(b'Thank you for connecting'))
+
+    def load_player(self):
+        try:
+            with open(self.playerfile) as f:
+                self.data = json.load(f)
+        except:
+            self.data = {'x':0,'y':0,'z':0,'rot':0,'vx':0,'vy':0,'vz':0}
+        self.pos = Vec3(self.data['x'],self.data['y'],self.data['z'])
 
     def __str__(self):
         return user+" ("+str(self.addr)+")"
 
     def send(self,data):
+        if time.time()<(self.recv_time+0.05):
+            time.sleep((0.05+self.recv_time)-time.time())
         if self.conn.send(bytes(data)):
             self.log("Sent packet:",data)
         else:
@@ -234,6 +245,7 @@ class Client:
 
     def handle_connection(self):
         while self.server.online:
+            self.recv_time = time.time()
             data = self.conn.recv(1024)
             if PACKET_DEBUG:
                 o=[]
@@ -263,13 +275,22 @@ class Client:
                     self.server.log("Ping? Pong!")
                     self.send([ControlCodes["MESSAGE"]]+list(b"pong!"))
                 elif data[0]==ControlCodes["PLAYER_MOVE"]:
-                    pass
+                    G = data[1]-128
+                    if G>=self.max_acceleration:
+                        self.send([ControlCodes["DISCONNECT"]]+list(b"You were accelerating too fast. Hacking?"))
+                        return
+                    R1 = (data[2]-128)*math.pi/128
+                    y = math.cos()*G
+                    R2 = (data[3]-128)*math.pi/128
+                    
+                        self.pos['vx']+=x
+                        self.pos['vy']+=y
+                        self.pos['vz']+=z
                 elif data[0]==ControlCodes["CHUNK_REQUEST"]:
-                    x = int.from_bytes(data[1:4],'little')
-                    y = int.from_bytes(data[4:7],'little')
-                    z = int.from_bytes(data[7:10],'little')
-                    chunk = self.space.gather_chunk(Vec3(x,y,z))
                     out = []
+                    for obj in self.space.gather_chunk(self.pos):
+                        x,y,z,r = obj['x'],obj['y'],obj['z'],obj['radius']
+                        
             except:
                 pass
         self.send([ControlCodes["DISCONNECT"]])
@@ -325,6 +346,7 @@ class Client:
                             self.logged_in = True
                             self.log("[",user,"] has successfuly logged in!")
                             self.send([ControlCodes["LOGIN"],ResponseCodes['SUCCESS']])   # Log in successful
+                            self.playerfile = "players/data/"+self.user+".json"
                             return
                         else:
                             self.log("[",user,"] entered incorrect password.")
