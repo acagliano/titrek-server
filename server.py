@@ -279,13 +279,13 @@ class Client:
                     if G>=self.max_acceleration:
                         self.send([ControlCodes["DISCONNECT"]]+list(b"You were accelerating too fast. Hacking?"))
                         return
-                    R1 = (data[2]-128)*math.pi/128
-                    y = math.cos()*G
-                    R2 = (data[3]-128)*math.pi/128
-                    
-                        self.pos['vx']+=x
-                        self.pos['vy']+=y
-                        self.pos['vz']+=z
+#                    R1 = (data[2]-128)*math.pi/128
+#                    y = math.cos()*G
+#                    R2 = (data[3]-128)*math.pi/128
+
+#                    self.pos['vx']+=x
+#                    self.pos['vy']+=y
+#                    self.pos['vz']+=z
                 elif data[0]==ControlCodes["CHUNK_REQUEST"]:
                     out = []
                     for obj in self.space.gather_chunk(self.pos):
