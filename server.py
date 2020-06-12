@@ -215,7 +215,6 @@ class Client:
         self.conn = conn
         self.closed = False
         self.logged_in = False
-        self.recv_time = 0
         self.user = ''
         Client.count += 1
         self.server = server
@@ -237,8 +236,6 @@ class Client:
         return user+" ("+str(self.addr)+")"
 
     def send(self,data):
-        if time.time()<(self.recv_time+0.05):
-            time.sleep((0.05+self.recv_time)-time.time())
         if self.conn.send(bytes(data)):
             self.log("Sent packet:",data)
         else:
@@ -259,6 +256,7 @@ class Client:
                 continue
             if len(data)==0:
                 continue
+            time.sleep(0.2)
             try:
                 if data[0]==ControlCodes["REGISTER"]:
                     self.register(data[1:])
