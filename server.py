@@ -282,7 +282,7 @@ class Client:
                 elif data[0]==ControlCodes["SERVINFO"]:
                     self.servinfo()
                 elif data[0]==ControlCodes["MESSAGE"]:
-                    self.log("["+ToUTF8(self.user)+"]"),ToUTF8(data[1:]))    # send a message to the server
+                    self.log("["+ToUTF8(self.user)+"]",ToUTF8(data[1:]))    # send a message to the server
                 elif data[0]==ControlCodes["DEBUG"]:
                     self.server.log(ToUTF8(data[1:])) # send a debug message to the server console
                 elif data[0]==ControlCode["PING"]:
