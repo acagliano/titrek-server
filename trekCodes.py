@@ -18,8 +18,9 @@ ControlCodes = {
     "LOGIN":1,
     "DISCONNECT":2,
     "PLAYER_MOV":3,
-    "CHUNK_REQ":4,
-    "POSITION_REQUEST":5,
+    "CHUNK_REQUEST":4,
+    "ENTITY_REQUEST":5,
+    "SENSOR_REQUEST":6,
 #Message codes
     "PING":0xfc,
     "MESSAGE":0xfd,

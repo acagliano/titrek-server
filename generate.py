@@ -34,11 +34,11 @@ class Generator:
 #Earth's radius: 6371 km. mass: 5.9e24 kg.
 
 StandardPlanetList = [
-	{"type": "planet","living": True, "mass": 1e24, "radius": 1e6, "colors":[0x2E,0x18,0x7F]},
-	{"type": "planet","living": False,"mass": 1e20, "radius": 5e5, "colors":[0x21,0x22,0x00]},
-	{"type": "planet","living": False,"mass": 1e21, "radius": 6e5, "colors":[0x41,0x42,0x00]},
-	{"type": "planet","living": False,"mass": 6e23, "radius": 3.4e6, "colors":[0x60,0x81,0x21]},
-	{"type": "planet","living": False,"mass": 1e16, "radius": 1e4, "colors":[0xA0,0xA9,0x8D]}
+	{"type": "planet","living": True, "mass": 1e24, "radius": 1e3, "colors":[0x2E,0x18,0x7F]},
+	{"type": "planet","living": False,"mass": 1e20, "radius": 5e2, "colors":[0x21,0x22,0x00]},
+	{"type": "planet","living": False,"mass": 1e21, "radius": 6e2, "colors":[0x41,0x42,0x00]},
+	{"type": "planet","living": False,"mass": 6e23, "radius": 3.4e3, "colors":[0x60,0x81,0x21]},
+	{"type": "planet","living": False,"mass": 1e16, "radius": 1e2, "colors":[0xA0,0xA9,0x8D]}
 ]
 
 StandardCompositionMaterials = [
@@ -46,9 +46,9 @@ StandardCompositionMaterials = [
 ]
 
 StandardStarList = [
-	{"type": "star","mass": 2e30,"radius":7e8,"colors":[0xE7,0xC3,0xEF]},
-	{"type": "star","mass": 3e30,"radius":3e6,"colors":[0xFF,0xDF,0xBF]},
-	{"type": "star","mass": 1e32,"radius":4e9,"colors":[0x11,0x08,0x14]}
+	{"type": "star","mass": 2e30,"radius":5e6,"colors":[0xE7,0xC3,0xEF]},
+	{"type": "star","mass": 3e30,"radius":3e5,"colors":[0xFF,0xDF,0xBF]},
+	{"type": "star","mass": 1e32,"radius":9e6,"colors":[0x11,0x08,0x14]}
 ]
 
 

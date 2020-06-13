@@ -29,6 +29,13 @@ def FromSignedInt(n):
     else:
         return n
 
+def ToSignedByte(n):
+    if n<0:
+        while abs(n)<-0x80: n+=0x80
+        return 0x100+n%0x80
+    else:
+        while abs(n)>0x80: n-=0x80
+        return n%0x80
 
 
 class Server:
@@ -304,40 +311,86 @@ class Client:
                         z-=self.pos['z']
                         x2 = (math.cos(R1)*x-math.sin(R1)*y)*(math.cos(R2)*x+math.sin(R2)*z)*256
                         y2 = (math.sin(R1)*x+math.cos(R1)*y)*(math.cos(R3)*y-math.sin(R3)*z)
-                        z2 = (-math.sin(R2)*x+math.cos(R2)*z)*(math.sin(R3)*y+math.cos(R3)*z)*256
+                        z2 = (-math.sin(R2)*x+math.cos(R2)*z)*(math.sin(R3)*y+math.cos(R3)*z)*134
                         #only add object to frame data if it's visible
-                        if (x2-r)>=0 and (x2+r)<=256 and (z2-r)>=0 and (z2+r)<=256 and y2>1:
+                        if (x2+r)>=-128 and (x2-r)<128 and (z2+r)>=-67 and (z2-r)<67 and y2>10:
                             out.append([Vec3(x2,y2,z2),obj])
                     out.sort(key = lambda x: x[0]['y'],reversed=True)
                     out2 = bytearray(1024)
                     out2[0]=ControlCodes['CHUNK_REQUEST']
                     if len(out)>127:
                         J = len(out)-127
+                        out2[1]=127
                     else:
                         J = 0
-                    I=1
+                        out2[1]=len(out)
+                    I=2
                     while J<len(out):
                         obj=out[J]
                         x,y,z = obj[0]['x'],obj[0]['y'],obj[0]['z']
-                        out2[I]   = int(x)&0xFF
-                        out2[I+1] = int(z)&0xFF
+                        out2[I]   = ToSignedByte(int(x))
+                        out2[I+1] = ToSignedByte(int(z))
                         out2[I+2] = int(obj[1]['radius']/y)
                         for X in range(3):
                             out2[I+3+X] = obj[1]['colors'][X]
-                        out2[I+6] = int(time.time()*100)%256
+                        out2[I+6] = int(time.time()*100)&FF
                         I+=8
-                        if I>1024:
+                        if I>=1024:
                             break
                     self.send(out2)
                 elif data[0]==ControlCodes["POSITION_REQUEST"]:
-                    out = \
-                        list(self.pos['x'].to_bytes(3,'little'))+\
-                        list(self.pos['y'].to_bytes(3,'little'))+\
-                        list(self.pos['z'].to_bytes(3,'little'))
-                    self.send(out)
+                    x = int(self.pos['x'])
+                    y = int(self.pos['y'])
+                    z = int(self.pos['z'])
+                    qx=x//1e15
+                    qy=y//1e15
+                    qz=z//1e15
+                    if qx<0: qx=chr(0x61-qx)
+                    else:    qx=chr(0x41+qx)
+                    if qy<0: qy=chr(0x61-qy)
+                    else:    qy=chr(0x41+qy)
+                    if qz<0: qz=chr(0x61-qz)
+                    else:    qz=chr(0x41+qz)
+                    ax=(x//1e3)
+                    ay=(y//1e3)
+                    az=(z//1e3)
+                    self.send(bytes([ControlCodes["POSITION_REQUEST"]])+\
+                        b"Sector "+bytes([qx,qy,qz,0x20])+bytes("Coordinates x"+str(ax)+"y"+str(ay)+"z"+str(az),'UTF-8'))
+                elif data[0]==ControlCodes["SENSOR_REQUEST"]:
+                    R1 = FromSignedInt(data[1])*math.pi/128
+                    out=[]
+                    for obj in self.space.gather_chunk(1e9):
+                        x,z,r,c = obj['x'],obj['z'],obj['radius'],obj['colors'][0]
+                        x-=self.pos['x']
+                        z-=self.pos['z']
+                        x2=(math.cos(R1)*x-math.sin(R1)*z)*256
+                        z2=(math.sin(R1)*x+math.cos(R1)*z)*134
+                        if (x2+r)>=-128 and (x2-r)<128 and (z2+r)>=-67 and (z2-r)<67:
+                            out.append([x2,z2,r/100,c])
+                    out2 = bytearray(1024)
+                    out2[0]=ControlCodes["SENSOR_REQUEST"]
+                    if len(out)>254:
+                        J=len(out)-254
+                        out2[1]=254
+                    else:
+                        J=0
+                        out2[1]=len(out)
+                    I=2
+                    while J<len(out):
+                        obj=out[J]
+                        x,z,r,c = obj
+                        out2[I]   = ToSignedByte(int(x))
+                        out2[I+1] = ToSignedByte(int(z))
+                        out2[I+2] = ToSignedByte(int(r))
+                        out2[I+3] = c&0xFF
+                        I+=4
+                        if I>=1024:
+                            break
+                    self.send(out2)
             except:
                 pass
         self.send([ControlCodes["DISCONNECT"]])
+
     def servinfo(self):
         with open('servinfo.json', 'r+') as info_file:
             info = json.load(info_file)
@@ -349,14 +402,8 @@ class Client:
             self.send([ControlCodes['MESSAGE']]+output)
 
     def register(self, data):
-        user = ToUTF8(data[1:data.find(b'\0')])
-        passw = ToUTF8(data[25:data.find(b'\0')])
-        email = ToUTF8(data[57:data.find(b'\0')])
+        user,passwd,email = [ToUTF8(a[:a.find(b"\0")]) for a in data.split(b"\0",maxsplit=2)]
         self.log("Registering user:",user)
-        if passw != passw2:
-            self.log("[",user,"] Registration failed. Passwords do not match.")
-            self.send([ControlCodes["REGISTER"],ResponseCodes['INVALID']])  # Error: passwords not same
-            return
         passw_md5 = hashlib.md5(passw).hexdigest()  # Generate md5 hash of password
         with open('players/accounts.json', 'r+') as accounts_file:
             accounts = json.load(accounts_file)
@@ -365,7 +412,10 @@ class Client:
                     self.log("[",user,"] Already registered.")
                     self.send([ControlCodes["REGISTER"],ResponseCodes['DUPLICATE']])  # Error: user already exists
                     return
-            accounts.append({'user':user, 'passw_md5': passw_md5})
+                elif account['email'] == email:
+                    self.log("Email address",email,"has already been registered to an account.")
+                    self.send([ControlCodes["REGISTER"],ResponseCodes['INVALID']])
+            accounts.append({'user':user,'passw_md5':passw_md5,'email':email})
             json.dump(accounts, accounts_file)
         self.user = user
         self.logged_in = True
@@ -373,8 +423,7 @@ class Client:
         self.send([ControlCodes["REGISTER"],ResponseCodes['SUCCESS']])       # Register successful
     
     def log_in(self, data):
-        user = ToUTF8(data[1:data.find(b'\0')])
-        passw = ToUTF8(data[25:data.find(b'\0')])
+        user,passwd = [ToUTF8(a[:a.find(b"\0")]) for a in data.split(b"\0",maxsplit=1)]
         self.log("Logging in user:",user)
         if user in BANNED_USERS:
             self.send([ControlCodes["LOGIN"],ResponseCodes['BANNED']])
