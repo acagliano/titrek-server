@@ -402,7 +402,7 @@ class Client:
             self.send([ControlCodes['MESSAGE']]+output)
 
     def register(self, data):
-        user,passwd,email = [ToUTF8(a[:a.find(b"\0")]) for a in data.split(b"\0",maxsplit=2)]
+        user,passw,email = [ToUTF8(a[:a.find(b"\0")]) for a in data[1:].split(b"\0",maxsplit=2)]
         self.log("Registering user:",user)
         passw_md5 = hashlib.md5(passw).hexdigest()  # Generate md5 hash of password
         with open('players/accounts.json', 'r+') as accounts_file:
@@ -423,7 +423,7 @@ class Client:
         self.send([ControlCodes["REGISTER"],ResponseCodes['SUCCESS']])       # Register successful
     
     def log_in(self, data):
-        user,passw = [ToUTF8(a[:a.find(b"\0")]) for a in data.split(b"\0",maxsplit=1)]
+        user,passw = [ToUTF8(a[:a.find(b"\0")]) for a in data[1:].split(b"\0",maxsplit=1)]
         self.log("Logging in user:",user)
         if user in BANNED_USERS:
             self.send([ControlCodes["LOGIN"],ResponseCodes['BANNED']])
