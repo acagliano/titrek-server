@@ -68,6 +68,7 @@ class Server:
         self.main_thread = multiprocessing.Process(target=self.main)
         self.main_thread.start()
         self.console()
+        self.stop()
         self.sock.close()
 
 
@@ -214,7 +215,6 @@ class Server:
                 elif line[0]=="debug-off":
                     PACKET_DEBUG = False
             except KeyboardInterrupt:
-                self.stop()
                 break
             except Exception as e:
                 self.elog("Internal Error:",e)
