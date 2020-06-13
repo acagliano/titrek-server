@@ -387,8 +387,10 @@ class Client:
                         if I>=1024:
                             break
                     self.send(out2)
-            except:
+            except sock.error:
                 pass
+            except Exception as e:
+                self.log("Internal Error:",e)
         self.send([ControlCodes["DISCONNECT"]])
 
     def servinfo(self):
