@@ -423,7 +423,7 @@ class Client:
         self.send([ControlCodes["REGISTER"],ResponseCodes['SUCCESS']])       # Register successful
     
     def log_in(self, data):
-        user,passwd = [ToUTF8(a[:a.find(b"\0")]) for a in data.split(b"\0",maxsplit=1)]
+        user,passw = [ToUTF8(a[:a.find(b"\0")]) for a in data.split(b"\0",maxsplit=1)]
         self.log("Logging in user:",user)
         if user in BANNED_USERS:
             self.send([ControlCodes["LOGIN"],ResponseCodes['BANNED']])
