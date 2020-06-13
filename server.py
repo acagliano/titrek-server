@@ -20,6 +20,16 @@ BANNED_IPS = []
 
 PACKET_DEBUG = False
 
+def ToUTF8(dt):
+    return str(bytes(dt),'UTF-8')
+
+def FromSignedInt(n):
+    if n&0x80:
+        return 0x80-n
+    else:
+        return n
+
+
 
 class Server:
     def __init__(self):
@@ -162,7 +172,7 @@ class Server:
     def console(self):
         while True:
             try:
-                line = input(">")
+                line = input("")
                 self.ilogf.write(">"+line+"\n")
                 line = line.split()
                 if line[0]=="help":
@@ -257,37 +267,74 @@ class Client:
                 continue
             try:
                 if data[0]==ControlCodes["REGISTER"]:
-                    self.register(data[1:])
+                    self.register(data)
                 elif data[0]==ControlCodes["LOGIN"]:
-                    self.log_in(data[1:])
+                    self.log_in(data)
                 elif data[0]==ControlCodes["DISCONNECT"]:
                     self.disconnect()
                 elif data[0]==ControlCodes["SERVINFO"]:
                     self.servinfo()
                 elif data[0]==ControlCodes["MESSAGE"]:
-                    self.log("[",self.user,"]",data[1:])    # send a message to the server
+                    self.log("["+ToUTF8(self.user)+"]"),ToUTF8(data[1:]))    # send a message to the server
                 elif data[0]==ControlCodes["DEBUG"]:
-                    self.server.log(str(data[1:])) # send a debug message to the server console
+                    self.server.log(ToUTF8(data[1:])) # send a debug message to the server console
                 elif data[0]==ControlCode["PING"]:
                     self.server.log("Ping? Pong!")
                     self.send([ControlCodes["MESSAGE"]]+list(b"pong!"))
                 elif data[0]==ControlCodes["PLAYER_MOVE"]:
-                    G = data[1]-128
+                    G = FromSignedInt(data[1])
                     if G>=self.max_acceleration:
-                        self.send([ControlCodes["DISCONNECT"]]+list(b"You were accelerating too fast. Hacking?"))
+                        self.send([ControlCodes["DISCONNECT"]]+list(b"You were accelerating too fast. Hacking?\0"))
                         return
-#                    R1 = (data[2]-128)*math.pi/128
-#                    y = math.cos()*G
-#                    R2 = (data[3]-128)*math.pi/128
-
-#                    self.pos['vx']+=x
-#                    self.pos['vy']+=y
-#                    self.pos['vz']+=z
+                    R1 = FromSignedInt(data[2])*math.pi/128
+                    R2 = FromSignedInt(data[3])*math.pi/128
+                    self.pos['vx']+=math.cos(R1)*math.cos(R2)*G
+                    self.pos['vy']+=math.sin(R1)*G
+                    self.pos['vz']+=-math.sin(R1)*G
                 elif data[0]==ControlCodes["CHUNK_REQUEST"]:
                     out = []
-                    for obj in self.space.gather_chunk(self.pos):
+                    R1 = FromSignedInt(data[1])*math.pi/128
+                    R2 = FromSignedInt(data[2])*math.pi/128
+                    R3 = FromSignedInt(data[3])*math.pi/128
+                    Range = data[4]*1e6
+                    for obj in self.space.gather_chunk(self.pos,Range):
                         x,y,z,r = obj['x'],obj['y'],obj['z'],obj['radius']
-                        
+                        x-=self.pos['x']
+                        y-=self.pos['y']
+                        z-=self.pos['z']
+                        x2 = (math.cos(R1)*x-math.sin(R1)*y)*(math.cos(R2)*x+math.sin(R2)*z)*256
+                        y2 = (math.sin(R1)*x+math.cos(R1)*y)*(math.cos(R3)*y-math.sin(R3)*z)
+                        z2 = (-math.sin(R2)*x+math.cos(R2)*z)*(math.sin(R3)*y+math.cos(R3)*z)*256
+                        #only add object to frame data if it's visible
+                        if (x2-r)>=0 and (x2+r)<=256 and (z2-r)>=0 and (z2+r)<=256 and y2>1:
+                            out.append([Vec3(x2,y2,z2),obj])
+                    out.sort(key = lambda x: x[0]['y'],reversed=True)
+                    out2 = bytearray(1024)
+                    out2[0]=ControlCodes['CHUNK_REQUEST']
+                    if len(out)>127:
+                        J = len(out)-127
+                    else:
+                        J = 0
+                    I=1
+                    while J<len(out):
+                        obj=out[J]
+                        x,y,z = obj[0]['x'],obj[0]['y'],obj[0]['z']
+                        out2[I]   = int(x)&0xFF
+                        out2[I+1] = int(z)&0xFF
+                        out2[I+2] = int(obj[1]['radius']/y)
+                        for X in range(3):
+                            out2[I+3+X] = obj[1]['colors'][X]
+                        out2[I+6] = int(time.time()*100)%256
+                        I+=8
+                        if I>1024:
+                            break
+                    self.send(out2)
+                elif data[0]==ControlCodes["POSITION_REQUEST"]:
+                    out = \
+                        list(self.pos['x'].to_bytes(3,'little'))+\
+                        list(self.pos['y'].to_bytes(3,'little'))+\
+                        list(self.pos['z'].to_bytes(3,'little'))
+                    self.send(out)
             except:
                 pass
         self.send([ControlCodes["DISCONNECT"]])
@@ -302,8 +349,9 @@ class Client:
             self.send([ControlCodes['MESSAGE']]+output)
 
     def register(self, data):
-        user, passw, passw2 = data.split(bytes([0]),maxsplit=2)
-        user = str(user)
+        user = ToUTF8(data[1:data.find(b'\0')])
+        passw = ToUTF8(data[25:data.find(b'\0')])
+        email = ToUTF8(data[57:data.find(b'\0')])
         self.log("Registering user:",user)
         if passw != passw2:
             self.log("[",user,"] Registration failed. Passwords do not match.")
@@ -325,8 +373,8 @@ class Client:
         self.send([ControlCodes["REGISTER"],ResponseCodes['SUCCESS']])       # Register successful
     
     def log_in(self, data):
-        user, passw = data.split(bytes([0]),maxsplit=1)
-        user = str(user)
+        user = ToUTF8(data[1:data.find(b'\0')])
+        passw = ToUTF8(data[25:data.find(b'\0')])
         self.log("Logging in user:",user)
         if user in BANNED_USERS:
             self.send([ControlCodes["LOGIN"],ResponseCodes['BANNED']])

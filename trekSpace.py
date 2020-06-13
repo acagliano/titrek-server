@@ -34,15 +34,10 @@ class Space:
 	def append(self,obj):
 		self.space.append(obj)
 
-	def gather_chunk(self,vec3):
-		sx = vec3['x']-1e6
-		sy = vec3['y']-1e6
-		sz = vec3['z']-1e6
-		ex = sx+2e6
-		ey = sy+2e6
-		ez = sz+2e6
+	def gather_chunk(self,vec3,Range):
+		sx = vec3['x']
+		sy = vec3['y']
+		sz = vec3['z']
 		for obj in self.space:
-			if obj['x']>=sx and obj['x']<ex and \
-				obj['y']>=sy and obj['y']<ey and \
-				obj['z']>=sz and obj['z']<ez:
-					yield obj
+			if pow(abs(obj['x']-sx)**3,abs(obj['y']-sy)**3,abs(obj['z']-sz)**3,1/3)<Range:
+				yield obj

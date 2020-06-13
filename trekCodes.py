@@ -19,7 +19,7 @@ ControlCodes = {
     "DISCONNECT":2,
     "PLAYER_MOV":3,
     "CHUNK_REQ":4,
-#returned from the registration and login routines
+    "POSITION_REQUEST":5,
 #Message codes
     "PING":0xfc,
     "MESSAGE":0xfd,

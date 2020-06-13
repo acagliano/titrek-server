@@ -20,9 +20,9 @@ class Generator:
 	def generate_all(self):
 		x=y=z=0
 		for i in range(2000):
-			x+=random.randint(-6e8,6e8)*1e7
-			z+=random.randint(-6e8,6e8)*1e7
-			y=random.randint(-1e8,1e8)*1e5
+			x+=random.randint(-6e6,6e6)*1e3
+			z+=random.randint(-6e6,6e6)*1e3
+			y=random.randint(-1e6,1e6)*1e2
 			for planet in self.generate(Vec3(x,y,z)):
 				planet["name"] = "system "+str(i)+"; "+planet["name"]
 				yield planet
@@ -60,12 +60,11 @@ def PlanetoidSystem(seed,pos):
 	a={"position":Vec3(x,y,z),"velocity":Vec3(),"name":"Sol"}
 	for name in r.keys(): a[name] = r[name]
 	yield a
-	rad = random.randint(80,300)*1e19
 	grav = GRAVITATIONAL_CONSTANT*mass
 	for i in range(random.randint(2,10)):
-		x+=random.randint(-6e9,6e9)
-		z+=random.randint(-6e9,6e9)
-		y=random.randint(-1e9,1e9)
+		x+=random.randint(-6e6,6e6)
+		z+=random.randint(-6e6,6e6)
+		y=random.randint(-1e6,1e6)
 		r=random.choice(StandardPlanetList)
 		a={"position":Vec3(x,y,z),"velocity":Vec3(),"name":"Planet "+chr(i+0x41)}
 		for name in r.keys(): a[name] = r[name]
