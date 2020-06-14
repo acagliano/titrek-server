@@ -6,11 +6,10 @@ case $1 in
 		;;
 	stop)
 		sudo systemctl stop trek-srv
-		sleep 20 
 		;;
 	restart)
 		sudo systemctl stop trek-srv
-		sleep 20
+		sleep 60
 		sudo systemctl start trek-srv
 		;;
 	status)
@@ -19,7 +18,7 @@ case $1 in
 	update)
 		sudo systemctl stop trek-srv
 		git pull
-		sleep 20
+		sleep 60
 		sudo systemctl start trek-srv
 		;;
 	*)
