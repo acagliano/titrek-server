@@ -431,7 +431,7 @@ class Client:
             self.send([ControlCodes["LOGIN"],ResponseCodes['BANNED']])
             self.log("[",user,"] Banned user attempted login.")
             return
-        passw_md5 = hashlib.md5(bytes(passw)).hexdigest()  # Generate md5 hash of password
+        passw_md5 = hashlib.md5(bytes(passw,'UTF-8')).hexdigest()  # Generate md5 hash of password
         try:
             with open('players/accounts.json', 'r') as accounts_file:
                 accounts = json.load(accounts_file)
