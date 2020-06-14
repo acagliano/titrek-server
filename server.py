@@ -387,7 +387,7 @@ class Client:
                         if I>=1024:
                             break
                     self.send(out2)
-            except sock.error:
+            except socket.error:
                 pass
             except Exception as e:
                 self.log("Internal Error:",e)
@@ -431,7 +431,7 @@ class Client:
             self.send([ControlCodes["LOGIN"],ResponseCodes['BANNED']])
             self.log("[",user,"] Banned user attempted login.")
             return
-        passw_md5 = hashlib.md5(passw).hexdigest()  # Generate md5 hash of password
+        passw_md5 = hashlib.md5(bytes(passw)).hexdigest()  # Generate md5 hash of password
         try:
             with open('players/accounts.json', 'r') as accounts_file:
                 accounts = json.load(accounts_file)
