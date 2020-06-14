@@ -407,7 +407,7 @@ class Client:
         user,passw,email = [ToUTF8(a[:a.find(b"\0")]) for a in data[1:].split(b"\0",maxsplit=2)]
         self.log("Registering user:",user)
         passw_md5 = hashlib.md5(bytes(passw,'UTF-8')).hexdigest()  # Generate md5 hash of password
-        with open('players/accounts.json', 'r+') as accounts_file:
+        with open('players/accounts.json', 'r') as accounts_file:
             accounts = json.load(accounts_file)
             for account in accounts:
                 if account['user'] == user:
@@ -418,6 +418,7 @@ class Client:
                     self.log("Email address",email,"has already been registered to an account.")
                     self.send([ControlCodes["REGISTER"],ResponseCodes['INVALID']])
             accounts.append({'user':user,'passw_md5':passw_md5,'email':email})
+        with open('players/accounts.json','w') as accounts_file:
             json.dump(accounts, accounts_file)
         self.user = user
         self.logged_in = True
