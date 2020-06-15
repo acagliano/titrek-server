@@ -328,7 +328,7 @@ class Client:
                             #only add object to frame data if it's visible
                             if (x2+r)>=-128 and (x2-r)<128 and (z2+r)>=-67 and (z2-r)<67 and y2>10:
                                 out.append([Vec3(x2,y2,z2),obj])
-                        out.sort(key = lambda x: x[0]['y'],reversed=True)
+                        out = sorted(out, key = lambda x: x[0]['y'],reversed=True)
                         out2 = bytearray(1024)
                         out2[0]=ControlCodes['CHUNK_REQUEST']
                         if len(out)>127:
