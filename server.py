@@ -285,7 +285,7 @@ class Client:
                     self.log("["+ToUTF8(self.user)+"]",ToUTF8(data[1:]))    # send a message to the server
                 elif data[0]==ControlCodes["DEBUG"]:
                     self.server.log(ToUTF8(data[1:])) # send a debug message to the server console
-                elif data[0]==ControlCode["PING"]:
+                elif data[0]==ControlCodes["PING"]:
                     self.server.log("Ping? Pong!")
                     self.send([ControlCodes["MESSAGE"]]+list(b"pong!"))
                 elif data[0]==ControlCodes["PLAYER_MOVE"]:
