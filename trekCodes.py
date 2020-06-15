@@ -17,7 +17,7 @@ ControlCodes = {
     "REGISTER":0,
     "LOGIN":1,
     "DISCONNECT":2,
-    "PLAYER_MOV":3,
+    "PLAYER_MOVE":3,
     "CHUNK_REQUEST":4,
     "ENTITY_REQUEST":5,
     "SENSOR_REQUEST":6,
