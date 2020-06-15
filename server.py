@@ -431,6 +431,7 @@ class Client:
                 elif account['email'] == email:
                     self.log("Email address",email,"has already been registered to an account.")
                     self.send([ControlCodes["REGISTER"],ResponseCodes['INVALID']])
+                    return
             accounts.append({'user':user,'passw_md5':passw_md5,'email':email})
         with open('players/accounts.json','w') as accounts_file:
             json.dump(accounts, accounts_file)
