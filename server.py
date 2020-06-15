@@ -252,6 +252,12 @@ class Client:
         except:
             self.data = {'x':0,'y':0,'z':0,'rot':0,'vx':0,'vy':0,'vz':0}
         self.pos = Vec3(self.data['x'],self.data['y'],self.data['z'])
+    
+    def save_player(self):
+        for k in ['x','y','z']:
+            self.data[k]=self.pos[k]
+        with open(self.playerfile,'w') as f:
+            json.dump(self.data,f)
 
     def __str__(self):
         return user+" ("+str(self.addr)+")"
@@ -450,6 +456,7 @@ class Client:
                             self.log("[",user,"] has successfuly logged in!")
                             self.send([ControlCodes["LOGIN"],ResponseCodes['SUCCESS']])   # Log in successful
                             self.playerfile = "players/data/"+self.user+".json"
+                            self.load_player()
                             return
                         else:
                             self.log("[",user,"] entered incorrect password.")
@@ -462,6 +469,7 @@ class Client:
         self.send([ControlCodes["LOGIN"],ResponseCodes['MISSING']])  # Error: user does not exist
 
     def disconnect(self):
+        self.save_player()
         self.send([ControlCodes['DISCONNECT']]) #Let the user know if disconnected. Might be useful eventually.
         Client.count -= 1
         self.closed = False
