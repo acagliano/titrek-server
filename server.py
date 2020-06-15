@@ -439,7 +439,9 @@ class Client:
         self.logged_in = True
         self.log("[",user,"] has been successfuly registered!")
         self.send([ControlCodes["REGISTER"],ResponseCodes['SUCCESS']])       # Register successful
-    
+        self.playerfile = "players/data/"+self.user+".json"
+        self.load_player()
+
     def log_in(self, data):
         user,passw = [ToUTF8(a) for a in data[1:].split(b"\0",maxsplit=1)]
         print(user,passw)
