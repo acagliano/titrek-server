@@ -21,6 +21,8 @@ BANNED_IPS = []
 PACKET_DEBUG = False
 
 def ToUTF8(dt):
+    if b"\0" in dt:
+        return str(bytes(dt[:dt.find(b"\0")]),'UTF-8')
     return str(bytes(dt),'UTF-8')
 
 def FromSignedInt(n):
@@ -414,7 +416,7 @@ class Client:
             self.send([ControlCodes['MESSAGE']]+output)
 
     def register(self, data):
-        user,passw,email = [ToUTF8(a[:a.find(b"\0")]) for a in data[1:].split(b"\0",maxsplit=2)]
+        user,passw,email = [ToUTF8(a) for a in data[1:].split(b"\0",maxsplit=2)]
         print(user,passw,email)
         self.log("Registering user:",user)
         passw_md5 = hashlib.md5(bytes(passw,'UTF-8')).hexdigest()  # Generate md5 hash of password
@@ -437,7 +439,7 @@ class Client:
         self.send([ControlCodes["REGISTER"],ResponseCodes['SUCCESS']])       # Register successful
     
     def log_in(self, data):
-        user,passw = [ToUTF8(a[:a.find(b"\0")]) for a in data[1:].split(b"\0",maxsplit=1)]
+        user,passw = [ToUTF8(a) for a in data[1:].split(b"\0",maxsplit=1)]
         print(user,passw)
         self.log("Logging in user:",user)
         if user in BANNED_USERS:
