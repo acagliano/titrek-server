@@ -293,112 +293,113 @@ class Client:
                     self.disconnect()
                 elif data[0]==ControlCodes["SERVINFO"]:
                     self.servinfo()
-                elif data[0]==ControlCodes["MESSAGE"]:
-                    self.log("["+ToUTF8(self.user)+"]",ToUTF8(data[1:]))    # send a message to the server
                 elif data[0]==ControlCodes["DEBUG"]:
                     self.server.log(ToUTF8(data[1:])) # send a debug message to the server console
                 elif data[0]==ControlCodes["PING"]:
                     self.server.log("Ping? Pong!")
                     self.send([ControlCodes["MESSAGE"]]+list(b"pong!"))
-                elif data[0]==ControlCodes["PLAYER_MOVE"]:
-                    G = FromSignedInt(data[1])
-                    if G>=self.max_acceleration:
-                        self.send([ControlCodes["DISCONNECT"]]+list(b"You were accelerating too fast. Hacking?\0"))
-                        return
-                    R1 = FromSignedInt(data[2])*math.pi/128
-                    R2 = FromSignedInt(data[3])*math.pi/128
-                    self.pos['vx']+=math.cos(R1)*math.cos(R2)*G
-                    self.pos['vy']+=math.sin(R1)*G
-                    self.pos['vz']+=-math.sin(R1)*G
-                elif data[0]==ControlCodes["CHUNK_REQUEST"]:
-                    out = []
-                    R1 = FromSignedInt(data[1])*math.pi/128
-                    R2 = FromSignedInt(data[2])*math.pi/128
-                    R3 = FromSignedInt(data[3])*math.pi/128
-                    Range = data[4]*1e6
-                    for obj in self.server.space.gather_chunk(self.pos,Range):
-                        x,y,z,r = obj['x'],obj['y'],obj['z'],obj['radius']
-                        x-=self.pos['x']
-                        y-=self.pos['y']
-                        z-=self.pos['z']
-                        x2 = (math.cos(R1)*x-math.sin(R1)*y)*(math.cos(R2)*x+math.sin(R2)*z)*256
-                        y2 = (math.sin(R1)*x+math.cos(R1)*y)*(math.cos(R3)*y-math.sin(R3)*z)
-                        z2 = (-math.sin(R2)*x+math.cos(R2)*z)*(math.sin(R3)*y+math.cos(R3)*z)*134
-                        #only add object to frame data if it's visible
-                        if (x2+r)>=-128 and (x2-r)<128 and (z2+r)>=-67 and (z2-r)<67 and y2>10:
-                            out.append([Vec3(x2,y2,z2),obj])
-                    out.sort(key = lambda x: x[0]['y'],reversed=True)
-                    out2 = bytearray(1024)
-                    out2[0]=ControlCodes['CHUNK_REQUEST']
-                    if len(out)>127:
-                        J = len(out)-127
-                        out2[1]=127
-                    else:
-                        J = 0
-                        out2[1]=len(out)
-                    I=2
-                    while J<len(out):
-                        obj=out[J]
-                        x,y,z = obj[0]['x'],obj[0]['y'],obj[0]['z']
-                        out2[I]   = ToSignedByte(int(x))
-                        out2[I+1] = ToSignedByte(int(z))
-                        out2[I+2] = int(obj[1]['radius']/y)
-                        for X in range(3):
-                            out2[I+3+X] = obj[1]['colors'][X]
-                        out2[I+6] = int(time.time()*100)&FF
-                        I+=8
-                        if I>=1024:
-                            break
-                    self.send(out2)
-                elif data[0]==ControlCodes["POSITION_REQUEST"]:
-                    x = int(self.pos['x'])
-                    y = int(self.pos['y'])
-                    z = int(self.pos['z'])
-                    qx=x//1e15
-                    qy=y//1e15
-                    qz=z//1e15
-                    if qx<0: qx=chr(0x61-qx)
-                    else:    qx=chr(0x41+qx)
-                    if qy<0: qy=chr(0x61-qy)
-                    else:    qy=chr(0x41+qy)
-                    if qz<0: qz=chr(0x61-qz)
-                    else:    qz=chr(0x41+qz)
-                    ax=(x//1e3)
-                    ay=(y//1e3)
-                    az=(z//1e3)
-                    self.send(bytes([ControlCodes["POSITION_REQUEST"]])+\
-                        b"Sector "+bytes([qx,qy,qz,0x20])+bytes("Coordinates x"+str(ax)+"y"+str(ay)+"z"+str(az),'UTF-8'))
-                elif data[0]==ControlCodes["SENSOR_REQUEST"]:
-                    R1 = FromSignedInt(data[1])*math.pi/128
-                    out=[]
-                    for obj in self.server.space.gather_chunk(1e9):
-                        x,z,r,c = obj['x'],obj['z'],obj['radius'],obj['colors'][0]
-                        x-=self.pos['x']
-                        z-=self.pos['z']
-                        x2=(math.cos(R1)*x-math.sin(R1)*z)*256
-                        z2=(math.sin(R1)*x+math.cos(R1)*z)*134
-                        if (x2+r)>=-128 and (x2-r)<128 and (z2+r)>=-67 and (z2-r)<67:
-                            out.append([x2,z2,r/100,c])
-                    out2 = bytearray(1024)
-                    out2[0]=ControlCodes["SENSOR_REQUEST"]
-                    if len(out)>254:
-                        J=len(out)-254
-                        out2[1]=254
-                    else:
-                        J=0
-                        out2[1]=len(out)
-                    I=2
-                    while J<len(out):
-                        obj=out[J]
-                        x,z,r,c = obj
-                        out2[I]   = ToSignedByte(int(x))
-                        out2[I+1] = ToSignedByte(int(z))
-                        out2[I+2] = ToSignedByte(int(r))
-                        out2[I+3] = c&0xFF
-                        I+=4
-                        if I>=1024:
-                            break
-                    self.send(out2)
+                elif self.logged_in:
+                    if data[0]==ControlCodes["PLAYER_MOVE"]:
+                        G = FromSignedInt(data[1])
+                        if G>=self.max_acceleration:
+                            self.send([ControlCodes["DISCONNECT"]]+list(b"You were accelerating too fast. Hacking?\0"))
+                            return
+                        R1 = FromSignedInt(data[2])*math.pi/128
+                        R2 = FromSignedInt(data[3])*math.pi/128
+                        self.pos['vx']+=math.cos(R1)*math.cos(R2)*G
+                        self.pos['vy']+=math.sin(R1)*G
+                        self.pos['vz']+=-math.sin(R1)*G
+                    elif data[0]==ControlCodes["MESSAGE"]:
+                        self.log("["+ToUTF8(self.user)+"]",ToUTF8(data[1:]))    # send a message to the server
+                    elif data[0]==ControlCodes["CHUNK_REQUEST"]:
+                        out = []
+                        R1 = FromSignedInt(data[1])*math.pi/128
+                        R2 = FromSignedInt(data[2])*math.pi/128
+                        R3 = FromSignedInt(data[3])*math.pi/128
+                        Range = data[4]*1e6
+                        for obj in self.server.space.gather_chunk(self.pos,Range):
+                            x,y,z,r = obj['x'],obj['y'],obj['z'],obj['radius']
+                            x-=self.pos['x']
+                            y-=self.pos['y']
+                            z-=self.pos['z']
+                            x2 = (math.cos(R1)*x-math.sin(R1)*y)*(math.cos(R2)*x+math.sin(R2)*z)*256
+                            y2 = (math.sin(R1)*x+math.cos(R1)*y)*(math.cos(R3)*y-math.sin(R3)*z)
+                            z2 = (-math.sin(R2)*x+math.cos(R2)*z)*(math.sin(R3)*y+math.cos(R3)*z)*134
+                            #only add object to frame data if it's visible
+                            if (x2+r)>=-128 and (x2-r)<128 and (z2+r)>=-67 and (z2-r)<67 and y2>10:
+                                out.append([Vec3(x2,y2,z2),obj])
+                        out.sort(key = lambda x: x[0]['y'],reversed=True)
+                        out2 = bytearray(1024)
+                        out2[0]=ControlCodes['CHUNK_REQUEST']
+                        if len(out)>127:
+                            J = len(out)-127
+                            out2[1]=127
+                        else:
+                            J = 0
+                            out2[1]=len(out)
+                        I=2
+                        while J<len(out):
+                            obj=out[J]
+                            x,y,z = obj[0]['x'],obj[0]['y'],obj[0]['z']
+                            out2[I]   = ToSignedByte(int(x))
+                            out2[I+1] = ToSignedByte(int(z))
+                            out2[I+2] = int(obj[1]['radius']/y)
+                            for X in range(3):
+                                out2[I+3+X] = obj[1]['colors'][X]
+                            out2[I+6] = int(time.time()*100)&FF
+                            I+=8
+                            if I>=1024:
+                                break
+                        self.send(out2)
+                    elif data[0]==ControlCodes["POSITION_REQUEST"]:
+                        x = int(self.pos['x'])
+                        y = int(self.pos['y'])
+                        z = int(self.pos['z'])
+                        qx=x//1e15
+                        qy=y//1e15
+                        qz=z//1e15
+                        if qx<0: qx=chr(0x61-qx)
+                        else:    qx=chr(0x41+qx)
+                        if qy<0: qy=chr(0x61-qy)
+                        else:    qy=chr(0x41+qy)
+                        if qz<0: qz=chr(0x61-qz)
+                        else:    qz=chr(0x41+qz)
+                        ax=(x//1e3)
+                        ay=(y//1e3)
+                        az=(z//1e3)
+                        self.send(bytes([ControlCodes["POSITION_REQUEST"]])+\
+                            b"Sector "+bytes([qx,qy,qz,0x20])+bytes("Coordinates x"+str(ax)+"y"+str(ay)+"z"+str(az),'UTF-8'))
+                    elif data[0]==ControlCodes["SENSOR_REQUEST"]:
+                        R1 = FromSignedInt(data[1])*math.pi/128
+                        out=[]
+                        for obj in self.server.space.gather_chunk(1e9):
+                            x,z,r,c = obj['x'],obj['z'],obj['radius'],obj['colors'][0]
+                            x-=self.pos['x']
+                            z-=self.pos['z']
+                            x2=(math.cos(R1)*x-math.sin(R1)*z)*256
+                            z2=(math.sin(R1)*x+math.cos(R1)*z)*134
+                            if (x2+r)>=-128 and (x2-r)<128 and (z2+r)>=-67 and (z2-r)<67:
+                                out.append([x2,z2,r/100,c])
+                        out2 = bytearray(1024)
+                        out2[0]=ControlCodes["SENSOR_REQUEST"]
+                        if len(out)>254:
+                            J=len(out)-254
+                            out2[1]=254
+                        else:
+                            J=0
+                            out2[1]=len(out)
+                        I=2
+                        while J<len(out):
+                            obj=out[J]
+                            x,z,r,c = obj
+                            out2[I]   = ToSignedByte(int(x))
+                            out2[I+1] = ToSignedByte(int(z))
+                            out2[I+2] = ToSignedByte(int(r))
+                            out2[I+3] = c&0xFF
+                            I+=4
+                            if I>=1024:
+                                break
+                        self.send(out2)
             except socket.error:
                 pass
             except Exception as e:
