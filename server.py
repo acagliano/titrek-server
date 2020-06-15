@@ -308,7 +308,7 @@ class Client:
                     R2 = FromSignedInt(data[2])*math.pi/128
                     R3 = FromSignedInt(data[3])*math.pi/128
                     Range = data[4]*1e6
-                    for obj in self.space.gather_chunk(self.pos,Range):
+                    for obj in self.server.space.gather_chunk(self.pos,Range):
                         x,y,z,r = obj['x'],obj['y'],obj['z'],obj['radius']
                         x-=self.pos['x']
                         y-=self.pos['y']
@@ -363,7 +363,7 @@ class Client:
                 elif data[0]==ControlCodes["SENSOR_REQUEST"]:
                     R1 = FromSignedInt(data[1])*math.pi/128
                     out=[]
-                    for obj in self.space.gather_chunk(1e9):
+                    for obj in self.server.space.gather_chunk(1e9):
                         x,z,r,c = obj['x'],obj['z'],obj['radius'],obj['colors'][0]
                         x-=self.pos['x']
                         z-=self.pos['z']
