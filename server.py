@@ -59,6 +59,7 @@ class Server:
         self.sock.settimeout(None)
         self.port = 51701                # Reserve a port for your service.
         self.clients = {}
+        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.sock.bind(('', self.port))                 # Now wait for client connection.
 
     def run(self):
@@ -127,6 +128,9 @@ class Server:
         for thread in self.threads:
             thread.terminate()
         self.main_thread.terminate()
+        self.closeFiles()
+
+    def closeFiles(self):
         self.banlist.close()
         self.ipbanlist.close()
         self.mlogf.close()
@@ -190,7 +194,7 @@ class Server:
                     except:
                         print("No help document availible.")
                 elif line[0]=="stop":
-                    self.stop(); break
+                    break
                 elif line[0]=="save":
                     multiprocessing.Process(target=self.space.save,args=("space/data", )).start()
                 elif line[0]=="seed":
