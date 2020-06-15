@@ -21,6 +21,7 @@ ControlCodes = {
     "CHUNK_REQUEST":4,
     "ENTITY_REQUEST":5,
     "SENSOR_REQUEST":6,
+    "POSITION_REQUEST":7,
 #Message codes
     "PING":0xfc,
     "MESSAGE":0xfd,
