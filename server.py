@@ -105,9 +105,10 @@ class Server:
         while self.online:
             self.sock.listen(1)
             conn, addr = self.sock.accept()
-            self.clients[conn] = Client(conn,addr,self)
-            self.threads.append(multiprocessing.Process(target=self.clients[conn].handle_connection))
-            self.threads[-1].start()
+            self.clients[conn] = client = Client(conn,addr,self)
+            thread = multiprocessing.Process(target=client.handle_connection)
+            self.threads.append(thread)
+            thread.start()
 
     def autoSaveHandler(self):
         last_save_time = start_time = time.time()
@@ -273,6 +274,10 @@ class Client:
     def handle_connection(self):
         while self.server.online:
             data = self.conn.recv(1024)
+            if not data:
+                continue
+            if len(data)==0:
+                continue
             if PACKET_DEBUG:
                 o=[]
                 for c in data:
@@ -280,10 +285,6 @@ class Client:
                     elif c<0x10: o.append("\\x0"+hex(c)[2:])
                     else: o.append("\\x"+hex(c)[2:])
                 self.log("recieved packet: ","".join(o))
-            if not data:
-                continue
-            if len(data)==0:
-                continue
             try:
                 if data[0]==ControlCodes["REGISTER"]:
                     self.register(data)
@@ -405,7 +406,8 @@ class Client:
                 pass
             except Exception as e:
                 self.log("Internal Error:",e)
-        self.send([ControlCodes["DISCONNECT"]])
+        else:
+            self.disconnect()
 
     def servinfo(self):
         with open('servinfo.json', 'r+') as info_file:
@@ -479,7 +481,7 @@ class Client:
         self.save_player()
         self.send([ControlCodes['DISCONNECT']]) #Let the user know if disconnected. Might be useful eventually.
         Client.count -= 1
-        self.closed = False
+        self.logged_in = False
 
 server = Server()
 server.run()
