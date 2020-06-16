@@ -250,6 +250,10 @@ class Client:
 
     def load_player(self):
         try:
+            os.makedirs("players/data/"+self.user)
+        except:
+            pass
+        try:
             with open(self.playerfile) as f:
                 self.data = json.load(f)
         except:
@@ -257,6 +261,10 @@ class Client:
         self.pos = Vec3(self.data['x'],self.data['y'],self.data['z'])
     
     def save_player(self):
+        try:
+            os.makedirs("players/data/"+self.user)
+        except:
+            pass
         for k in ['x','y','z']:
             self.data[k]=self.pos[k]
         with open(self.playerfile,'w') as f:
@@ -267,9 +275,9 @@ class Client:
 
     def send(self,data):
         if self.conn.send(bytes(data)):
-            self.log("Sent packet:",data)
+            self.log("Sent packet")
         else:
-            self.log("Failed to send packet:",data)
+            self.log("Failed to send packet")
 
     def handle_connection(self):
         while self.server.online:
