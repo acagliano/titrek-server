@@ -421,9 +421,8 @@ class Client:
         with open('servinfo.json', 'r+') as info_file:
             info = json.load(info_file)
             version = info['server']['version']
-            client = info['server']['client_req']
             Max = info['server']['max_clients']
-            output = list(b'{},{},{},{}'.format(version, client, Client.count, Max))
+            output = list(b'{}  Clients: {} / {}'.format(version, Client.count, Max))
             #send the info packet prefixed with response code.
             self.send([ControlCodes['MESSAGE']]+output)
 
