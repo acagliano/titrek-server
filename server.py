@@ -5,7 +5,7 @@
 #Authors:
 # Anthony "ACagliano" Cagliano
 # Adam "beckadamtheinventor" Beckingham
-#This is the server program for Star Trek CE.
+#This is the server program for TI-Trek CE.
 
 import socket,multiprocessing,ctypes,hashlib,json,os,sys,time,math
 
@@ -109,7 +109,23 @@ class Server:
             thread = multiprocessing.Process(target=client.handle_connection)
             self.threads.append(thread)
             thread.start()
+            time.sleep(0.002)
+            self.writeinfo()
 
+    def writeinfo(self):
+        if self.online:
+            status="true"
+        else:
+            status="false"
+        with open("servinfo.json","w") as f:
+                f.write('\
+"server":{\
+    "version":"TI-Trek server version 2.01.0000",\
+    "numclients":'+str(Client.count)+',\
+    "minversion":"0.0.92-alpha",\
+    "max_clients":250,\
+    "online":'+status+'\
+}')
     def autoSaveHandler(self):
         last_save_time = start_time = time.time()
         while self.online:
@@ -124,13 +140,14 @@ class Server:
     def stop(self):
         self.log("Shutting down.")
         self.space.save("space/data")
-        self.online = False
         for client in self.clients.keys():
             self.clients[client].disconnect()
             del self.clients[client]
         for thread in self.threads:
             thread.terminate()
         self.main_thread.terminate()
+        self.online = False
+        self.writeinfo()
         self.closeFiles()
 
     def closeFiles(self):

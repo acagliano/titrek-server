@@ -1,7 +1,10 @@
 
 "server":{
 	"version":"TI-Trek server version 2.01.0000",
-	"max_clients":250
+	"numclients":0,
+	"minversion":"0.0.92-alpha",
+	"max_clients":250,
+	"online":false
 }
 
 
