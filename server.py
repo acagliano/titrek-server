@@ -120,13 +120,13 @@ class Server:
             status="false"
         with open("servinfo.json","w") as f:
                 f.write('\
-"server":{\
+{"server":{\
     "version":"TI-Trek server version 2.01.0000",\
     "numclients":'+str(Client.count)+',\
     "minversion":"0.0.92",\
     "max_clients":250,\
     "online":'+status+'\
-}')
+}}')
     def autoSaveHandler(self):
         last_save_time = start_time = time.time()
         while self.online:
