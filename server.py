@@ -123,7 +123,7 @@ class Server:
 "server":{\
     "version":"TI-Trek server version 2.01.0000",\
     "numclients":'+str(Client.count)+',\
-    "minversion":"0.0.92-alpha",\
+    "minversion":"0.0.92",\
     "max_clients":250,\
     "online":'+status+'\
 }')
