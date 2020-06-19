@@ -66,6 +66,7 @@ class Server:
 
     def run(self):
         self.online = True
+        self.writeinfo()
         self.threads = [multiprocessing.Process(target=self.autoSaveHandler)]
         self.threads[0].start()
         self.main_thread = multiprocessing.Process(target=self.main)
