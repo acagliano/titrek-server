@@ -121,7 +121,7 @@ class Server:
         with open("servinfo.json","w") as f:
                 f.write('\
 {"server":{\
-    "version":"TI-Trek server version 2.01.0000",\
+    "version":"2.01.0000",\
     "numclients":'+str(Client.count)+',\
     "minversion":"0.0.92",\
     "max_clients":250,\
