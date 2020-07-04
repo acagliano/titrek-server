@@ -325,6 +325,17 @@ class Client:
                 elif data[0]==ControlCodes["PING"]:
                     self.server.log("Ping? Pong!")
                     self.send([ControlCodes["MESSAGE"]]+list(b"pong!"))
+                elif data[0]==ControlCodes["PRGMUPDATE"]:
+                    gfx_hash = sum([data[x+1]*(2**(8*(x-1))) for x in range(4)])
+                    paths=sorted(next(os.fwalk("cli-versions/prgm/"))[1],reverse=True)
+                    try:
+                        with open("cli-versions/prgm/"+paths[0]+"/TITREK.bin",'rb') as f:
+                            program_data = bytearray(f.read())
+                        for i in range(0,len(program_data),1020):
+                            self.send(bytes([ControlCodes["PRGMUPDATE"]])+program_data[i:min(i+1020,len(program_data))])
+                            time.sleep(1/4)
+                    except:
+                        self.elog("Could not find one or more required files in folder","cli-versions/prgm/"+paths[0])
                 elif self.logged_in:
                     if data[0]==ControlCodes["PLAYER_MOVE"]:
                         G = FromSignedInt(data[1])

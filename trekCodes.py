@@ -17,11 +17,13 @@ ControlCodes = {
     "REGISTER":0,
     "LOGIN":1,
     "DISCONNECT":2,
-    "PLAYER_MOVE":3,
-    "CHUNK_REQUEST":4,
-    "ENTITY_REQUEST":5,
-    "SENSOR_REQUEST":6,
-    "POSITION_REQUEST":7,
+    "PRGMUPDATE":3,
+    "GFXUPDATE":4,
+    "MODULEINFO":5,
+    "PLAYER_MOVE":6,
+    "CHUNK_REQUEST":7,
+    "ENTITY_REQUEST":8,
+    "SENSOR_REQUEST":9, #May add REQPOSITION if needed
 #Message codes
     "PING":0xfc,
     "MESSAGE":0xfd,
