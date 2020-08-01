@@ -21,5 +21,5 @@ case $1 in
 		sudo systemctl start trek-srv
 		;;
 	*)
-		echo "Usage: trek start|stop|restart|status"
+		echo "Usage: trek start|stop|restart|update|status"
 esac
