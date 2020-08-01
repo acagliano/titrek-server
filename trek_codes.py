@@ -25,7 +25,7 @@ ControlCodes = {
     "CHUNK_REQUEST":8,
     "ENTITY_REQUEST":9,
     "SENSOR_REQUEST":10, #May add REQPOSITION if needed
-    "NEW_GAME_REQUEST",11,
+    "NEW_GAME_REQUEST":11,
 #Message codes
     "PING":0xfc,
     "MESSAGE":0xfd,
