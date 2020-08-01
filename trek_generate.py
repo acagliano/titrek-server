@@ -1,7 +1,7 @@
 
-from npcs import *
+from trek_npcs import *
 from trek_vec3 import *
-from trekCodes import *
+from trek_codes import *
 from trek_constants import *
 import os,json,math,random,time
 
