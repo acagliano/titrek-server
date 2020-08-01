@@ -1,0 +1,8 @@
+{
+	"data":[
+		{"type": "star","mass": 2e30,"radius":5e6,"colors":[0xE7,0xC3,0xEF]},
+		{"type": "star","mass": 3e30,"radius":3e5,"colors":[0xFF,0xDF,0xBF]},
+		{"type": "star","mass": 1e32,"radius":9e6,"colors":[0x11,0x08,0x14]},
+		{"type": "black hole","mass":0,"radius":1e6,"colors":[0x00,0x00,0x00]}
+	]
+}

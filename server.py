@@ -10,10 +10,11 @@
 import socket,multiprocessing,ctypes,hashlib,json,os,sys,time,math
 
 
-from trekCodes import *
-from generate import *
-from trekSpace import *
+from trek_codes import *
+from trek_generate import *
+from trek_space import *
 from trek_vec3 import *
+from trek_modules import loadModule
 
 BANNED_USERS = []
 BANNED_IPS = []
@@ -439,12 +440,32 @@ class Client:
                             if I>=1024:
                                 break
                         self.send(out2)
+                    elif data[0]==ControlCodes["MODULE_REQUEST"]:
+                        pass
+                    elif data[0]==ControlCodes["MODULE_UPDATE"]:
+                        pass
+                    elif data[0]==ControlCodes["LOAD_SHIP"]:
+                        pass
+                    elif data[0]==ControlCodes["NEW_GAME_REQUEST"]:
+                        self.create_new_game()
             except socket.error:
                 pass
             except Exception as e:
                 self.log("Internal Error:",e)
         else:
             self.disconnect()
+
+    def create_new_game(self):
+        try:
+            os.makedirs(self.playerdir)
+        except:
+            pass
+        ship = {"core":[loadModule("core",1)],"weapons":[],"hull":[loadModule("hull",1)],"shield":[]}
+        try:
+            with open(self.playerdir+"ship.json","w") as f:
+                json.dump(ship,f)
+        except:
+            self.elog("["+self.user+"] Failed to create new game!")
 
     def servinfo(self):
         with open('servinfo.json', 'r+') as info_file:
@@ -478,8 +499,10 @@ class Client:
         self.logged_in = True
         self.log("[",user,"] has been successfuly registered!")
         self.send([ControlCodes["REGISTER"],ResponseCodes['SUCCESS']])       # Register successful
+        self.playerdir = "players/data/"+self.user+"/"
         self.playerfile = "players/data/"+self.user+".json"
         self.load_player()
+        self.create_new_game()
 
     def log_in(self, data):
         user,passw = [ToUTF8(a) for a in data[1:].split(b"\0",maxsplit=1)]
@@ -522,14 +545,3 @@ class Client:
 server = Server()
 server.run()
 
-
-
-
-
-
-# Elements to be done
-# 1. Accept connections
-# 2. Handle login/register (possibly SQL)
-# 3. Handle logout, connection destruction
-
-#test 3

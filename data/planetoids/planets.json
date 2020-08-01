@@ -1,0 +1,9 @@
+{
+	"data":[
+		{"type": "planet","living": true, "mass": 1e24, "radius": 1e3, "colors":[0x2E,0x18,0x7F]},
+		{"type": "planet","living": false,"mass": 1e20, "radius": 5e2, "colors":[0x21,0x22,0x00]},
+		{"type": "planet","living": false,"mass": 1e21, "radius": 6e2, "colors":[0x41,0x42,0x00]},
+		{"type": "planet","living": false,"mass": 6e23, "radius": 3.4e3, "colors":[0x60,0x81,0x21]},
+		{"type": "planet","living": false,"mass": 1e16, "radius": 1e2, "colors":[0xA0,0xA9,0x8D]}
+	]
+}
