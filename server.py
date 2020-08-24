@@ -474,8 +474,11 @@ class Client:
 						pass
 					elif data[0]==ControlCodes["LOAD_SHIP"]:
 						odata = [0,0,0,0,0,0,self.data['hull']['health']]+self.data['hull']['composition']
-						for m in self.data['modules']:
-							odata.extend([m['techclass'],m['techtype'],m['health'],m['status_flags']])
+						for i in range(15):
+							if i<len(self.data['modules']):
+								odata.extend([m['techclass'],m['techtype'],m['health'],m['status_flags']])
+							else:
+								odata.extend([0,0,0,0])
 						self.send(bytes(odata))
 					elif data[0]==ControlCodes["NEW_GAME_REQUEST"]:
 						self.create_new_game()
