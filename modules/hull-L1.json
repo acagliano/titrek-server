@@ -1,3 +1,7 @@
 {
 	"MaxHealth":100,
+	"techclass":2,
+	"techtype":1,
+	"health":100,
+	"status_flags":0,
 }

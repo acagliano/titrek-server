@@ -276,9 +276,33 @@ class Client:
 			with open(self.playerfile) as f:
 				self.data = json.load(f)
 		except:
-			self.data = {'x':0,'y':0,'z':0,'rot':0,'vx':0,'vy':0,'vz':0}
+			self.data = {'x':0,'y':0,'z':0,'vx':0,'vy':0,'vz':0}
 		self.pos = Vec3(self.data['x'],self.data['y'],self.data['z'])
-	
+		self.rot =
+		if "modules" not in self.data.keys():
+			self.data["modules"] = [
+				{'level': 1, 'file': 'modules/core', 'modifiers': []},
+			]
+			self.data['hull'] = {'level':1, 'file':'modules/hull','modifiers':[]}
+			self.load_modules()
+
+	def load_modules(self):
+		for m in self.data['modules']:
+			self._load_module(m)
+		self._load_module(self.data['hull'])
+
+	def _load_module(self,m):
+		m['health'] = 100
+		fname=m['file']+"-L"+str(m['level'])+'.json'
+		try:
+			with open(fname):
+				j = json.load(f)
+			for k in j.keys():
+				m[k] = j[k]
+		except:
+			self.log(f"Error: Failed to load module json \"{fname}\".")
+
+
 	def save_player(self):
 		try:
 			os.makedirs("players/data/"+self.user)
@@ -290,7 +314,7 @@ class Client:
 			json.dump(self.data,f)
 
 	def __str__(self):
-		return user+" ("+str(self.addr)+")"
+		return user+" @"+str(self.addr)
 
 	def send(self,data):
 		if self.conn.send(bytes(data)):
@@ -449,7 +473,10 @@ class Client:
 					elif data[0]==ControlCodes["MODULE_UPDATE"]:
 						pass
 					elif data[0]==ControlCodes["LOAD_SHIP"]:
-						pass
+						odata = [0,0,0,0,0,0,self.data['hull']['health']]+self.data['hull']['composition']
+						for m in self.data['modules']:
+							odata.extend([m['techclass'],m['techtype'],m['health'],m['status_flags']])
+						self.send(bytes(odata))
 					elif data[0]==ControlCodes["NEW_GAME_REQUEST"]:
 						self.create_new_game()
 			except socket.error:
@@ -504,7 +531,7 @@ class Client:
 		self.log("[",user,"] has been successfuly registered!")
 		self.send([ControlCodes["REGISTER"],ResponseCodes['SUCCESS']])       # Register successful
 		self.playerdir = "players/data/"+self.user+"/"
-		self.playerfile = "players/data/"+self.user+".json"
+		self.playerfile = "players/data/"+self.user+"/player.json"
 		self.load_player()
 		self.create_new_game()
 
@@ -527,7 +554,7 @@ class Client:
 							self.logged_in = True
 							self.log("[",user,"] has successfuly logged in!")
 							self.send([ControlCodes["LOGIN"],ResponseCodes['SUCCESS']])   # Log in successful
-							self.playerfile = "players/data/"+self.user+".json"
+							self.playerfile = "players/data/"+self.user+"/player.json"
 							self.load_player()
 							return
 						else:

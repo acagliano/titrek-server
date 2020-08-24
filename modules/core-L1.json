@@ -10,5 +10,9 @@
 			"HazardChance":0.1f,
 			"HazardAction":"explosion"
 		}
-	}
+	},
+	"techclass":1,
+	"techtype":1,
+	"health":100,
+	"status_flags":0,
 }
