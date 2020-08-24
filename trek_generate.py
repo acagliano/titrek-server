@@ -38,7 +38,7 @@ def LoadJsonFile(fname=None):
 		return dict()
 	try:
 		with open(fname) as f:
-			json.load(f)
+			return json.load(f)
 	except Exception as e:
 		print("Something went wrong loading",fname)
 		raise e
@@ -96,6 +96,10 @@ def RandomDeviatingColor(color):
 		return [RandomDeviatingColor(c) for c in color]
 
 
+StandardPlanetList = LoadJsonFile("data/planetoids/planets.json")["data"]
+StandardStarList = LoadJsonFile("data/planetoids/stars.json")["data"]
+Materials = LoadJsonFile("data/materials/materials.json")["data"]
+
 if __name__=='__main__':
 	#do some tests
 	def getRBGBinStr(c):
@@ -103,8 +107,4 @@ if __name__=='__main__':
 	for i in range(16):
 		color=random.randint(0,256)
 		print(getRBGBinStr(color),"->",getRBGBinStr(RandomDeviatingColor(color)),"=",hex(color))
-else:
-	StandardPlanetList = LoadJsonFile("data/planetoids/planets.json")["data"]
-	StandardStarList = LoadJsonFile("data/planetoids/stars.json")["data"]
-	Materials = LoadJsonFile("data/materials/materials.json")["data"]
 

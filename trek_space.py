@@ -15,11 +15,11 @@ class Space:
 		log("Finished loading map")
 
 	def walk(self,path):
-		fw=next(os.fwalk(path))
-		for dname in fw[1]:
-			yield self.walk(path+"/"+dname)
-		for fname in fw[2]:
-			yield path+"/"+fname
+		for root,dirs,files in os.walk(path,topdown=False):
+			for dname in dirs:
+				yield self.walk(path+"/"+dname)
+			for fname in files:
+				yield path+"/"+fname
 	def save(self,dname):
 		try:
 			os.makedirs(dname)
