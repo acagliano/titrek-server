@@ -264,12 +264,12 @@ class Client:
 		self.log=server.log
 		self.max_acceleration = 5 #accelerate at a maximum of 100m/s^2
 		if PACKET_DEBUG:
-			self.log("Got client from ", addr)
-		self.send([ControlCodes["MESSAGE"]]+list(b'Thank you for connecting'))
+			self.log(f"Got client from {addr}")
+		self.send([ControlCodes["MESSAGE"]]+list(b'Logging you in...'))
 
 	def load_player(self):
 		try:
-			os.makedirs("players/data/"+self.user)
+			os.makedirs(f"players/data/{self.user}")
 		except:
 			pass
 		try:
@@ -293,7 +293,7 @@ class Client:
 
 	def _load_module(self,m):
 		m['health'] = 100
-		fname=m['file']+"-L"+str(m['level'])+'.json'
+		fname=m['file']+f"-L{str(m['level'])}.json"
 		try:
 			with open(fname):
 				j = json.load(f)
@@ -305,7 +305,7 @@ class Client:
 
 	def save_player(self):
 		try:
-			os.makedirs("players/data/"+self.user)
+			os.makedirs(f"players/data/{self.user}")
 		except:
 			pass
 		for k in ['x','y','z']:
@@ -358,13 +358,13 @@ class Client:
 							paths.append(d)
 					paths = sorted(paths,reverse=True)
 					try:
-						with open("cli-versions/prgm/"+paths[0]+"/TITREK.bin",'rb') as f:
+						with open(f"cli-versions/prgm/{paths[0]}/TITREK.bin",'rb') as f:
 							program_data = bytearray(f.read())
 						for i in range(0,len(program_data),1020):
 							self.send(bytes([ControlCodes["PRGMUPDATE"]])+program_data[i:min(i+1020,len(program_data))])
 							time.sleep(1/4)
 					except:
-						self.elog("Could not find one or more required files in folder","cli-versions/prgm/"+paths[0])
+						self.elog(f"Could not find one or more required files in folder","cli-versions/prgm/{paths[0]}")
 				elif self.logged_in:
 					if data[0]==ControlCodes["PLAYER_MOVE"]:
 						G = FromSignedInt(data[1])
@@ -496,17 +496,17 @@ class Client:
 			pass
 		ship = {"core":[loadModule("core",1)],"weapons":[],"hull":[loadModule("hull",1)],"shield":[]}
 		try:
-			with open(self.playerdir+"ship.json","w") as f:
+			with open(self.playerdir+"/ship.json","w") as f:
 				json.dump(ship,f)
 		except:
-			self.elog("["+self.user+"] Failed to create new game!")
+			self.elog(f"[{self.user}] Failed to create new game!")
 
 	def servinfo(self):
 		with open('servinfo.json', 'r+') as info_file:
 			info = json.load(info_file)
 			version = info['server']['version']
 			Max = info['server']['max_clients']
-			output = list(b'{}\nClients: {} / {}\n'.format(version, Client.count, Max))
+			output = list(bytes(f'{version}\nClients: {Client.count} / {Max}\n','UTF-8'))
 			#send the info packet prefixed with response code.
 			self.send([ControlCodes['MESSAGE']]+output)
 
@@ -515,26 +515,30 @@ class Client:
 		print(user,passw,email)
 		self.log("Registering user:",user)
 		passw_md5 = hashlib.md5(bytes(passw,'UTF-8')).hexdigest()  # Generate md5 hash of password
-		with open('players/accounts.json', 'r') as accounts_file:
-			accounts = json.load(accounts_file)
-			for account in accounts:
-				if account['user'] == user:
-					self.log("[",user,"] Already registered.")
-					self.send([ControlCodes["REGISTER"],ResponseCodes['DUPLICATE']])  # Error: user already exists
-					return
-				elif account['email'] == email:
-					self.log("Email address",email,"has already been registered to an account.")
-					self.send([ControlCodes["REGISTER"],ResponseCodes['INVALID']])
-					return
-			accounts.append({'user':user,'passw_md5':passw_md5,'email':email})
-		with open('players/accounts.json','w') as accounts_file:
-			json.dump(accounts, accounts_file)
+		for root,dirs,files in os.walk('players/'): #search in players directory
+			for d in dirs: #only search directories
+				with open(f'players/{d}/accounts.json', 'r') as f:
+					account = json.load(f)
+					if account['user'] == user:
+						self.log(f"[{user}] Already registered.")
+						self.send([ControlCodes["REGISTER"],ResponseCodes['DUPLICATE']])  # Error: user already exists
+						return
+					elif account['email'] == email:
+						self.log(f"Email address {email} has already been registered to an account.")
+						self.send([ControlCodes["REGISTER"],ResponseCodes['INVALID']])
+						return
+		try:
+			os.makedirs(f'players/{user}')
+		except:
+			pass
+		with open(f'players/{user}/account.json','w') as f:
+			json.dump({'user':user,'passw_md5':passw_md5,'email':email},f)
 		self.user = user
 		self.logged_in = True
-		self.log("[",user,"] has been successfuly registered!")
+		self.log(f"[{user}] has been successfuly registered!")
 		self.send([ControlCodes["REGISTER"],ResponseCodes['SUCCESS']])       # Register successful
-		self.playerdir = "players/data/"+self.user+"/"
-		self.playerfile = "players/data/"+self.user+"/player.json"
+		self.playerdir = f"players/data/{self.user}/"
+		self.playerfile = f"players/data/{self.user}/player.json"
 		self.load_player()
 		self.create_new_game()
 
@@ -544,24 +548,25 @@ class Client:
 		self.log("Logging in user:",user)
 		if user in BANNED_USERS:
 			self.send([ControlCodes["LOGIN"],ResponseCodes['BANNED']])
-			self.log("[",user,"] Banned user attempted login.")
+			self.log(f"[{user}}] Banned user attempted login.")
 			return
 		passw_md5 = hashlib.md5(bytes(passw,'UTF-8')).hexdigest()  # Generate md5 hash of password
 		try:
-			with open('players/accounts.json', 'r') as accounts_file:
-				accounts = json.load(accounts_file)
-				for account in accounts:
+			for root, dirs, files in os.walk('players/'):  # search in players directory
+				for d in dirs:  # only search directories
+					with open(f'players/{d}/accounts.json', 'r') as f:
+						account = json.load(f)
 					if account['user'] == user:
 						if account['passw_md5'] == passw_md5:
 							self.user = user
 							self.logged_in = True
-							self.log("[",user,"] has successfuly logged in!")
+							self.log(f"[{user}] has successfuly logged in!")
 							self.send([ControlCodes["LOGIN"],ResponseCodes['SUCCESS']])   # Log in successful
-							self.playerfile = "players/data/"+self.user+"/player.json"
+							self.playerfile = f"players/data/{self.user}/player.json"
 							self.load_player()
 							return
 						else:
-							self.log("[",user,"] entered incorrect password.")
+							self.log(f"[{user}] entered incorrect password.")
 							self.send([ControlCodes["LOGIN"],ResponseCodes['INVALID']])  # Error: incorrect password
 							return
 		except:
