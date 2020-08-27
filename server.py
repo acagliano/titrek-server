@@ -16,10 +16,15 @@ from trek_space import *
 from trek_vec3 import *
 from trek_modules import loadModule
 
+PACKET_DEBUG = False
+
 BANNED_USERS = []
 BANNED_IPS = []
+InvalidCharacters = ["/","\\","#","$","%","^","&","*","!","~","`","\"","|"] + \
+					[chr(a) for a in range(1,0x20)] + [chr(a) for a in range(0x80,0x100)]
+TextBodyControlCodes = [ControlCodes["REGISTER"],ControlCodes["LOGIN"],ControlCodes["PING"],ControlCodes["MESSAGE"],\
+						ControlCodes["DEBUG"],ControlCodes["SERVINFO"],ControlCodes["DISCONNECT"]]
 
-PACKET_DEBUG = False
 
 def ToUTF8(dt):
 	if b"\0" in dt:
@@ -256,6 +261,7 @@ class Client:
 	
 	def __init__(self, conn, addr, server):
 		self.conn = conn
+		self.addr = addr
 		self.closed = False
 		self.logged_in = False
 		self.user = ''
@@ -326,8 +332,10 @@ class Client:
 		while self.server.online:
 			data = self.conn.recv(1024)
 			if not data:
+				time.sleep(1)
 				continue
 			if len(data)==0:
+				time.sleep(1)
 				continue
 			if PACKET_DEBUG:
 				o=[]
@@ -336,6 +344,10 @@ class Client:
 					elif c<0x10: o.append("\\x0"+hex(c)[2:])
 					else: o.append("\\x"+hex(c)[2:])
 				self.log("recieved packet: ","".join(o))
+			if data[0] in TextBodyControlCodes:
+				msg = data[1:]
+				if any([any([a in b for a in InvalidCharacters]) for b in msg]):
+					self.send([ControlCodes["BAD_MESSAGE_CONTENT"]])
 			try:
 				if data[0]==ControlCodes["REGISTER"]:
 					self.register(data)
@@ -482,12 +494,21 @@ class Client:
 						self.send(bytes(odata))
 					elif data[0]==ControlCodes["NEW_GAME_REQUEST"]:
 						self.create_new_game()
+				else:
+					with open("invalid-requests.txt",'a+') as f:
+						f.write(str(self.addr)+f": Attempted request without login. Control code: {hex(self.fromControlCode(data[0]))}")
 			except socket.error:
 				pass
 			except Exception as e:
 				self.log("Internal Error:",e)
 		else:
 			self.disconnect()
+
+	def fromControlCode(self,code):
+		if code in ControlCodes.values():
+			return ControlCodes.keys()[ControlCodes.values().index(code)]
+		else:
+			return hex(code)
 
 	def create_new_game(self):
 		try:
