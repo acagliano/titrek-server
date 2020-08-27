@@ -21,7 +21,7 @@ PACKET_DEBUG = False
 BANNED_USERS = []
 BANNED_IPS = []
 InvalidCharacters = ["/","\\","#","$","%","^","&","*","!","~","`","\"","|"] + \
-					[chr(a) for a in range(1,0x20)] + [chr(a) for a in range(0x80,0x100)]
+					[chr(a) for a in range(1,0x20)] + [chr(a) for a in range(0x7F,0x100)]
 TextBodyControlCodes = [ControlCodes["REGISTER"],ControlCodes["LOGIN"],ControlCodes["PING"],ControlCodes["MESSAGE"],\
 						ControlCodes["DEBUG"],ControlCodes["SERVINFO"],ControlCodes["DISCONNECT"]]
 
@@ -284,7 +284,7 @@ class Client:
 		except:
 			self.data = {'x':0,'y':0,'z':0,'vx':0,'vy':0,'vz':0}
 		self.pos = Vec3(self.data['x'],self.data['y'],self.data['z'])
-		self.rot =
+		self.rot = Vec3()
 		if "modules" not in self.data.keys():
 			self.data["modules"] = [
 				{'level': 1, 'file': 'modules/core', 'modifiers': []},
@@ -346,8 +346,8 @@ class Client:
 				self.log("recieved packet: ","".join(o))
 			if data[0] in TextBodyControlCodes:
 				msg = data[1:]
-				if any([any([a in b for a in InvalidCharacters]) for b in msg]):
-					self.send([ControlCodes["BAD_MESSAGE_CONTENT"]])
+				if any([a in msg for a in InvalidCharacters]):
+					self.send([ControlCodes["DISCONNECTED"],ResponseCodes["BAD_MESSAGE_CONTENT"]])
 			try:
 				if data[0]==ControlCodes["REGISTER"]:
 					self.register(data)
@@ -495,8 +495,12 @@ class Client:
 					elif data[0]==ControlCodes["NEW_GAME_REQUEST"]:
 						self.create_new_game()
 				else:
-					with open("invalid-requests.txt",'a+') as f:
-						f.write(str(self.addr)+f": Attempted request without login. Control code: {hex(self.fromControlCode(data[0]))}")
+					ts=time.asctime()
+					j = {"time":ts,"match":True,"host":str(self.addr)}
+					with open("malicious.txt",'a+') as f:
+						f.write(f"# failJSON: {json.dumps(j)}\n{str(self.addr)} @ {ts}:\
+Attempted request without login. Control code: {hex(self.fromControlCode(data[0]))}")
+					self.send([ControlCodes["DISCONNECTED"],ResponseCodes["BAD_MESSAGE_CONTENT"]])
 			except socket.error:
 				pass
 			except Exception as e:
@@ -569,7 +573,7 @@ class Client:
 		self.log("Logging in user:",user)
 		if user in BANNED_USERS:
 			self.send([ControlCodes["LOGIN"],ResponseCodes['BANNED']])
-			self.log(f"[{user}}] Banned user attempted login.")
+			self.log(f"[{user}] Banned user attempted login.")
 			return
 		passw_md5 = hashlib.md5(bytes(passw,'UTF-8')).hexdigest()  # Generate md5 hash of password
 		try:
