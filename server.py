@@ -540,9 +540,9 @@ Attempted request without login. Control code: {hex(self.fromControlCode(data[0]
 		print(user,passw,email)
 		self.log("Registering user:",user)
 		passw_md5 = hashlib.md5(bytes(passw,'UTF-8')).hexdigest()  # Generate md5 hash of password
-		for root,dirs,files in os.walk('players/'): #search in players directory
+		for root,dirs,files in os.walk('players/data/'): #search in players directory
 			for d in dirs: #only search directories
-				with open(f'players/{d}/accounts.json', 'r') as f:
+				with open(f'players/data/{d}/accounts.json', 'r') as f:
 					account = json.load(f)
 					if account['user'] == user:
 						self.log(f"[{user}] Already registered.")
@@ -553,10 +553,10 @@ Attempted request without login. Control code: {hex(self.fromControlCode(data[0]
 						self.send([ControlCodes["REGISTER"],ResponseCodes['INVALID']])
 						return
 		try:
-			os.makedirs(f'players/{user}')
+			os.makedirs(f'players/data/{user}')
 		except:
 			pass
-		with open(f'players/{user}/account.json','w') as f:
+		with open(f'players/data/{user}/account.json','w') as f:
 			json.dump({'user':user,'passw_md5':passw_md5,'email':email},f)
 		self.user = user
 		self.logged_in = True
@@ -577,9 +577,9 @@ Attempted request without login. Control code: {hex(self.fromControlCode(data[0]
 			return
 		passw_md5 = hashlib.md5(bytes(passw,'UTF-8')).hexdigest()  # Generate md5 hash of password
 		try:
-			for root, dirs, files in os.walk('players/'):  # search in players directory
+			for root, dirs, files in os.walk('players/data/'):  # search in players directory
 				for d in dirs:  # only search directories
-					with open(f'players/{d}/accounts.json', 'r') as f:
+					with open(f'players/data/{d}/account.json', 'r') as f:
 						account = json.load(f)
 					if account['user'] == user:
 						if account['passw_md5'] == passw_md5:
@@ -589,16 +589,12 @@ Attempted request without login. Control code: {hex(self.fromControlCode(data[0]
 							self.send([ControlCodes["LOGIN"],ResponseCodes['SUCCESS']])   # Log in successful
 							self.playerfile = f"players/data/{self.user}/player.json"
 							self.load_player()
-							return
 						else:
 							self.log(f"[{user}] entered incorrect password.")
 							self.send([ControlCodes["LOGIN"],ResponseCodes['INVALID']])  # Error: incorrect password
-							return
 		except:
-			with open('players/accounts.json','w') as f:
-				f.write("[]")
-		self.log("[",user,"] could not find user.")
-		self.send([ControlCodes["LOGIN"],ResponseCodes['MISSING']])  # Error: user does not exist
+			self.log("[",user,"] could not find user.")
+			self.send([ControlCodes["LOGIN"],ResponseCodes['MISSING']])  # Error: user does not exist
 
 	def disconnect(self):
 		self.save_player()
