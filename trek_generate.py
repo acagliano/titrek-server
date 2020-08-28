@@ -29,7 +29,8 @@ class Generator:
 	def generate(self,vec3):
 		if self._seed is None:
 			self.seed(random.random())
-		yield PlanetoidSystem(self._seed,vec3)
+		for planet in PlanetoidSystem(self._seed,vec3):
+			yield planet
 
 #Earth's radius: 6371 km. mass: 5.9e24 kg.
 
