@@ -187,6 +187,7 @@ class Server:
 		self.kickip(ip)
 		self.ipbanlist.write(ip+"\n")
 		self.loadbans()
+
 	def backupAll(self,sname):
 		try:
 			os.makedirs("backups/"+sname)
@@ -207,13 +208,15 @@ class Server:
 		except:
 			self.log("WARNING: failed to restore")
 
-
 	def console(self):
 		while True:
 			try:
-				line = input("")
+				line = input(">")
 				self.ilogf.write(">"+line+"\n")
-				line = line.split()
+				if " " in line:
+					line = line.split()
+				else:
+					line = [line]
 				if line[0]=="help":
 					try:
 						with open("helpfile.txt") as f:
@@ -254,6 +257,8 @@ class Server:
 		self.log("Generating space...")
 		for gen in self.generator.generate_all():
 			self.space.append(gen)
+#		for npc in self.generator.generate_npcs():
+#			self.space.append(npc)
 		self.log("Finished generating")
 
 class Client:

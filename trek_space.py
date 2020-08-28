@@ -20,6 +20,7 @@ class Space:
 				yield self.walk(path+"/"+dname)
 			for fname in files:
 				yield path+"/"+fname
+
 	def save(self,dname):
 		try:
 			os.makedirs(dname)
