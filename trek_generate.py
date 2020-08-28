@@ -66,7 +66,7 @@ def PlanetoidSystem(seed,pos):
 		r["position"]=Vec3(x,y,z)
 		r["velocity"]=Vec3()
 		r["name"]="Planet "+chr(i+0x41)
-		r["color"]=RandomDeviatingColor(r["color"])
+		r["colors"]=RandomDeviatingColor(r["colors"])
 		rv=random.random()*.2+.9
 		r["mass"]*=rv
 		r["radius"]/=rv
