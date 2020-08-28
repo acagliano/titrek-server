@@ -29,7 +29,7 @@ class Generator:
 	def generate(self,vec3):
 		if self._seed is None:
 			self.seed(random.random())
-		return PlanetoidSystem(self._seed,vec3)
+		yield PlanetoidSystem(self._seed,vec3)
 
 #Earth's radius: 6371 km. mass: 5.9e24 kg.
 
@@ -45,7 +45,6 @@ def LoadJsonFile(fname=None):
 
 
 def PlanetoidSystem(seed,pos):
-	random.seed(seed)
 	x=float(pos['x']); y=float(pos['y']); z=float(pos['z'])
 	mass = random.randint(1e29,9e32)
 	r=random.choice(StandardStarList)
