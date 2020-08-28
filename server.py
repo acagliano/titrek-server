@@ -224,13 +224,18 @@ class Server:
 					except:
 						print("No help document availible.")
 				elif line[0]=="stop":
+					self.log("Received stop command.")
 					break
 				elif line[0]=="save":
+					self.log("Saving...")
 					multiprocessing.Process(target=self.space.save,args=("space/data", )).start()
+					self.log("Saved.")
 				elif line[0]=="seed":
 					self.generator.seed(hash(line[1]))
 				elif line[0]=="generate":
-					multiprocessing.Process(target=self.generate)
+					self.log("Generating space...")
+					multiprocessing.Process(target=self.generate).start()
+					self.log("Finished generating.")
 				elif line[0]=="kick":
 					self.kick(line[1])
 				elif line[0]=="ban":
@@ -238,12 +243,17 @@ class Server:
 				elif line[0]=="ipban":
 					self.ipban(line[1])
 				elif line[0]=="backup":
+					self.log("Saving...")
 					self.backupAll(line[1])
+					self.log("Saved.")
 				elif line[0]=="restore":
+					self.log("Restoring from backup...")
 					self.restoreAll(line[1])
+					self.log("Restored.")
 				elif line[0]=="list":
+					self.log("Connected clients:")
 					for client in self.clients.values():
-						print(str(client))
+						self.log("\t",str(client))
 				elif line[0]=="debug-on":
 					PACKET_DEBUG = True
 				elif line[0]=="debug-off":
@@ -254,12 +264,9 @@ class Server:
 				self.elog("Internal Error:",e)
 
 	def generate(self):
-		self.log("Generating space...")
 		for gen in self.generator.generate_all():
 			self.space.append(gen)
-#		for npc in self.generator.generate_npcs():
-#			self.space.append(npc)
-		self.log("Finished generating")
+
 
 class Client:
 	count = 0
