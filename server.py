@@ -20,8 +20,8 @@ PACKET_DEBUG = False
 
 BANNED_USERS = []
 BANNED_IPS = []
-InvalidCharacters = ["/","\\","#","$","%","^","&","*","!","~","`","\"","|"] + \
-					[chr(a) for a in range(1,0x20)] + [chr(a) for a in range(0x7F,0xFF)]
+InvalidCharacters = [bytes(a,'UTF-8') for a in ["/","\\","#","$","%","^","&","*","!","~","`","\"","|"]] + \
+					[bytes([a]) for a in range(1,0x20)] + [bytes([a]) for a in range(0x7F,0xFF)]
 TextBodyControlCodes = [ControlCodes["REGISTER"],ControlCodes["LOGIN"],ControlCodes["PING"],ControlCodes["MESSAGE"],\
 						ControlCodes["DEBUG"],ControlCodes["SERVINFO"],ControlCodes["DISCONNECT"]]
 
