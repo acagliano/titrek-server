@@ -511,6 +511,7 @@ class Client:
 			f.write(f"# failJSON: {json.dumps(j)}\n{str(self.addr)} @ {ts}:\
 		Attempted request without login. Control code: {hex(self.fromControlCode(A))}")
 		self.send([ControlCodes["DISCONNECTED"], ResponseCodes["BAD_MESSAGE_CONTENT"]])
+		self.close()
 
 
 	def fromControlCode(self,code):
@@ -604,6 +605,9 @@ class Client:
 	def disconnect(self):
 		self.save_player()
 		self.send([ControlCodes['DISCONNECT']]) #Let the user know if disconnected. Might be useful eventually.
+		self.close()
+
+	def close(self):
 		Client.count -= 1
 		self.logged_in = False
 
