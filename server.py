@@ -21,7 +21,7 @@ PACKET_DEBUG = False
 BANNED_USERS = []
 BANNED_IPS = []
 InvalidCharacters = ["/","\\","#","$","%","^","&","*","!","~","`","\"","|"] + \
-					[chr(a) for a in range(1,0x20)] + [chr(a) for a in range(0x7F,0x100)]
+					[chr(a) for a in range(1,0x20)] + [chr(a) for a in range(0x7F,0xFF)]
 TextBodyControlCodes = [ControlCodes["REGISTER"],ControlCodes["LOGIN"],ControlCodes["PING"],ControlCodes["MESSAGE"],\
 						ControlCodes["DEBUG"],ControlCodes["SERVINFO"],ControlCodes["DISCONNECT"]]
 
@@ -347,7 +347,8 @@ class Client:
 			if data[0] in TextBodyControlCodes:
 				msg = data[1:]
 				if any([a in msg for a in InvalidCharacters]):
-					self.send([ControlCodes["DISCONNECTED"],ResponseCodes["BAD_MESSAGE_CONTENT"]])
+					self.maliciousDisconnect(data[0])
+					return
 			try:
 				if data[0]==ControlCodes["REGISTER"]:
 					self.register(data)
@@ -495,18 +496,22 @@ class Client:
 					elif data[0]==ControlCodes["NEW_GAME_REQUEST"]:
 						self.create_new_game()
 				else:
-					ts=time.asctime()
-					j = {"time":ts,"match":True,"host":str(self.addr)}
-					with open("malicious.txt",'a+') as f:
-						f.write(f"# failJSON: {json.dumps(j)}\n{str(self.addr)} @ {ts}:\
-Attempted request without login. Control code: {hex(self.fromControlCode(data[0]))}")
-					self.send([ControlCodes["DISCONNECTED"],ResponseCodes["BAD_MESSAGE_CONTENT"]])
+					self.maliciousDisconnect(data[0])
 			except socket.error:
 				pass
 			except Exception as e:
 				self.log("Internal Error:",e)
 		else:
 			self.disconnect()
+
+	def maliciousDisconnect(self,A):
+		ts = time.asctime()
+		j = {"time": ts, "match": True, "host": str(self.addr)}
+		with open("malicious.txt", 'a+') as f:
+			f.write(f"# failJSON: {json.dumps(j)}\n{str(self.addr)} @ {ts}:\
+		Attempted request without login. Control code: {hex(self.fromControlCode(A))}")
+		self.send([ControlCodes["DISCONNECTED"], ResponseCodes["BAD_MESSAGE_CONTENT"]])
+
 
 	def fromControlCode(self,code):
 		if code in ControlCodes.values():
