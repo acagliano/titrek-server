@@ -234,7 +234,7 @@ class Server:
 					self.generator.seed(hash(line[1]))
 				elif line[0]=="generate":
 					self.log("Generating space...")
-					multiprocessing.Process(target=self.generate).start()
+					multiprocessing.Process(target=self.generator.generate_all,args=(self.space, )).start()
 					self.log("Finished generating.")
 				elif line[0]=="kick":
 					self.kick(line[1])
@@ -262,11 +262,6 @@ class Server:
 				break
 			except Exception as e:
 				self.elog("Internal Error:",e)
-
-	def generate(self):
-		for gen in self.generator.generate_all():
-			self.space.append(gen)
-
 
 class Client:
 	count = 0

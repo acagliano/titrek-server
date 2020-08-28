@@ -17,7 +17,7 @@ class Generator:
 		self._seed=seed
 		with open("space/SEED.txt",'w') as f:
 			f.write(str(seed))
-	def generate_all(self):
+	def generate_all(self,space):
 		x=y=z=0
 		for i in range(2000):
 			x+=random.randint(-6e6,6e6)*1e3
@@ -25,7 +25,7 @@ class Generator:
 			y=random.randint(-1e6,1e6)*1e2
 			for planet in self.generate(Vec3(x,y,z)):
 				planet["name"] = "system "+str(i)+"; "+planet["name"]
-				yield planet
+				space.append(planet)
 	def generate(self,vec3):
 		if self._seed is None:
 			self.seed(random.random())
