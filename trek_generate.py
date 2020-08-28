@@ -55,7 +55,7 @@ def PlanetoidSystem(seed,pos):
 	rv=random.random()*.2+.9
 	r["mass"]*=rv
 	r["radius"]/=rv
-	r["color"]=RandomDeviatingColor(r["color"])
+	r["colors"]=RandomDeviatingColor(r["colors"])
 	yield r
 	grav = GRAVITATIONAL_CONSTANT*mass
 	for i in range(random.randint(2,10)):
