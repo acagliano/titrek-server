@@ -63,6 +63,8 @@ class Server:
 		self.generator = Generator()
 		self.space = Space(self.log)
 
+		context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+		context.load_cert_chain('ssl/certchain.pem', 'ssl/privkey.pem')
 		self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)         # Create a socket object
 		self.sock.settimeout(None)
 		self.port = 51701                # Reserve a port for your service.
@@ -111,13 +113,14 @@ class Server:
 	def main(self):
 		while self.online:
 			self.sock.listen(1)
-			conn, addr = self.sock.accept()
-			self.clients[conn] = client = Client(conn,addr,self)
-			thread = multiprocessing.Process(target=client.handle_connection)
-			self.threads.append(thread)
-			thread.start()
-			time.sleep(0.002)
-			self.writeinfo()
+			with context.wrap_socket(self.sock, server_side=True) as ssock:
+				conn, addr = ssock.accept()
+				self.clients[conn] = client = Client(conn,addr,self)
+				thread = multiprocessing.Process(target=client.handle_connection)
+				self.threads.append(thread)
+				thread.start()
+				time.sleep(0.002)
+				self.writeinfo()
 
 	def writeinfo(self):
 		if self.online:
