@@ -27,7 +27,7 @@ TextBodyControlCodes = [ControlCodes["REGISTER"],ControlCodes["LOGIN"],ControlCo
 						ControlCodes["DEBUG"],ControlCodes["SERVINFO"],ControlCodes["DISCONNECT"]]
 with open(f'config.json', 'r') as f:
 	config = json.load(f)
-	PORT = config["port"]
+	PORT = int(config["port"])
 	if config["debug"] == "yes":
 		PACKET_DEBUG = True
 	if config["ssl"] == "yes":
