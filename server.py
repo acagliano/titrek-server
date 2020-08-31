@@ -34,7 +34,7 @@ with open(f'config.json', 'r') as f:
 		USE_SSL = True
 		SSL_PATH = config["ssl-path"]
 		context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-		context.load_cert_chain('ssl/fullchain.pem', 'ssl/privkey.pem')
+		context.load_cert_chain(f'{SSL_PATH}/fullchain.pem', f'{SSL_PATH}/privkey.pem')
 
 def ToUTF8(dt):
 	if b"\0" in dt:
