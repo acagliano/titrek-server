@@ -24,8 +24,6 @@ InvalidCharacters = [bytes(a,'UTF-8') for a in ["/","\\","#","$","%","^","&","*"
 					[bytes([a]) for a in range(1,0x20)] + [bytes([a]) for a in range(0x7F,0xFF)]
 TextBodyControlCodes = [ControlCodes["REGISTER"],ControlCodes["LOGIN"],ControlCodes["PING"],ControlCodes["MESSAGE"],\
 						ControlCodes["DEBUG"],ControlCodes["SERVINFO"],ControlCodes["DISCONNECT"]]
-CertChain = os.readlink('ssl/certchain.pem')
-PrivKey = os.readlink('ssl/privkey.pem')
 
 
 def ToUTF8(dt):
@@ -66,7 +64,7 @@ class Server:
 		self.space = Space(self.log)
 
 		context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-		context.load_cert_chain(CertChain, PrivKey)
+		context.load_cert_chain('/etc/letsencrypt/live/play.titrek.us/fullchain.pem', '/etc/letsencrypt/live/play.titrek.us/privkey.pem')
 		self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)         # Create a socket object
 		self.sock.settimeout(None)
 		self.port = 51701                # Reserve a port for your service.
