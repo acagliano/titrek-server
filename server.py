@@ -64,7 +64,7 @@ class Server:
 		self.space = Space(self.log)
 
 		context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-		context.load_cert_chain('/etc/letsencrypt/live/play.titrek.us/fullchain.pem', '/etc/letsencrypt/live/play.titrek.us/privkey.pem')
+		context.load_cert_chain('ssl/fullchain.pem', 'ssl/privkey.pem')
 		self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)         # Create a socket object
 		self.sock.settimeout(None)
 		self.port = 51701                # Reserve a port for your service.
