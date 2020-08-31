@@ -17,6 +17,7 @@ from trek_vec3 import *
 from trek_modules import loadModule
 
 PACKET_DEBUG = False
+USE_SSL = False
 
 BANNED_USERS = []
 BANNED_IPS = []
@@ -24,7 +25,16 @@ InvalidCharacters = [bytes(a,'UTF-8') for a in ["/","\\","#","$","%","^","&","*"
 					[bytes([a]) for a in range(1,0x20)] + [bytes([a]) for a in range(0x7F,0xFF)]
 TextBodyControlCodes = [ControlCodes["REGISTER"],ControlCodes["LOGIN"],ControlCodes["PING"],ControlCodes["MESSAGE"],\
 						ControlCodes["DEBUG"],ControlCodes["SERVINFO"],ControlCodes["DISCONNECT"]]
-context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+with open(f'config.json', 'r') as f:
+	config = json.load(f)
+	PORT = config["port"]
+	if config["debug"] == "yes":
+		PACKET_DEBUG = True
+	if config["ssl"] == "yes":
+		USE_SSL = True
+		SSL_PATH = config["ssl-path"]
+		context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+		context.load_cert_chain('ssl/fullchain.pem', 'ssl/privkey.pem')
 
 def ToUTF8(dt):
 	if b"\0" in dt:
@@ -62,11 +72,10 @@ class Server:
 
 		self.generator = Generator()
 		self.space = Space(self.log)
-
-		context.load_cert_chain('ssl/fullchain.pem', 'ssl/privkey.pem')
+		
 		self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)         # Create a socket object
 		self.sock.settimeout(None)
-		self.port = 51701                # Reserve a port for your service.
+		self.port = PORT                # Reserve a port for your service.
 		self.clients = {}
 		self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 		self.sock.bind(('', self.port))                 # Now wait for client connection.
@@ -76,7 +85,10 @@ class Server:
 		self.writeinfo()
 		self.threads = [multiprocessing.Process(target=self.autoSaveHandler)]
 		self.threads[0].start()
-		self.main_thread = multiprocessing.Process(target=self.main)
+		if USE_SSL:
+			self.main_thread = multiprocessing.Process(target=self.main_ssl)
+		else:
+			self.main_thread = multiprocessing.Process(target=self.main_normal)
 		self.main_thread.start()
 		self.console()
 		self.stop()
@@ -109,7 +121,7 @@ class Server:
 
 
 	
-	def main(self):
+	def main_ssl(self):
 		while self.online:
 			self.sock.listen(1)
 			with context.wrap_socket(self.sock, server_side=True) as ssock:
@@ -120,6 +132,17 @@ class Server:
 				thread.start()
 				time.sleep(0.002)
 				self.writeinfo()
+				
+	def main_normal(self):
+		while self.online:
+			self.sock.listen(1)
+			conn, addr = sock.accept()
+			self.clients[conn] = client = Client(conn,addr,self)
+			thread = multiprocessing.Process(target=client.handle_connection)
+			self.threads.append(thread)
+			thread.start()
+			time.sleep(0.002)
+			self.writeinfo()
 
 	def writeinfo(self):
 		if self.online:
