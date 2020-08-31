@@ -136,7 +136,7 @@ class Server:
 	def main_normal(self):
 		while self.online:
 			self.sock.listen(1)
-			conn, addr = sock.accept()
+			conn, addr = self.sock.accept()
 			self.clients[conn] = client = Client(conn,addr,self)
 			thread = multiprocessing.Process(target=client.handle_connection)
 			self.threads.append(thread)
