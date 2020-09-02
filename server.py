@@ -331,11 +331,11 @@ class Client:
 
 	def _load_module(self,m):
 		m['health'] = 100
-		fname=m['file']+f"-L{str(m['level'])}.json"
+		fname=m['file']+f".json"
 		try:
 			with open(fname):
 				j = json.load(f)
-			for k in j.keys():
+			for k in j["module"][m['level']-1].keys():
 				m[k] = j[k]
 		except:
 			self.log(f"Error: Failed to load module json \"{fname}\".")
