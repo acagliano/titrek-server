@@ -9,6 +9,7 @@
 
 import socket,multiprocessing,ctypes,hashlib,json,os,sys,time,math,ssl
 
+from pip._vendor.colorama.win32 import CONSOLE_SCREEN_BUFFER_INFO
 
 from trek_codes import *
 from trek_generate import *
@@ -524,7 +525,7 @@ class Client:
 								odata.extend([m['techclass'],m['techtype'],m['health'],m['status_flags']])
 							else:
 								odata.extend([0,0,0,0])
-						self.send(bytes(odata))
+						self.send(bytes([ControlCodes["LOAD_SHIP"]]+odata))
 					elif data[0]==ControlCodes["NEW_GAME_REQUEST"]:
 						self.create_new_game()
 				else:
