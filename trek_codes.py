@@ -27,6 +27,7 @@ ControlCodes = {
     "SENSOR_REQUEST":10, #May add REQPOSITION if needed
     "NEW_GAME_REQUEST":11,
     "PLAYER_MOVE":12,
+    "POSITION_REQUEST":13,
 #Message codes
     "PING":0xfc,
     "MESSAGE":0xfd,
