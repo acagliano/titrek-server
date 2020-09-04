@@ -26,6 +26,7 @@ ControlCodes = {
     "ENTITY_REQUEST":9,
     "SENSOR_REQUEST":10, #May add REQPOSITION if needed
     "NEW_GAME_REQUEST":11,
+    "PLAYER_MOVE":12,
 #Message codes
     "PING":0xfc,
     "MESSAGE":0xfd,
