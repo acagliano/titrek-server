@@ -419,7 +419,7 @@ class Client:
 						R2 = FromSignedInt(data[3])*math.pi/128
 						self.pos['vx']+=math.cos(R1)*math.cos(R2)*G
 						self.pos['vy']+=math.sin(R1)*G
-						self.pos['vz']+=-math.sin(R1)*G
+						self.pos['vz']-=math.sin(R1)*G
 					elif data[0]==ControlCodes["MESSAGE"]:
 						self.log("["+ToUTF8(self.user)+"]",ToUTF8(data[1:]))    # send a message to the server
 					elif data[0]==ControlCodes["CHUNK_REQUEST"]:

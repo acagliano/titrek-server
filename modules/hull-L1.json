@@ -2,4 +2,5 @@
 	"MaxHealth":100,
 	"health":100,
 	"status_flags":0,
+	"composition": []
 }
