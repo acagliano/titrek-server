@@ -9,8 +9,6 @@
 
 import socket,multiprocessing,ctypes,hashlib,json,os,sys,time,math,ssl
 
-from pip._vendor.colorama.win32 import CONSOLE_SCREEN_BUFFER_INFO
-
 from trek_codes import *
 from trek_generate import *
 from trek_space import *
