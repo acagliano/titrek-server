@@ -322,6 +322,7 @@ class Client:
 			]
 			self.data['hull'] = {'level':1, 'file':'modules/hull','modifiers':[]}
 			self.load_modules()
+			self.log(self.data.modules)
 
 	def load_modules(self):
 		for m in self.data['modules']:
@@ -517,7 +518,7 @@ class Client:
 					elif data[0]==ControlCodes["MODULE_UPDATE"]:
 						pass
 					elif data[0]==ControlCodes["LOAD_SHIP"]:
-						odata = [0,0,0,0,0,0,self.data['hull']['health']]
+						odata = [0,0,0,self.data['hull']['health']]
 						for i in range(15):
 							if i<len(self.data['modules']):
 								m = self.data['modules'][i]
