@@ -322,8 +322,7 @@ class Client:
 			]
 			self.data['hull'] = {'level':1, 'file':'modules/hull','modifiers':[]}
 			self.load_modules()
-			self.log(self.data.modules)
-
+		
 	def load_modules(self):
 		for m in self.data['modules']:
 			self._load_module(m)
@@ -339,6 +338,8 @@ class Client:
 				m[k] = j[k]
 		except:
 			self.log(f"Error: Failed to load module json \"{fname}\".")
+		self.log(m)
+
 
 
 	def save_player(self):
