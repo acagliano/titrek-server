@@ -331,6 +331,7 @@ class Client:
 	def _load_module(self,m):
 		m['health'] = 100
 		fname=m['file']+f".json"
+		print(fname)
 		try:
 			with open(fname) as f:
 				j = json.load(f)
