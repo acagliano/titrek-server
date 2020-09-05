@@ -336,8 +336,7 @@ class Client:
 			with open(fname) as f:
 				j = json.load(f)
 			for k in j['module'][level].keys():				
-				print(k)
-				m[k] = j[k]
+				m[k] = j['module'][level][k]
 		except:
 			print(sys.exc_info()[0])
 
