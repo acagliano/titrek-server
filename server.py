@@ -517,7 +517,7 @@ class Client:
 					elif data[0]==ControlCodes["MODULE_UPDATE"]:
 						pass
 					elif data[0]==ControlCodes["LOAD_SHIP"]:
-						odata = [0,0,0,0,0,0,self.data['hull']['health']]+self.data['hull']['composition']
+						odata = [0,0,0,0,0,0,self.data['hull']['health']]
 						for i in range(15):
 							if i<len(self.data['modules']):
 								odata.extend([m['techclass'],m['techtype'],m['health'],m['status_flags']])
