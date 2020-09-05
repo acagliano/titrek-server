@@ -7,7 +7,7 @@
 		"OverCharge":{
 			"Amount":1500,
 			"Time":30,
-			"HazardChance":0.1f,
+			"HazardChance":0.1,
 			"HazardAction":"explosion"
 		}
 	},
