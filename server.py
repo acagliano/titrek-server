@@ -332,11 +332,14 @@ class Client:
 		m['health'] = 100
 		fname=m['file']+f".json"
 		level=m['level']-1
-		with open(fname) as f:
-			j = json.load(f)
-		for k in j['module'][level].keys():				
-			print(k)
-			m[k] = j[k]
+		try:
+			with open(fname) as f:
+				j = json.load(f)
+			for k in j['module'][level].keys():				
+				print(k)
+				m[k] = j[k]
+		except Exception as e:
+			print(e)
 
 
 
