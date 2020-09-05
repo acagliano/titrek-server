@@ -333,7 +333,7 @@ class Client:
 		fname=m['file']+f".json"
 		try:
 			with open(fname) as f:
-				print(fname)
+				print(f)
 				j = json.load(f)
 				print(j["module"])
 			for k in j["module"][m['level']-1].keys():
