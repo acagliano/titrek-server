@@ -1,13 +1,17 @@
 {
-	"Type":"weapon",
-	"WeaponType":"heat",
-	"MaxHealth":75,
-	"WarnHealth":10,
-	"Damage":5,
-	"AttackSpeed":2,
-	"techclass":2,
-	"techtype":8,
-	"health":100,
-	"status_flags":0,
-	"composition": []
+	"module":[
+		{
+		"Type":"weapon",
+		"WeaponType":"heat",
+		"MaxHealth":75,
+		"WarnHealth":10,
+		"Damage":5,
+		"AttackSpeed":2,
+		"techclass":2,
+		"techtype":8,
+		"health":100,
+		"status_flags":0,
+		"composition": []
+		}
+	]
 }
