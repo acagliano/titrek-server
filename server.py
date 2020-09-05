@@ -334,10 +334,10 @@ class Client:
 		level=m['level']-1
 		try:
 			with open(fname) as f:
-				print(f)
 				j = json.load(f)
-				print(j["module"][level].keys())
 			for k in j["module"][level].keys():
+				print(k)
+				print(j[k])
 				m[k] = j[k]
 		except:
 			self.log(f"Error: Failed to load module json \"{fname}\".")
