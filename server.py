@@ -335,7 +335,7 @@ class Client:
 		try:
 			with open(fname) as f:
 				j = json.load(f)
-			for k in j["module"][level].keys():
+			for k in j['module'][level].keys():
 				print(k)
 				print(j[k])
 				m[k] = j[k]
