@@ -520,6 +520,7 @@ class Client:
 						odata = [0,0,0,0,0,0,self.data['hull']['health']]
 						for i in range(15):
 							if i<len(self.data['modules']):
+								m = self.data['modules'][i]
 								odata.extend([m['techclass'],m['techtype'],m['health'],m['status_flags']])
 							else:
 								odata.extend([0,0,0,0])
