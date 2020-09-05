@@ -338,7 +338,7 @@ class Client:
 				m[k] = j[k]
 		except:
 			self.log(f"Error: Failed to load module json \"{fname}\".")
-		self.log(m)
+		print(m)
 
 
 
