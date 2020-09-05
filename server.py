@@ -331,10 +331,11 @@ class Client:
 	def _load_module(self,m):
 		m['health'] = 100
 		fname=m['file']+f".json"
-		print(fname)
 		try:
 			with open(fname) as f:
+				print(fname)
 				j = json.load(f)
+				print(j["module"])
 			for k in j["module"][m['level']-1].keys():
 				m[k] = j[k]
 		except:
