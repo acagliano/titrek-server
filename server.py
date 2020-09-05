@@ -332,7 +332,7 @@ class Client:
 		m['health'] = 100
 		fname=m['file']+f".json"
 		try:
-			with open(fname):
+			with open(fname) as f:
 				j = json.load(f)
 			for k in j["module"][m['level']-1].keys():
 				m[k] = j[k]
