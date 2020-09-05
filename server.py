@@ -337,8 +337,8 @@ class Client:
 				j = json.load(f)
 			for k in j['module'][level].keys():
 				print(k)
-				print(j[k])
-				m[k] = j[k]
+				print(j[str(k)])
+				m[str(k)] = j[str(k)]
 		except:
 			self.log(f"Error: Failed to load module json \"{fname}\".")
 		print(m)
