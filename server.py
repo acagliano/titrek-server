@@ -338,8 +338,8 @@ class Client:
 			for k in j['module'][level].keys():				
 				print(k)
 				m[k] = j[k]
-		except Exception as e:
-			print(e)
+		except:
+			print(sys.exc_info()[0])
 
 
 
