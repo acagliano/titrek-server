@@ -321,7 +321,7 @@ class Client:
 				{'level': 1, 'file': 'modules/core', 'modifiers': []},
 			]
 			self.data['hull'] = {'level':1, 'file':'modules/hull','modifiers':[]}
-			self.load_modules()
+		self.load_modules()
 		
 	def load_modules(self):
 		for m in self.data['modules']:
