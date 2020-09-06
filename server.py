@@ -608,8 +608,8 @@ class Client:
 		self.create_new_game()
 
 	def log_in(self, data):
-		user,passw = [ToUTF8(a) for a in data[1:].split(b"\0",maxsplit=1)]
-		print(user,passw)
+		user,passw,vers = [ToUTF8(a) for a in data[1:].split(b"\0",maxsplit=2)]
+		print(user,passw,vers)
 		self.log("Logging in user:",user)
 		if user in BANNED_USERS:
 			self.send([ControlCodes["LOGIN"],ResponseCodes['BANNED']])
