@@ -636,12 +636,11 @@ class Client:
 						else:
 							self.log(f"[{user}] entered incorrect password.")
 							self.send([ControlCodes["LOGIN"],ResponseCodes['INVALID']])  # Error: incorrect password
-			if self.user = '':
+			if self.user == '':
 				self.log("[",user,"] could not find user.")
 				self.send([ControlCodes["LOGIN"],ResponseCodes['MISSING']])  # Error: user does not exist
 		except:
-			self.log("[",user,"] could not find user.")
-			self.send([ControlCodes["LOGIN"],ResponseCodes['MISSING']])  # Error: user does not exist
+			self.log("An error occured while logging in player.")
 
 	def disconnect(self):
 		self.save_player()
