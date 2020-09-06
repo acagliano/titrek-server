@@ -360,7 +360,12 @@ class Client:
 			self.log("Sent packet")
 		else:
 			self.log("Failed to send packet")
-
+			
+	def sanitize(self):
+		if any([a in self for a in InvalidCharacters]):
+			self.maliciousDisconnect(data[0])
+			return
+			
 	def handle_connection(self):
 		while self.server.online:
 			data = self.conn.recv(1024)
@@ -377,11 +382,6 @@ class Client:
 					elif c<0x10: o.append("\\x0"+hex(c)[2:])
 					else: o.append("\\x"+hex(c)[2:])
 				self.log("recieved packet: ","".join(o))
-			if data[0] in TextBodyControlCodes:
-				msg = data[1:]
-				if any([a in msg for a in InvalidCharacters]):
-					self.maliciousDisconnect(data[0])
-					return
 			try:
 				if data[0]==ControlCodes["REGISTER"]:
 					self.register(data)
@@ -577,6 +577,8 @@ class Client:
 
 	def register(self, data):
 		user,passw,email = [ToUTF8(a) for a in data[1:].split(b"\0",maxsplit=2)]
+		user.sanitize()
+		passw.sanitize()
 		print(user,passw,email)
 		self.log("Registering user:",user)
 		passw_md5 = hashlib.md5(bytes(passw,'UTF-8')).hexdigest()  # Generate md5 hash of password
@@ -609,6 +611,8 @@ class Client:
 
 	def log_in(self, data):
 		user,passw,vers = [ToUTF8(a) for a in data[1:].split(b"\0",maxsplit=2)]
+		user.sanitize()
+		passw.sanitize()
 		print(user,passw)
 		self.log("Logging in user:",user)
 		if user in BANNED_USERS:
