@@ -609,7 +609,7 @@ class Client:
 
 	def log_in(self, data):
 		user,passw,vers = [ToUTF8(a) for a in data[1:].split(b"\0",maxsplit=2)]
-		print(user,passw,vers)
+		print(user,passw)
 		self.log("Logging in user:",user)
 		if user in BANNED_USERS:
 			self.send([ControlCodes["LOGIN"],ResponseCodes['BANNED']])
