@@ -361,8 +361,8 @@ class Client:
 		else:
 			self.log("Failed to send packet")
 			
-	def sanitize(self):
-		if any([a in self for a in InvalidCharacters]):
+	def sanitize(self,i):
+		if any([a in i for a in InvalidCharacters]):
 			self.maliciousDisconnect(data[0])
 			return
 			
@@ -577,8 +577,8 @@ class Client:
 
 	def register(self, data):
 		user,passw,email = [ToUTF8(a) for a in data[1:].split(b"\0",maxsplit=2)]
-		user.sanitize()
-		passw.sanitize()
+		self.sanitize(user)
+		self.sanitize(passw)
 		print(user,passw,email)
 		self.log("Registering user:",user)
 		passw_md5 = hashlib.md5(bytes(passw,'UTF-8')).hexdigest()  # Generate md5 hash of password
@@ -611,8 +611,8 @@ class Client:
 
 	def log_in(self, data):
 		user,passw,vers = [ToUTF8(a) for a in data[1:].split(b"\0",maxsplit=2)]
-		user.sanitize()
-		passw.sanitize()
+		self.sanitize(user)
+		self.sanitize(passw)
 		print(user,passw)
 		self.log("Logging in user:",user)
 		if user in BANNED_USERS:
