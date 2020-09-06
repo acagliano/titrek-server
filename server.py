@@ -362,7 +362,7 @@ class Client:
 			self.log("Failed to send packet")
 			
 	def sanitize(self,i):
-		if any([a in str(i) for a in InvalidCharacters]):
+		if any([a in bytes(i) for a in InvalidCharacters]):
 			self.maliciousDisconnect(data[0])
 			return
 			
