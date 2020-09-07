@@ -585,7 +585,7 @@ class Client:
 		for root,dirs,files in os.walk('players/data/'): #search in players directory
 			for d in dirs: #only search directories
 				try:
-					with open(f'players/data/{d}/accounts.json', 'r') as f:
+					with open(f'players/data/{d}/account.json', 'r') as f:
 						account = json.load(f)
 				except IOError:
 					continue
