@@ -584,16 +584,19 @@ class Client:
 		passw_md5 = hashlib.md5(bytes(passw,'UTF-8')).hexdigest()  # Generate md5 hash of password
 		for root,dirs,files in os.walk('players/data/'): #search in players directory
 			for d in dirs: #only search directories
-				with open(f'players/data/{d}/accounts.json', 'r') as f:
-					account = json.load(f)
-					if account['user'] == user:
-						self.log(f"[{user}] Already registered.")
-						self.send([ControlCodes["REGISTER"],ResponseCodes['DUPLICATE']])  # Error: user already exists
-						return
-					elif account['email'] == email:
-						self.log(f"Email address {email} has already been registered to an account.")
-						self.send([ControlCodes["REGISTER"],ResponseCodes['INVALID']])
-						return
+				try:
+					with open(f'players/data/{d}/accounts.json', 'r') as f:
+						account = json.load(f)
+				except IOError:
+					continue
+				if account['user'] == user:
+					self.log(f"[{user}] Already registered.")
+					self.send([ControlCodes["REGISTER"],ResponseCodes['DUPLICATE']])  # Error: user already exists
+					return
+				elif account['email'] == email:
+					self.log(f"Email address {email} has already been registered to an account.")
+					self.send([ControlCodes["REGISTER"],ResponseCodes['INVALID']])
+					return
 		try:
 			os.makedirs(f'players/data/{user}')
 		except:
@@ -624,8 +627,11 @@ class Client:
 		try:
 			for root, dirs, files in os.walk('players/data/'):  # search in players directory
 				for d in dirs:  # only search directories
-					with open(f'players/data/{d}/account.json', 'r') as f:
-						account = json.load(f)
+					try:
+						with open(f'players/data/{d}/account.json', 'r') as f:
+							account = json.load(f)
+					except IOError:
+						continue
 					if account['user'] == user:
 						if account['passw_md5'] == passw_md5:
 							self.user = user
@@ -641,7 +647,7 @@ class Client:
 				self.log("[",user,"] could not find user.")
 				self.send([ControlCodes["LOGIN"],ResponseCodes['MISSING']])  # Error: user does not exist
 		except:
-			self.log("An error occured while logging in player.")
+			self.log("An error occurred while logging in player.")
 
 	def disconnect(self):
 		self.save_player()
