@@ -597,6 +597,7 @@ class Client:
 		try:
 			os.makedirs(f'players/data/{user}')
 		except:
+			self.log("Directory already exists or error creating")
 			pass
 		with open(f'players/data/{user}/account.json','w') as f:
 			json.dump({'user':user,'passw_md5':passw_md5,'email':email},f)
