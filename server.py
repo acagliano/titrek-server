@@ -589,7 +589,7 @@ class Client:
 						account = json.load(f)
 				except IOError:
 					continue
-				if account['user'] == user:
+				if d == user:
 					self.log(f"[{user}] Already registered.")
 					self.send([ControlCodes["REGISTER"],ResponseCodes['DUPLICATE']])  # Error: user already exists
 					return
@@ -603,7 +603,7 @@ class Client:
 			self.log("Directory already exists or error creating")
 			pass
 		with open(f'players/data/{user}/account.json','w') as f:
-			json.dump({'user':user,'passw_md5':passw_md5,'email':email},f)
+			json.dump({'passw_md5':passw_md5,'email':email},f)
 		self.user = user
 		self.logged_in = True
 		self.log(f"[{user}] has been successfuly registered!")
@@ -632,7 +632,7 @@ class Client:
 							account = json.load(f)
 					except IOError:
 						continue
-					if account['user'] == user:
+					if d == user:
 						if account['passw_md5'] == passw_md5:
 							self.user = user
 							self.logged_in = True
