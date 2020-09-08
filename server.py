@@ -603,7 +603,7 @@ class Client:
 			self.log("Directory already exists or error creating")
 			pass
 		with open(f'players/data/{user}/account.json','w') as f:
-			json.dump({'passw_md5':passw_md5,'email':email},f)
+			json.dump({'displayname':user,'passw_md5':passw_md5,'email':email,'permLvl':0},f)
 		self.user = user
 		self.logged_in = True
 		self.log(f"[{user}] has been successfuly registered!")
