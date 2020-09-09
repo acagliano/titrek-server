@@ -319,6 +319,8 @@ class Client:
 		if "modules" not in self.data.keys():
 			self.data["modules"] = [
 				{'level': 1, 'file': 'modules/core', 'modifiers': []},
+				# {'level': 1, 'file': 'modules/engine', 'modifiers': []},
+				{'level': 1, 'file': 'modules/phaser', 'modifiers': []},
 			]
 			self.data['hull'] = {'level':1, 'file':'modules/hull','modifiers':[]}
 		self.load_modules()
