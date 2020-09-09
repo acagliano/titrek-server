@@ -296,8 +296,7 @@ class Client:
 		self.closed = False
 		self.logged_in = False
 		self.user = ''
-		self.data["player"] = {}
-		self.data["ships"] = {}
+		self.data = {"player":{},"ships":{}}
 		Client.count += 1
 		self.server = server
 		self.log=server.log
