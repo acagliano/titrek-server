@@ -301,6 +301,7 @@ class Client:
 		self.closed = False
 		self.logged_in = False
 		self.user = ''
+		self.data = {"player":{},"ships":{}}
 		Client.count += 1
 		self.server = server
 		self.log=server.log
@@ -316,13 +317,17 @@ class Client:
 			pass
 		try:
 			with open(self.playerfile) as f:
-				self.playerdata = json.load(f)
+				j = json.load()
 		except:
 			print("error here")
-			self.playerdata = {'x':0,'y':0,'z':0,'vx':0,'vy':0,'vz':0}
+			j = {'x':0,'y':0,'z':0,'vx':0,'vy':0,'vz':0}
+		for k in j:
+			self.data["player"][k] = j[k]
 		try:
 			with open(self.shipfile) as f:
-				self.ships = json.load(f)
+				j = json.load()
+				for k in j.keys():
+					self.data["ships"][k] = j[k]
 		except:
 			self.create_new_game()
 		self.pos = Vec3(self.playerdata['x'],self.playerdata['y'],self.playerdata['z'])
@@ -356,9 +361,9 @@ class Client:
 		for k in ['x','y','z']:
 			self.playerdata[k]=self.pos[k]
 		with open(self.playerfile,'w') as f:
-			json.dump(self.playerdata,f)
+			json.dump(self.data["player"],f)
 		with open(self.shipfile, 'w') as f:
-			json.dump(self.ships,f)
+			json.dump(self.data["ships"],f)
 
 	def __str__(self):
 		return user+" @"+str(self.addr)
@@ -527,10 +532,10 @@ class Client:
 					elif data[0]==ControlCodes["MODULE_UPDATE"]:
 						pass
 					elif data[0]==ControlCodes["LOAD_SHIP"]:
-						odata = [0,0,0,self.ships[0]['hull']['health']]
+						odata = [0,0,0,self.data["ships"][0]['hull']['health']]
 						for i in range(15):
-							if i<len(self.ships[0]['modules']):
-								m = self.ships[0]['modules'][i]
+							if i<len(self.data["ships"][0]['modules']):
+								m = self.data["ships"][0]['modules'][i]
 								odata.extend([m['techclass'],m['techtype'],m['health'],m['status_flags']])
 							else:
 								odata.extend([0,0,0,0])
@@ -567,8 +572,7 @@ class Client:
 			os.makedirs(self.playerdir)
 		except:
 			pass
-		self.ships = {
-			[
+		j = {[
 				{
 					"hull": {'level':1, 'file':'modules/hull','modifiers':[]},
 					"modules":[
@@ -576,11 +580,12 @@ class Client:
 						{'level': 1, 'file': 'modules/phaser', 'modifiers': []},
 					]
 				}
-			]
-		}
+			]}
+		for k in j.keys():
+			self.data["ships"][k] = j[k]
 		try:
 			with open(self.shipfile,"w") as f:
-				json.dump(self.ships,f)
+				json.dump(self.data["ships"],f)
 		except:
 			self.elog(f"[{self.user}] Failed to create new game!")
 
