@@ -301,7 +301,6 @@ class Client:
 		self.closed = False
 		self.logged_in = False
 		self.user = ''
-		self.data = {"player":{},"ships":{}}
 		Client.count += 1
 		self.server = server
 		self.log=server.log
@@ -317,28 +316,22 @@ class Client:
 			pass
 		try:
 			with open(self.playerfile) as f:
-				j = json.load(f)
-				for k in j.keys():
-					self.data["player"][k] = j[k]
+				self.playerdata = json.load(f)
 		except:
-			j = {'x':0,'y':0,'z':0,'vx':0,'vy':0,'vz':0}
-			for k in j:
-				self.data["player"][k] = j[k] 
+			self.playerdata = {'x':0,'y':0,'z':0,'vx':0,'vy':0,'vz':0}
 		try:
 			with open(self.shipfile) as f:
-				j = json.load(f)
-				for k in j.keys():
-					self.data["ships"][k] = j[k]
+				self.ships = json.load(f)
 		except:
 			self.create_new_game()
-		self.pos = Vec3(self.data["player"]['x'],self.data["player"]['y'],self.data["player"]['z'])
+		self.pos = Vec3(self.playerdata['x'],self.playerdata['y'],self.playerdata['z'])
 		self.rot = Vec3()
 		self.load_modules()
 		
 	def load_modules(self):
-		for m in self.data["ships"][0]["modules"]:
+		for m in self.ships[0]["modules"]:
 			self._load_module(m)
-		self._load_module(self.data["ships"][0]['hull'])
+		self._load_module(self.ships[0]['hull'])
 
 	def _load_module(self,m):
 		m['health'] = 100
@@ -360,11 +353,11 @@ class Client:
 		except:
 			pass
 		for k in ['x','y','z']:
-			self.data["player"][k]=self.pos[k]
+			self.playerdata[k]=self.pos[k]
 		with open(self.playerfile,'w') as f:
-			json.dump(self.data["player"],f)
+			json.dump(self.playerdata,f)
 		with open(self.shipfile, 'w') as f:
-			json.dump(self.data["ships"],f)
+			json.dump(self.ships,f)
 
 	def __str__(self):
 		return user+" @"+str(self.addr)
@@ -573,7 +566,7 @@ class Client:
 			os.makedirs(self.playerdir)
 		except:
 			pass
-		j = {
+		self.ships = {
 			[
 				{
 					"hull": {'level':1, 'file':'modules/hull','modifiers':[]},
@@ -584,11 +577,9 @@ class Client:
 				}
 			]
 		}
-		for k in j:
-			self.data["ships"][k] = j[k] 
 		try:
 			with open(self.shipfile,"w") as f:
-				json.dump(self.data["ships"],f)
+				json.dump(self.ships,f)
 		except:
 			self.elog(f"[{self.user}] Failed to create new game!")
 
