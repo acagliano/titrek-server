@@ -317,7 +317,7 @@ class Client:
 			pass
 		try:
 			with open(self.playerfile) as f:
-				j = json.load
+				j = json.load(f)
 				for k in j.keys():
 					self.data["player"][k] = j[k]
 		except:
