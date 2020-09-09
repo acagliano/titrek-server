@@ -80,18 +80,23 @@ class Server:
 		self.sock.bind(('', self.port))                 # Now wait for client connection.
 
 	def run(self):
-		self.online = True
-		self.writeinfo()
-		self.threads = [multiprocessing.Process(target=self.autoSaveHandler)]
-		self.threads[0].start()
-		if USE_SSL:
-			self.main_thread = multiprocessing.Process(target=self.main_ssl)
-		else:
-			self.main_thread = multiprocessing.Process(target=self.main_normal)
-		self.main_thread.start()
-		self.console()
-		self.stop()
-		self.sock.close()
+		try:
+			self.online = True
+			self.writeinfo()
+			self.threads = [multiprocessing.Process(target=self.autoSaveHandler)]
+			self.threads[0].start()
+			if USE_SSL:
+				self.main_thread = multiprocessing.Process(target=self.main_ssl)
+			else:
+				self.main_thread = multiprocessing.Process(target=self.main_normal)
+			self.main_thread.start()
+			self.console()
+			self.stop()
+			self.sock.close()
+		except:
+			exc_type, exc_obj, exc_tb = sys.exc_info()
+			fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+			self.log(exc_type, fname, exc_tb.tb_lineno)
 
 
 	def loadbans(self):
