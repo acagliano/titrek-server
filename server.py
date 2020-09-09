@@ -312,12 +312,18 @@ class Client:
 			pass
 		try:
 			with open(self.playerfile) as f:
-				self.data["player"] = json.load(f)
+				j = json.load
+				for k in j.keys():
+					self.data["player"][k] = j[k]
 		except:
-			self.data["player"] = {'x':0,'y':0,'z':0,'vx':0,'vy':0,'vz':0}
+			j = {'x':0,'y':0,'z':0,'vx':0,'vy':0,'vz':0}
+			for k in j.keys()
+				self.data["player"][k] = j[k] 
 		try:
 			with open(self.shipfile) as f:
-				self.data["ships"] = json.load(f)
+				j = json.load(f)
+				for k in j.keys():
+					self.data["ships"][k] = j[k]
 		except:
 			self.create_new_game()
 		self.pos = Vec3(self.data["player"]['x'],self.data["player"]['y'],self.data["player"]['z'])
@@ -562,7 +568,7 @@ class Client:
 			os.makedirs(self.playerdir)
 		except:
 			pass
-		self.data["ships"] = {
+		j = {
 			[
 				{
 					"hull": {'level':1, 'file':'modules/hull','modifiers':[]},
@@ -573,6 +579,8 @@ class Client:
 				}
 			]
 		}
+		for k in j.keys():
+			self.data["ships"][k] = j[k] 
 		try:
 			with open(self.shipfile,"w") as f:
 				json.dump(self.data["ships"],f)
