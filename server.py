@@ -328,10 +328,13 @@ class Client:
 		try:
 			with open(self.shipfile) as f:
 				j = json.load(f)
+				print("or better yet here")
 				for k in j.keys():
 					self.data["ships"][k] = j[k]
 		except:
+			print("maybe in here")
 			self.create_new_game()
+		print("or after them all")
 		self.pos = Vec3(self.playerdata['x'],self.playerdata['y'],self.playerdata['z'])
 		self.rot = Vec3()
 		self.load_modules()
