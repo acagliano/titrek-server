@@ -522,7 +522,7 @@ class Client:
 					elif data[0]==ControlCodes["MODULE_UPDATE"]:
 						pass
 					elif data[0]==ControlCodes["LOAD_SHIP"]:
-						odata = [0,0,0,self.data['hull']['health']]
+						odata = [0,0,0,self.data["ships"][0]['hull']['health']]
 						for i in range(15):
 							if i<len(self.data['modules']):
 								m = self.data['modules'][i]
