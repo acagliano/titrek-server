@@ -569,7 +569,6 @@ class Client:
 					"hull": {'level':1, 'file':'modules/hull','modifiers':[]},
 					"modules":[
 						{'level': 1, 'file': 'modules/core', 'modifiers': []},
-						# {'level': 1, 'file': 'modules/engine', 'modifiers': []},
 						{'level': 1, 'file': 'modules/phaser', 'modifiers': []},
 					]
 				}
