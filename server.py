@@ -318,6 +318,7 @@ class Client:
 			with open(self.playerfile) as f:
 				self.playerdata = json.load(f)
 		except:
+			print("error here")
 			self.playerdata = {'x':0,'y':0,'z':0,'vx':0,'vy':0,'vz':0}
 		try:
 			with open(self.shipfile) as f:
@@ -526,10 +527,10 @@ class Client:
 					elif data[0]==ControlCodes["MODULE_UPDATE"]:
 						pass
 					elif data[0]==ControlCodes["LOAD_SHIP"]:
-						odata = [0,0,0,self.data["ships"][0]['hull']['health']]
+						odata = [0,0,0,self.ships[0]['hull']['health']]
 						for i in range(15):
-							if i<len(self.data["ships"][0]['modules']):
-								m = self.data["ships"][0]['modules'][i]
+							if i<len(self.ships[0]['modules']):
+								m = self.ships[0]['modules'][i]
 								odata.extend([m['techclass'],m['techtype'],m['health'],m['status_flags']])
 							else:
 								odata.extend([0,0,0,0])
