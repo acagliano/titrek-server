@@ -322,7 +322,7 @@ class Client:
 					self.data["player"][k] = j[k]
 		except:
 			j = {'x':0,'y':0,'z':0,'vx':0,'vy':0,'vz':0}
-			for k in j.keys():
+			for k in j:
 				self.data["player"][k] = j[k] 
 		try:
 			with open(self.shipfile) as f:
@@ -584,7 +584,7 @@ class Client:
 				}
 			]
 		}
-		for k in j.keys():
+		for k in j:
 			self.data["ships"][k] = j[k] 
 		try:
 			with open(self.shipfile,"w") as f:
