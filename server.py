@@ -670,7 +670,9 @@ class Client:
 				self.log("[",user,"] could not find user.")
 				self.send([ControlCodes["LOGIN"],ResponseCodes['MISSING']])  # Error: user does not exist
 		except Exception as e:
-			self.log("Internal Error:",e)
+			exc_type, exc_obj, exc_tb = sys.exc_info()
+    			fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+			self.log(exc_type, fname, exc_tb.tb_lineno)
 
 	def disconnect(self):
 		self.save_player()
