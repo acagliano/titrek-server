@@ -320,7 +320,7 @@ class Client:
 				self.data["ships"] = json.load(f)
 		except:
 			self.create_new_game()
-		self.pos = Vec3(self.data['x'],self.data['y'],self.data['z'])
+		self.pos = Vec3(self.data["player"]['x'],self.data["player"]['y'],self.data["player"]['z'])
 		self.rot = Vec3()
 		self.load_modules()
 		
