@@ -324,6 +324,7 @@ class Client:
 		print("maybe here instead")
 		for k in j.keys():
 			self.data["player"][k] = j[k]
+		print("or is it here")
 		try:
 			with open(self.shipfile) as f:
 				j = json.load(f)
