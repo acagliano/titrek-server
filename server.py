@@ -661,8 +661,8 @@ class Client:
 			if self.user == '':
 				self.log("[",user,"] could not find user.")
 				self.send([ControlCodes["LOGIN"],ResponseCodes['MISSING']])  # Error: user does not exist
-		except:
-			self.log("An error occurred while logging in player.")
+		except Exception as e:
+			self.log("Internal Error:",e)
 
 	def disconnect(self):
 		self.save_player()
