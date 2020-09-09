@@ -321,7 +321,8 @@ class Client:
 		except:
 			print("error here")
 			j = {'x':0,'y':0,'z':0,'vx':0,'vy':0,'vz':0}
-		for k in j:
+		print("maybe here instead")
+		for k in j.keys():
 			self.data["player"][k] = j[k]
 		try:
 			with open(self.shipfile) as f:
