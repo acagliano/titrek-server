@@ -311,24 +311,22 @@ class Client:
 			pass
 		try:
 			with open(self.playerfile) as f:
-				self.data = json.load(f)
+				self.data["player"] = json.load(f)
 		except:
-			self.data = {'x':0,'y':0,'z':0,'vx':0,'vy':0,'vz':0}
+			self.data["player"] = {'x':0,'y':0,'z':0,'vx':0,'vy':0,'vz':0}
+		try:
+			with open(self.shipfile) as f:
+				self.data["ships"] = json.load(f)
+		except:
+			create_new_game()
 		self.pos = Vec3(self.data['x'],self.data['y'],self.data['z'])
 		self.rot = Vec3()
-		if "modules" not in self.data.keys():
-			self.data["modules"] = [
-				{'level': 1, 'file': 'modules/core', 'modifiers': []},
-				# {'level': 1, 'file': 'modules/engine', 'modifiers': []},
-				{'level': 1, 'file': 'modules/phaser', 'modifiers': []},
-			]
-			self.data['hull'] = {'level':1, 'file':'modules/hull','modifiers':[]}
 		self.load_modules()
 		
 	def load_modules(self):
-		for m in self.data['modules']:
+		for m in self.data["ships"][0]["modules"]:
 			self._load_module(m)
-		self._load_module(self.data['hull'])
+		self._load_module(self.data["ships"][0]['hull'])
 
 	def _load_module(self,m):
 		m['health'] = 100
@@ -350,9 +348,11 @@ class Client:
 		except:
 			pass
 		for k in ['x','y','z']:
-			self.data[k]=self.pos[k]
+			self.data["player"][k]=self.pos[k]
 		with open(self.playerfile,'w') as f:
-			json.dump(self.data,f)
+			json.dump(self.data["player"],f)
+		with open(self.shipfile, 'w') as f:
+			json.dump(self.data["ships"],f)
 
 	def __str__(self):
 		return user+" @"+str(self.addr)
@@ -561,10 +561,21 @@ class Client:
 			os.makedirs(self.playerdir)
 		except:
 			pass
-		ship = {"core":[loadModule("core",1)],"weapons":[],"hull":[loadModule("hull",1)],"shield":[]}
+		self.data["ships"] = {
+			[
+				{
+					"hull": {'level':1, 'file':'modules/hull','modifiers':[]},
+					"modules":[
+						{'level': 1, 'file': 'modules/core', 'modifiers': []},
+						# {'level': 1, 'file': 'modules/engine', 'modifiers': []},
+						{'level': 1, 'file': 'modules/phaser', 'modifiers': []},
+					]
+				}
+			]
+		}
 		try:
-			with open(self.playerdir+"/ship.json","w") as f:
-				json.dump(ship,f)
+			with open(self.shipfile,"w") as f:
+				json.dump(self.data["ships"],f)
 		except:
 			self.elog(f"[{self.user}] Failed to create new game!")
 
@@ -612,8 +623,9 @@ class Client:
 		self.send([ControlCodes["REGISTER"],ResponseCodes['SUCCESS']])       # Register successful
 		self.playerdir = f"players/data/{self.user}/"
 		self.playerfile = f"players/data/{self.user}/player.json"
-		self.load_player()
+		self.shipfile = f"players/data/{self.user}/ships.json"
 		self.create_new_game()
+		self.load_player()
 
 	def log_in(self, data):
 		user,passw,vers = [ToUTF8(a) for a in data[1:].split(b"\0",maxsplit=2)]
@@ -641,6 +653,7 @@ class Client:
 							self.log(f"[{user}] has successfuly logged in!")
 							self.send([ControlCodes["LOGIN"],ResponseCodes['SUCCESS']])   # Log in successful
 							self.playerfile = f"players/data/{self.user}/player.json"
+							self.shipfile = f"players/data/{self.user}/ships.json"
 							self.load_player()
 						else:
 							self.log(f"[{user}] entered incorrect password.")
