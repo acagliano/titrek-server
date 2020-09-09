@@ -317,7 +317,7 @@ class Client:
 			pass
 		try:
 			with open(self.playerfile) as f:
-				j = json.load()
+				j = json.load(f)
 		except:
 			print("error here")
 			j = {'x':0,'y':0,'z':0,'vx':0,'vy':0,'vz':0}
@@ -325,7 +325,7 @@ class Client:
 			self.data["player"][k] = j[k]
 		try:
 			with open(self.shipfile) as f:
-				j = json.load()
+				j = json.load(f)
 				for k in j.keys():
 					self.data["ships"][k] = j[k]
 		except:
