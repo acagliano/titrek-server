@@ -594,7 +594,7 @@ class Client:
 			with open(self.shipfile,"w") as f:
 				json.dump(self.data["ships"],f)
 		except IOError:
-			self.log("Failed to write file!"
+			self.log("Failed to write file!")
 		except:
 			self.log(traceback.print_exc(limit=None, file=None, chain=True))
 
