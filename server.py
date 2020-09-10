@@ -329,15 +329,13 @@ class Client:
 			j = {'x':0,'y':0,'z':0,'vx':0,'vy':0,'vz':0}
 		except:
 			self.log(traceback.print_exc(limit=None, file=None, chain=True))
-		for k in j.keys():
-			self.data["player"][k] = j[k]
+		self.data["player"] = j
 		print("or is it here")
 		try:
 			with open(self.shipfile) as f:
 				j = json.load(f)
 				print("or better yet here")
-				for k in j.keys():
-					self.data["ships"][k] = j[k]
+				self.data["ships"] = j
 		except IOError:
 			print("No ships save found - initializing")
 			self.create_new_game()
@@ -586,22 +584,19 @@ class Client:
 			os.makedirs(self.playerdir)
 		except:
 			pass
-		j = {[
-				{
-					"hull": {'level':1, 'file':'modules/hull','modifiers':[]},
-					"modules":[
-						{'level': 1, 'file': 'modules/core', 'modifiers': []},
-						{'level': 1, 'file': 'modules/phaser', 'modifiers': []},
-					]
-				}
-			]}
-		for k in j.keys():
-			self.data["ships"][k] = j[k]
 		try:
+			j = [{"hull": {'level':1, 'file':'modules/hull','modifiers':[]},"modules":[
+				{'level': 1, 'file': 'modules/core', 'modifiers': []},
+				{'level': 1, 'file': 'modules/phaser', 'modifiers': []},
+				]}
+			]
+			self.data["ships"] = j
 			with open(self.shipfile,"w") as f:
 				json.dump(self.data["ships"],f)
+		except IOError:
+			self.log("Failed to write file!"
 		except:
-			self.elog(f"[{self.user}] Failed to create new game!")
+			self.log(traceback.print_exc(limit=None, file=None, chain=True))
 
 	def servinfo(self):
 		with open('servinfo.json', 'r+') as info_file:
