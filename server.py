@@ -347,9 +347,9 @@ class Client:
 		self.load_modules()
 		
 	def load_modules(self):
-		for m in self.ships[0]["modules"]:
+		for m in self.data["ships"][0]["modules"]:
 			self._load_module(m)
-		self._load_module(self.ships[0]['hull'])
+		self._load_module(self.data["ships"][0]['hull'])
 
 	def _load_module(self,m):
 		m['health'] = 100
@@ -361,7 +361,7 @@ class Client:
 			for k in j['module'][level].keys():				
 				m[k] = j['module'][level][k]
 		except:
-			print(sys.exc_info()[0])
+			self.log(traceback.print_exc(limit=None, file=None, chain=True))
 
 
 
@@ -559,7 +559,7 @@ class Client:
 			except socket.error:
 				pass
 			except Exception as e:
-				self.log("Internal Error:",e)
+				self.log(traceback.print_exc(limit=None, file=None, chain=True))
 		else:
 			self.disconnect()
 
