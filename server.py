@@ -326,7 +326,7 @@ class Client:
 				j = json.load(f)
 		except IOError:
 			self.log("player data not found - initializing")
-			j = {'x':0,'y':0,'z':0,'vx':0,'vy':0,'vz':0}
+			j = {"x":0,"y":0,"z":0,"vx":0,"vy":0,"vz":0}
 		except:
 			self.log(traceback.print_exc(limit=None, file=None, chain=True))
 		self.data["player"] = j
@@ -342,7 +342,7 @@ class Client:
 		except:
 			self.log(traceback.print_exc(limit=None, file=None, chain=True))
 		print("or after them all")
-		self.pos = Vec3(self.playerdata['x'],self.playerdata['y'],self.playerdata['z'])
+		self.pos = Vec3(self.data["player"]["x"],self.data["player"]["y"],self.data["player"]["z"])
 		self.rot = Vec3()
 		self.load_modules()
 		
@@ -371,7 +371,7 @@ class Client:
 		except:
 			pass
 		for k in ['x','y','z']:
-			self.playerdata[k]=self.pos[k]
+			self.data["player"][k]=self.pos[k]
 		with open(self.playerfile,'w') as f:
 			json.dump(self.data["player"],f)
 		with open(self.shipfile, 'w') as f:
