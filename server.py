@@ -7,7 +7,7 @@
 # Adam "beckadamtheinventor" Beckingham
 #This is the server program for TI-Trek CE.
 
-import socket,multiprocessing,ctypes,hashlib,json,os,sys,time,math,ssl
+import socket,multiprocessing,ctypes,hashlib,json,os,sys,time,math,ssl,traceback
 
 from trek_codes import *
 from trek_generate import *
@@ -94,9 +94,8 @@ class Server:
 			self.stop()
 			self.sock.close()
 		except:
-			exc_type, exc_obj, exc_tb = sys.exc_info()
-			fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-			self.log(exc_type, fname, exc_tb.tb_lineno)
+			self.log(traceback.print_exc(limit=None, file=None, chain=True))
+
 
 
 	def loadbans(self):
@@ -131,9 +130,12 @@ class Server:
 			with context.wrap_socket(self.sock, server_side=True) as ssock:
 				conn, addr = ssock.accept()
 				self.clients[conn] = client = Client(conn,addr,self)
-				thread = multiprocessing.Process(target=client.handle_connection)
-				self.threads.append(thread)
-				thread.start()
+				try:
+					thread = multiprocessing.Process(target=client.handle_connection)
+					self.threads.append(thread)
+					thread.start()
+				except:
+					self.log(traceback.print_exc(limit=None, file=None, chain=True))
 				time.sleep(0.002)
 				self.writeinfo()
 				
@@ -142,9 +144,13 @@ class Server:
 			self.sock.listen(1)
 			conn, addr = self.sock.accept()
 			self.clients[conn] = client = Client(conn,addr,self)
-			thread = multiprocessing.Process(target=client.handle_connection)
-			self.threads.append(thread)
-			thread.start()
+			try:
+				thread = multiprocessing.Process(target=client.handle_connection)
+				self.threads.append(thread)
+				thread.start()
+			except:
+				self.log(traceback.print_exc(limit=None, file=None, chain=True))
+
 			time.sleep(0.002)
 			self.writeinfo()
 
@@ -319,11 +325,10 @@ class Client:
 			with open(self.playerfile) as f:
 				j = json.load(f)
 		except IOError:
-			print("error reading file")
-		except:
-			print("error here")
+			self.log("player data not found - initializing")
 			j = {'x':0,'y':0,'z':0,'vx':0,'vy':0,'vz':0}
-		print("maybe here instead")
+		except:
+			self.log(traceback.print_exc(limit=None, file=None, chain=True))
 		for k in j.keys():
 			self.data["player"][k] = j[k]
 		print("or is it here")
@@ -334,10 +339,10 @@ class Client:
 				for k in j.keys():
 					self.data["ships"][k] = j[k]
 		except IOError:
-			print("error reading file")
-		except:
-			print("maybe in here")
+			print("No ships save found - initializing")
 			self.create_new_game()
+		except:
+			self.log(traceback.print_exc(limit=None, file=None, chain=True))
 		print("or after them all")
 		self.pos = Vec3(self.playerdata['x'],self.playerdata['y'],self.playerdata['z'])
 		self.rot = Vec3()
