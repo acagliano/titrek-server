@@ -318,6 +318,8 @@ class Client:
 		try:
 			with open(self.playerfile) as f:
 				j = json.load(f)
+		except IOError:
+			print("error reading file")
 		except:
 			print("error here")
 			j = {'x':0,'y':0,'z':0,'vx':0,'vy':0,'vz':0}
@@ -331,6 +333,8 @@ class Client:
 				print("or better yet here")
 				for k in j.keys():
 					self.data["ships"][k] = j[k]
+		except IOError:
+			print("error reading file")
 		except:
 			print("maybe in here")
 			self.create_new_game()
