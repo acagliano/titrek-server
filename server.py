@@ -7,7 +7,7 @@
 # Adam "beckadamtheinventor" Beckingham
 #This is the server program for TI-Trek CE.
 
-import socket,multiprocessing,ctypes,hashlib,json,os,sys,time,math,ssl,traceback
+import socket,multiprocessing,ctypes,hashlib,json,os,sys,time,math,ssl,traceback,subprocess
 
 from trek_codes import *
 from trek_generate import *
@@ -159,10 +159,11 @@ class Server:
 			status="true"
 		else:
 			status="false"
+		versionbuild = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD'])
 		with open("servinfo.json","w") as f:
 				f.write('\
 {"server":{\
-	"version":"2.01.0000",\
+	"version":f"2.01.'+versionbuild'",\
 	"numclients":'+str(Client.count)+',\
 	"minversion":"0.0.92",\
 	"max_clients":250,\
