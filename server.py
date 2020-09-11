@@ -163,7 +163,7 @@ class Server:
 		with open("servinfo.json","w") as f:
 				f.write('\
 {"server":{\
-	"version":f"2.01.'+versionbuild'",\
+	"version":"2.01.'+versionbuild+'",\
 	"numclients":'+str(Client.count)+',\
 	"minversion":"0.0.92",\
 	"max_clients":250,\
