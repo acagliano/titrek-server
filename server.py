@@ -160,7 +160,7 @@ class Server:
 		else:
 			status="false"
 		versionbuild = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD'])
-		version = "2.01."+versionbuild
+		version = "2.01."+str(versionbuild)
 		with open("servinfo.json","w") as f:
 				f.write('\
 {"server":{\
