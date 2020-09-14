@@ -7,7 +7,7 @@
 # Adam "beckadamtheinventor" Beckingham
 #This is the server program for TI-Trek CE.
 
-import socket,multiprocessing,ctypes,hashlib,json,os,sys,time,math,ssl,traceback,subprocess
+import socket,threading,ctypes,hashlib,json,os,sys,time,math,ssl,traceback,subprocess
 
 from trek_codes import *
 from trek_generate import *
@@ -83,12 +83,12 @@ class Server:
 		try:
 			self.online = True
 			self.writeinfo()
-			self.threads = [multiprocessing.Process(target=self.autoSaveHandler)]
+			self.threads = [threading.Thread(target=self.autoSaveHandler)]
 			self.threads[0].start()
 			if USE_SSL:
-				self.main_thread = multiprocessing.Process(target=self.main_ssl)
+				self.main_thread = threading.Thread(target=self.main_ssl)
 			else:
-				self.main_thread = multiprocessing.Process(target=self.main_normal)
+				self.main_thread = threading.Thread(target=self.main_normal)
 			self.main_thread.start()
 			self.console()
 			self.stop()
@@ -131,7 +131,7 @@ class Server:
 				conn, addr = ssock.accept()
 				self.clients[conn] = client = Client(conn,addr,self)
 				try:
-					thread = multiprocessing.Process(target=client.handle_connection)
+					thread = threading.Thread(target=client.handle_connection)
 					self.threads.append(thread)
 					thread.start()
 				except:
@@ -145,7 +145,7 @@ class Server:
 			conn, addr = self.sock.accept()
 			self.clients[conn] = client = Client(conn,addr,self)
 			try:
-				thread = multiprocessing.Process(target=client.handle_connection)
+				thread = threading.Thread(target=client.handle_connection)
 				self.threads.append(thread)
 				thread.start()
 			except:
@@ -177,7 +177,7 @@ class Server:
 			if (cur_time-last_save_time)>=600:
 				last_save_time = time.time()
 				self.log("Autosaving...")
-				multiprocessing.Process(target=self.space.save,args=("space/data", )).start()
+				threading.Thread(target=self.space.save,args=("space/data", )).start()
 			time.sleep(60)
 
 
