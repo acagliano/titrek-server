@@ -7,7 +7,7 @@
 # Adam "beckadamtheinventor" Beckingham
 #This is the server program for TI-Trek CE.
 
-import socket,threading,ctypes,hashlib,json,os,sys,time,math,ssl,traceback,subprocess
+import socket,threading,ctypes,hashlib,json,os,sys,time,math,ssl,traceback,subprocess,logging
 
 from trek_codes import *
 from trek_generate import *
@@ -62,10 +62,8 @@ class Server:
 				os.makedirs(directory)
 			except:
 				pass
+		self.logger = logging.getLogger('titrek.server')
 		self.loadbans()
-		self.mlogf = open("logs/messages.txt","a+")
-		self.elogf = open("logs/errors.txt","a+")
-		self.ilogf = open("logs/log.txt","a+")
 		self.banlist = open("bans/userban.txt","a+")
 		self.ipbanlist = open("bans/ipban.txt","a+")
 
@@ -113,16 +111,7 @@ class Server:
 	def log(self,*args,**kwargs):
 		print(*args,**kwargs)
 		for arg in args:
-			self.ilogf.write(str(arg)+" ")
-		self.ilogf.write("\n")
-	
-	def elog(self,*args,**kwargs):
-		self.log(*args,**kwargs)
-		for arg in args:
-			self.elogf.write(str(arg)+" ")
-		self.elogf.write("\n")
-
-
+			self.logger.log(str(arg)+" ")
 	
 	def main_ssl(self):
 		while self.online:
@@ -695,7 +684,14 @@ class Client:
 	def close(self):
 		Client.count -= 1
 		self.logged_in = False
-
+		
+if __name__ == '__main__':
+    # Write errors to another file in addition to the main log
+    error_handler.addFilter(lambda record: record.levelno >= logging.ERROR)
+    logging.basicConfig(handlers=(
+        logging.FileHandler('logs/server.log'),
+        error_handler,
+    ))
 server = Server()
 server.run()
 
