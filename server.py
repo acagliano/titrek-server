@@ -687,11 +687,7 @@ class Client:
 		
 if __name__ == '__main__':
     # Write errors to another file in addition to the main log
-    error_handler.addFilter(lambda record: record.levelno >= logging.ERROR)
-    logging.basicConfig(handlers=(
-        logging.FileHandler('logs/server.log'),
-        error_handler,
-    ))
+    logging.basicConfig(format='%(levelname)s:%(asctime)s %(message)s',filename='example.log',level=logging.DEBUG)
 server = Server()
 server.run()
 
