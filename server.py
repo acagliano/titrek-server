@@ -109,9 +109,7 @@ class Server:
 			pass
 
 	def log(self,*args,**kwargs):
-		print(*args,**kwargs)
-		for arg in args:
-			self.logger.log(str(arg)+" ")
+    		self.logger.log(*args, **kwargs)
 	
 	def main_ssl(self):
 		while self.online:
@@ -686,8 +684,10 @@ class Client:
 		self.logged_in = False
 		
 if __name__ == '__main__':
-    # Write errors to another file in addition to the main log
-    logging.basicConfig(format='%(levelname)s:%(asctime)s %(message)s',filename='example.log',level=logging.DEBUG)
-server = Server()
-server.run()
+    logging.basicConfig(format='%(levelname)s:%(asctime)s %(message)s',level=logging.DEBUG,handlers=[
+	    logging.StreamHandler(), # writes to stderr
+	    logging.FileHandler('logs/server.log'),
+    )
+    server = Server()
+    server.run()
 
