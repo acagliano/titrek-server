@@ -17,6 +17,7 @@ from trek_modules import loadModule
 
 PACKET_DEBUG = False
 USE_SSL = False
+PLAYER_ROOT = "data/players/"
 
 BANNED_USERS = []
 BANNED_IPS = []
@@ -356,7 +357,7 @@ class Client:
 
 	def save_player(self):
 		try:
-			os.makedirs(f"players/data/{self.user}")
+			os.makedirs(f"data/players/{self.user}")
 		except:
 			pass
 		for k in ['x','y','z']:
@@ -603,10 +604,10 @@ class Client:
 		print(user,passw,email)
 		self.log("Registering user:",user)
 		passw_md5 = hashlib.md5(bytes(passw,'UTF-8')).hexdigest()  # Generate md5 hash of password
-		for root,dirs,files in os.walk('players/data/'): #search in players directory
+		for root,dirs,files in os.walk(f'{PLAYER_ROOT}'): #search in players directory
 			for d in dirs: #only search directories
 				try:
-					with open(f'players/data/{d}/account.json', 'r') as f:
+					with open(f'{PLAYER_ROOT}{d}/account.json', 'r') as f:
 						account = json.load(f)
 				except IOError:
 					continue
@@ -619,19 +620,19 @@ class Client:
 					self.send([ControlCodes["REGISTER"],ResponseCodes['INVALID']])
 					return
 		try:
-			os.makedirs(f'players/data/{user}')
+			os.makedirs(f'{PLAYER_ROOT}{user}')
 		except:
 			self.log("Directory already exists or error creating")
 			pass
-		with open(f'players/data/{user}/account.json','w') as f:
+		with open(f'{PLAYER_ROOT}{user}/account.json','w') as f:
 			json.dump({'displayname':user,'passw_md5':passw_md5,'email':email,'permLvl':0},f)
 		self.user = user
 		self.logged_in = True
 		self.log(f"[{user}] has been successfuly registered!")
 		self.send([ControlCodes["REGISTER"],ResponseCodes['SUCCESS']])       # Register successful
-		self.playerdir = f"players/data/{self.user}/"
-		self.playerfile = f"players/data/{self.user}/player.json"
-		self.shipfile = f"players/data/{self.user}/ships.json"
+		self.playerdir = f"{PLAYER_ROOT}{self.user}/"
+		self.playerfile = f"{self.playerdir}player.json"
+		self.shipfile = f"{self.playerdir}ships.json"
 		self.create_new_game()
 		self.load_player()
 
@@ -647,10 +648,10 @@ class Client:
 			return
 		passw_md5 = hashlib.md5(bytes(passw,'UTF-8')).hexdigest()  # Generate md5 hash of password
 		try:
-			for root, dirs, files in os.walk('players/data/'):  # search in players directory
+			for root, dirs, files in os.walk(f'{PLAYER_ROOT}'):  # search in players directory
 				for d in dirs:  # only search directories
 					try:
-						with open(f'players/data/{d}/account.json', 'r') as f:
+						with open(f'{PLAYER_ROOT}{d}/account.json', 'r') as f:
 							account = json.load(f)
 					except IOError:
 						continue
@@ -660,8 +661,9 @@ class Client:
 							self.logged_in = True
 							self.log(f"[{user}] has successfuly logged in!")
 							self.send([ControlCodes["LOGIN"],ResponseCodes['SUCCESS']])   # Log in successful
-							self.playerfile = f"players/data/{self.user}/player.json"
-							self.shipfile = f"players/data/{self.user}/ships.json"
+							self.playerdir = f"{PLAYER_ROOT}{self.user}/"
+							self.playerfile = f"{self.playerdir}player.json"
+							self.shipfile = f"{self.playerdir}ships.json"
 							self.load_player()
 						else:
 							self.log(f"[{user}] entered incorrect password.")
