@@ -5,14 +5,14 @@ class Space:
 	def __init__(self,log):
 		self.log=log
 		self.space=[]
-		log("Loading map from space/data/")
+		log(logging.INFO, "Loading map from space/data/")
 		for fname in self.walk("space/data"):
 			try:
 				with open(fname) as f:
 					self.space.extend(json.loads(f.read()))
 			except:
-				self.log("Warning: could not load file \""+fname+"\"")
-		log("Finished loading map")
+				self.log(logging.ERROR,"Warning: could not load file \""+fname+"\"")
+		log(logging.INFO, "Finished loading map")
 
 	def walk(self,path):
 		for root,dirs,files in os.walk(path):
