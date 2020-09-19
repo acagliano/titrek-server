@@ -280,7 +280,7 @@ class Server:
 					self.log("Connected clients:")
 					if len(self.clients):
 						for client in self.clients.values():
-							self.log("\t",str(client))
+							self.log(str(client))
 					else:
 						self.log("No clients connected")
 				elif line[0]=="debug-on":
