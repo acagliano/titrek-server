@@ -182,7 +182,6 @@ class Server:
 		for client in self.clients.keys():
 			self.clients[client].disconnect()
 			del self.clients[client]
-		self.main_thread.terminate()
 		self.online = False
 		self.writeinfo()
 		self.closeFiles()
