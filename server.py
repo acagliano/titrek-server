@@ -278,8 +278,11 @@ class Server:
 					self.log("Restored.")
 				elif line[0]=="list":
 					self.log("Connected clients:")
-					for client in self.clients.values():
-						self.log("\t",str(client))
+					if len(self.clients):
+						for client in self.clients.values():
+							self.log("\t",str(client))
+					else:
+						self.log("No clients connected")
 				elif line[0]=="debug-on":
 					PACKET_DEBUG = True
 				elif line[0]=="debug-off":
@@ -287,7 +290,7 @@ class Server:
 			except KeyboardInterrupt:
 				break
 			except Exception as e:
-				self.elog("Internal Error:",e)
+				self.elog(traceback.print_exc(limit=None, file=None, chain=True))
 
 class Client:
 	count = 0
