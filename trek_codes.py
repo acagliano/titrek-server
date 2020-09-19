@@ -20,7 +20,7 @@ ControlCodes = {
     "REGISTER":0,
     "LOGIN":1,
     "DISCONNECT":2,
-    "VERSION_MISMATCH":3   # This is for the client not up to date response , See response codes. VERSION_* must be the second byte of packet
+    "VERSION_MISMATCH":3,   # This is for the client not up to date response , See response codes. VERSION_* must be the second byte of packet
     
     # GAMEPLAY
     # Map Interfacing: 10 - 19 
