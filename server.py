@@ -689,7 +689,7 @@ if __name__ == '__main__':
     logging.basicConfig(format='%(levelname)s:%(asctime)s %(message)s',level=logging.DEBUG,handlers=[
 	    logging.StreamHandler(), # writes to stderr
 	    logging.FileHandler('logs/server.log'),
-    )
+    ])
     server = Server()
     server.run()
 
