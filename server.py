@@ -603,7 +603,7 @@ class Client:
 		self.sanitize(user)
 		self.sanitize(passw)
 		print(user,passw,email)
-		self.log("Registering user:",user)
+		self.log(f"Registering user: [{user}]")
 		passw_md5 = hashlib.md5(bytes(passw,'UTF-8')).hexdigest()  # Generate md5 hash of password
 		for root,dirs,files in os.walk(f'{PLAYER_ROOT}'): #search in players directory
 			for d in dirs: #only search directories
@@ -642,7 +642,7 @@ class Client:
 		self.sanitize(user)
 		self.sanitize(passw)
 		print(user,passw)
-		self.log("Logging in user:",user)
+		self.log(f"Logging in user: [{user}]")
 		if user in BANNED_USERS:
 			self.send([ControlCodes["LOGIN"],ResponseCodes['BANNED']])
 			self.log(f"[{user}] Banned user attempted login.")
