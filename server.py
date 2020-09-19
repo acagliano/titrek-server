@@ -529,9 +529,9 @@ class Client:
 							if I>=1024:
 								break
 						self.send(out2)
-					elif data[0]==ControlCodes["MODULE_REQUEST"]:
+					elif data[0]==ControlCodes["MODULE_INFO_REQUEST"]:
 						pass
-					elif data[0]==ControlCodes["MODULE_UPDATE"]:
+					elif data[0]==ControlCodes["MODULE_STATE_CHANGE"]:
 						pass
 					elif data[0]==ControlCodes["LOAD_SHIP"]:
 						odata = [0,0,0,self.data["ships"][0]['hull']['health']]
