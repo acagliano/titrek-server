@@ -459,7 +459,7 @@ class Client:
 						out = sorted(out, key = lambda x: x[0]['y'])
 						out.reverse()
 						out2 = bytearray(1024)
-						out2[0]=ControlCodes['CHUNK_REQUEST']
+						out2[0]=ControlCodes['FRAMEDATA_REQUEST']
 						if len(out)>127:
 							J = len(out)-127
 							out2[1]=127
@@ -498,7 +498,7 @@ class Client:
 						az=(z//1e3)
 						self.send(bytes([ControlCodes["POSITION_REQUEST"]])+\
 							b"Sector "+bytes([qx,qy,qz,0x20])+bytes("Coordinates x"+str(ax)+"y"+str(ay)+"z"+str(az),'UTF-8'))
-					elif data[0]==ControlCodes["SENSOR_REQUEST"]:
+					elif data[0]==ControlCodes["SENSOR_DATA_REQUEST"]:
 						R1 = FromSignedInt(data[1])*math.pi/128
 						out=[]
 						for obj in self.server.space.gather_chunk(1e9):
