@@ -439,7 +439,7 @@ class Client:
 						self.pos['vz']-=math.sin(R1)*G
 					elif data[0]==ControlCodes["MESSAGE"]:
 						self.log("["+ToUTF8(self.user)+"]",ToUTF8(data[1:]))    # send a message to the server
-					elif data[0]==ControlCodes["CHUNK_REQUEST"]:
+					elif data[0]==ControlCodes["FRAMEDATA_REQUEST"]:
 						out = []
 						R1 = FromSignedInt(data[1])*math.pi/128
 						R2 = FromSignedInt(data[2])*math.pi/128
