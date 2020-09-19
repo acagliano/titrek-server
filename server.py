@@ -371,7 +371,7 @@ class Client:
 			json.dump(self.data["ships"],f)
 
 	def __str__(self):
-		return user+" @"+str(self.addr)
+		return self.user+" @"+str(self.addr)
 
 	def send(self,data):
 		if self.conn.send(bytes(data)):
