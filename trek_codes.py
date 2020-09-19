@@ -14,21 +14,32 @@
 #These are mostly used for mnemonics
 
 ControlCodes = {
+    
+    # CONNECTION/ADMIN
+    # 0 - 9
     "REGISTER":0,
     "LOGIN":1,
     "DISCONNECT":2,
-    "PRGMUPDATE":3,
-    "GFXUPDATE":4,
-    "LOAD_SHIP":5,
-    "MODULE_REQUEST":6,
-    "MODULE_UPDATE":7,
-    "CHUNK_REQUEST":8,
-    "ENTITY_REQUEST":9,
-    "SENSOR_REQUEST":10, #May add REQPOSITION if needed
-    "NEW_GAME_REQUEST":11,
+    "VERSION_MISMATCH":3   # This is for the client not up to date response , See response codes. VERSION_* must be the second byte of packet
+    
+    # GAMEPLAY
+    # Map Interfacing: 10 - 19 
+    "FRAMEDATA_REQUEST":10,
+    "SENSOR_DATA_REQUEST":11, #May add REQPOSITION if needed
     "PLAYER_MOVE":12,
     "POSITION_REQUEST":13,
-#Message codes
+    
+    # Ship Interfacing: 20 - 29
+    "LOAD_SHIP":20,
+    "MODULE_INFO_REQUEST":21,
+    "MODULE_STATE_CHANGE":22,
+    "NEW_GAME_REQUEST":23,
+    
+    # File Streaming: 90 - 91
+    "PRGMUPDATE":90,
+    "GFXUPDATE":91,
+    
+    # DEBUG: 0xf*
     "PING":0xfc,
     "MESSAGE":0xfd,
     "DEBUG":0xfe,
@@ -41,6 +52,7 @@ ResponseCodes = {
     "DUPLICATE":0x2,
     "MISSING":0x3,
     "BANNED":0x4,
-    "VERSION_MISMATCH":0x5,
-    "BAD_MESSAGE_CONTENT":0x6,
+    "VERSION_ERROR":0x5,    # This will produce a blocking error on client saying (1) update, or (2) disconnect
+    "VERSION_OUTDATED":0x6,     # this will show a non-blocking error on client letting you update or proceed.
+    "BAD_MESSAGE_CONTENT":0x7,
 }
