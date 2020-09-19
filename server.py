@@ -93,7 +93,7 @@ class Server:
 			self.stop()
 			self.sock.close()
 		except:
-			self.log(traceback.print_exc(limit=None, file=None, chain=True))
+			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
 
 
 
@@ -110,7 +110,14 @@ class Server:
 			pass
 
 	def log(self,*args,**kwargs):
-    		self.logger.log(*args, **kwargs)
+    		self.logger.log(logging.INFO, *args, **kwargs)
+	
+	def elog(self,*args,**kwargs):
+		self.logger.log(logging.ERROR, *args, **kwargs)
+		
+	def dlog(self,*args,**kwargs):
+		if PACKET_DEBUG:
+			self.logger.log(logging.DEBUG, *args, **kwargs)
 	
 	def main_ssl(self):
 		while self.online:
@@ -123,7 +130,7 @@ class Server:
 					self.threads.append(thread)
 					thread.start()
 				except:
-					self.log(traceback.print_exc(limit=None, file=None, chain=True))
+					self.elog(traceback.print_exc(limit=None, file=None, chain=True))
 				time.sleep(0.002)
 				self.writeinfo()
 				
@@ -137,7 +144,7 @@ class Server:
 				self.threads.append(thread)
 				thread.start()
 			except:
-				self.log(traceback.print_exc(limit=None, file=None, chain=True))
+				self.elog(traceback.print_exc(limit=None, file=None, chain=True))
 
 			time.sleep(0.002)
 			self.writeinfo()
@@ -175,8 +182,6 @@ class Server:
 		for client in self.clients.keys():
 			self.clients[client].disconnect()
 			del self.clients[client]
-		for thread in self.threads:
-			thread.terminate()
 		self.main_thread.terminate()
 		self.online = False
 		self.writeinfo()
@@ -185,9 +190,6 @@ class Server:
 	def closeFiles(self):
 		self.banlist.close()
 		self.ipbanlist.close()
-		self.mlogf.close()
-		self.elogf.close()
-		self.ilogf.close()
 
 	def kick(self,username):
 		for conn in self.clients.keys():
@@ -221,7 +223,7 @@ class Server:
 		try:
 			os.system("cp -r space backups/"+sname)
 		except:
-			self.log("WARNING: failed to backup")
+			self.elog("WARNING: failed to backup")
 
 	def restoreAll(self,sname):
 		try:
@@ -231,13 +233,13 @@ class Server:
 		try:
 			os.system("cp -r backups/"+sname+" space")
 		except:
-			self.log("WARNING: failed to restore")
+			self.elog("WARNING: failed to restore")
 
 	def console(self):
 		while True:
 			try:
 				line = input(">")
-				self.ilogf.write(">"+line+"\n")
+				self.log(">"+line+"\n")
 				if " " in line:
 					line = line.split()
 				else:
@@ -301,6 +303,8 @@ class Client:
 		Client.count += 1
 		self.server = server
 		self.log=server.log
+		self.elog = server.elog
+		self.dlog = server.dlog
 		self.max_acceleration = 5 #accelerate at a maximum of 100m/s^2
 		if PACKET_DEBUG:
 			self.log(f"Got client from {addr}")
@@ -320,18 +324,15 @@ class Client:
 		except:
 			self.log(traceback.print_exc(limit=None, file=None, chain=True))
 		self.data["player"] = j
-		print("or is it here")
 		try:
 			with open(self.shipfile) as f:
 				j = json.load(f)
-				print("or better yet here")
 				self.data["ships"] = j
 		except IOError:
 			print("No ships save found - initializing")
 			self.create_new_game()
 		except:
 			self.log(traceback.print_exc(limit=None, file=None, chain=True))
-		print("or after them all")
 		self.pos = Vec3(self.data["player"]["x"],self.data["player"]["y"],self.data["player"]["z"])
 		self.rot = Vec3()
 		self.load_modules()
