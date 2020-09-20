@@ -314,7 +314,7 @@ class Client:
 
 	def load_player(self):
 		try:
-			os.makedirs(f"players/data/{self.user}")
+			os.makedirs(f"{PLAYER_ROOT}{self.user}")
 		except:
 			pass
 		try:
