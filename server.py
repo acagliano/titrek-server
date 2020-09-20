@@ -309,7 +309,7 @@ class Client:
 		self.dlog = server.dlog
 		self.max_acceleration = 5 #accelerate at a maximum of 100m/s^2
 		if PACKET_DEBUG:
-			self.log(f"Got client from {addr}")
+			self.dlog(f"Got client from {addr}")
 		self.send([ControlCodes["MESSAGE"]]+list(b'Logging you in...'))
 
 	def load_player(self):
@@ -324,7 +324,7 @@ class Client:
 			self.log("player data not found - initializing")
 			j = {"x":0,"y":0,"z":0,"vx":0,"vy":0,"vz":0}
 		except:
-			self.log(traceback.print_exc(limit=None, file=None, chain=True))
+			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
 		self.data["player"] = j
 		try:
 			with open(self.shipfile) as f:
@@ -334,13 +334,13 @@ class Client:
 			print("No ships save found - initializing")
 			self.create_new_game()
 		except:
-			self.log(traceback.print_exc(limit=None, file=None, chain=True))
+			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
 		try:
 			self.pos = Vec3(self.data["player"]["x"],self.data["player"]["y"],self.data["player"]["z"])
 			self.rot = Vec3()
 			self.load_modules()
 		except:
-			self.log(traceback.print_exc(limit=None, file=None, chain=True))
+			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
 		
 	def load_modules(self):
 		for m in self.data["ships"][0]["modules"]:
@@ -357,7 +357,7 @@ class Client:
 			for k in j['module'][level].keys():				
 				m[k] = j['module'][level][k]
 		except:
-			self.log(traceback.print_exc(limit=None, file=None, chain=True))
+			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
 
 
 
@@ -380,7 +380,7 @@ class Client:
 		if self.conn.send(bytes(data)):
 			self.log("Sent packet")
 		else:
-			self.log("Failed to send packet")
+			self.elog("Failed to send packet")
 			
 	def sanitize(self,i):
 		if any([a in bytes(i, 'UTF-8') for a in InvalidCharacters]):
@@ -555,7 +555,7 @@ class Client:
 			except socket.error:
 				pass
 			except Exception as e:
-				self.log(traceback.print_exc(limit=None, file=None, chain=True))
+				self.elog(traceback.print_exc(limit=None, file=None, chain=True))
 		else:
 			self.disconnect()
 
@@ -565,6 +565,7 @@ class Client:
 		with open("malicious.txt", 'a+') as f:
 			f.write(f"# failJSON: {json.dumps(j)}\n{str(self.addr)} @ {ts}:\
 		Attempted request without login. Control code: {hex(self.fromControlCode(A))}")
+		self.elog(f"Malformed or malicious packet from host {j["host"]})
 		self.send([ControlCodes["DISCONNECTED"], ResponseCodes["BAD_MESSAGE_CONTENT"]])
 		self.close()
 
@@ -590,9 +591,9 @@ class Client:
 			with open(self.shipfile,"w") as f:
 				json.dump(self.data["ships"],f)
 		except IOError:
-			self.log("Failed to write file!")
+			self.elog("Failed to write file!")
 		except:
-			self.log(traceback.print_exc(limit=None, file=None, chain=True))
+			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
 
 	def servinfo(self):
 		with open('servinfo.json', 'r+') as info_file:
@@ -628,7 +629,7 @@ class Client:
 		try:
 			os.makedirs(f'{PLAYER_ROOT}{user}')
 		except:
-			self.log("Directory already exists or error creating")
+			self.elog("Directory already exists or error creating")
 			pass
 		with open(f'{PLAYER_ROOT}{user}/account.json','w') as f:
 			json.dump({'displayname':user,'passw_md5':passw_md5,'email':email,'permLvl':0},f)
