@@ -335,9 +335,12 @@ class Client:
 			self.create_new_game()
 		except:
 			self.log(traceback.print_exc(limit=None, file=None, chain=True))
-		self.pos = Vec3(self.data["player"]["x"],self.data["player"]["y"],self.data["player"]["z"])
-		self.rot = Vec3()
-		self.load_modules()
+		try:
+			self.pos = Vec3(self.data["player"]["x"],self.data["player"]["y"],self.data["player"]["z"])
+			self.rot = Vec3()
+			self.load_modules()
+		except:
+			self.log(traceback.print_exc(limit=None, file=None, chain=True))
 		
 	def load_modules(self):
 		for m in self.data["ships"][0]["modules"]:
