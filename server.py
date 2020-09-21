@@ -565,7 +565,7 @@ class Client:
 		with open("malicious.txt", 'a+') as f:
 			f.write(f"# failJSON: {json.dumps(j)}\n{str(self.addr)} @ {ts}:\
 		Attempted request without login. Control code: {hex(self.fromControlCode(A))}")
-		self.elog(f"Malformed or malicious packet from host {j["host"]})
+		self.elog(f"Malformed or malicious packet from host {self.addr}")
 		self.send([ControlCodes["DISCONNECTED"], ResponseCodes["BAD_MESSAGE_CONTENT"]])
 		self.close()
 
