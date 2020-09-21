@@ -193,7 +193,7 @@ class Server:
 	def kick(self,username):
 		for conn in self.clients.keys():
 			client = self.clients[conn]
-			if client.username==username:
+			if client.user==username:
 				client.disconnect()
 				del self.clients[conn]
 
