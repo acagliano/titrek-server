@@ -695,6 +695,7 @@ class Client:
 		Client.count -= 1
 		self.logged_in = False
 		self.closed = True
+		self.conn.close()
 
 if __name__ == '__main__':
 	logging.basicConfig(format='%(levelname)s: %(asctime)s: %(message)s',level=logging.DEBUG,handlers=[
