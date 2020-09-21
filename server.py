@@ -390,7 +390,7 @@ class Client:
 			return
 			
 	def handle_connection(self):
-		while self.server.online:
+		while self.server.online and not self.closed:
 			data = self.conn.recv(1024)
 			if not data:
 				time.sleep(1)
@@ -693,6 +693,7 @@ class Client:
 	def close(self):
 		Client.count -= 1
 		self.logged_in = False
+        self.closed = True
 		self.conn.close()
 		
 if __name__ == '__main__':
