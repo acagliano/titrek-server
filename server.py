@@ -256,13 +256,13 @@ class Server:
 					break
 				elif line[0]=="save":
 					self.log("Saving...")
-					multiprocessing.Process(target=self.space.save,args=("space/data", )).start()
+					threading.Thread(target=self.space.save,args=("space/data", )).start()
 					self.log("Saved.")
 				elif line[0]=="seed":
 					self.generator.seed(hash(line[1]))
 				elif line[0]=="generate":
 					self.log("Generating space...")
-					multiprocessing.Process(target=self.generator.generate_all,args=(self.space, )).start()
+					threading.Thread(target=self.generator.generate_all,args=(self.space, )).start()
 					self.log("Finished generating.")
 				elif line[0]=="kick":
 					self.kick(line[1])
@@ -693,6 +693,7 @@ class Client:
 	def close(self):
 		Client.count -= 1
 		self.logged_in = False
+		self.conn.close()
 		
 if __name__ == '__main__':
     logging.basicConfig(format='%(levelname)s: %(asctime)s: %(message)s',level=logging.DEBUG,handlers=[
