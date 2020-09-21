@@ -110,7 +110,7 @@ class Server:
 			pass
 
 	def log(self,*args,**kwargs):
-    		self.logger.log(logging.INFO, *args, **kwargs)
+			self.logger.log(logging.INFO, *args, **kwargs)
 	
 	def elog(self,*args,**kwargs):
 		self.logger.log(logging.ERROR, *args, **kwargs)
@@ -693,14 +693,14 @@ class Client:
 	def close(self):
 		Client.count -= 1
 		self.logged_in = False
-        self.closed = True
+		self.closed = True
 		self.conn.close()
 		
 if __name__ == '__main__':
-    logging.basicConfig(format='%(levelname)s: %(asctime)s: %(message)s',level=logging.DEBUG,handlers=[
-	    logging.StreamHandler(), # writes to stderr
-	    logging.FileHandler('logs/server.log'),
-    ])
-    server = Server()
-    server.run()
+	logging.basicConfig(format='%(levelname)s: %(asctime)s: %(message)s',level=logging.DEBUG,handlers=[
+		logging.StreamHandler(), # writes to stderr
+		logging.FileHandler('logs/server.log'),
+	])
+	server = Server()
+	server.run()
 
