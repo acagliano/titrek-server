@@ -133,6 +133,10 @@ class Server:
 					self.elog(traceback.print_exc(limit=None, file=None, chain=True))
 				time.sleep(0.002)
 				self.writeinfo()
+			for c in self.clients.keys():
+				cl = self.clients[c]
+				if cl.closed:
+					del self.clients[c]
 				
 	def main_normal(self):
 		while self.online:
@@ -148,6 +152,10 @@ class Server:
 
 			time.sleep(0.002)
 			self.writeinfo()
+			for c in self.clients.keys():
+				cl = self.clients[c]
+				if cl.closed:
+					del self.clients[c]
 
 	def writeinfo(self):
 		if self.online:
