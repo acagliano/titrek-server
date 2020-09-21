@@ -56,3 +56,11 @@ ResponseCodes = {
     "VERSION_OUTDATED":0x6,     # this will show a non-blocking error on client letting you update or proceed.
     "BAD_MESSAGE_CONTENT":0x7,
 }
+
+ModuleStateChange = {
+    # SERVER => CLIENT
+    "CHANGE_STATUS_FLAGS":0,
+    "CHANGE_HEALTH":1,
+    # CLIENT => SERVER
+    "CHANGE_ONLINE_STATE":10
+}
