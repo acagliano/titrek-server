@@ -559,8 +559,8 @@ class Client:
 			except Exception as e:
 				self.elog(traceback.print_exc(limit=None, file=None, chain=True))
 		else:
-			if not self.closed:
-				self.disconnect()
+			if self.closed:
+				self.conn.close()
 
 	def maliciousDisconnect(self,A):
 		ts = time.asctime()
@@ -695,7 +695,6 @@ class Client:
 		Client.count -= 1
 		self.logged_in = False
 		self.closed = True
-		self.conn.close()
 
 if __name__ == '__main__':
 	logging.basicConfig(format='%(levelname)s: %(asctime)s: %(message)s',level=logging.DEBUG,handlers=[
