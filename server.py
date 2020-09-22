@@ -581,13 +581,16 @@ class Client:
 				self.conn.close()
 
 	def maliciousDisconnect(self,A):
-		ts = time.asctime()
-		j = {"time": ts, "match": True, "host": str(self.addr)}
-		with open("malicious.txt", 'a+') as f:
-			f.write(f"# failJSON: {json.dumps(j)}\n{str(self.addr)} @ {ts}:\
-		Attempted request without login. Control code: {hex(self.fromControlCode(A))}")
-		self.elog(f"Malformed or malicious packet from host {self.addr}")
-		self.send([ControlCodes["DISCONNECTED"], ResponseCodes["BAD_MESSAGE_CONTENT"]])
+		try:
+			ts = time.asctime()
+			j = {"time": ts, "match": True, "host": str(self.addr)}
+			with open("malicious.txt", 'a+') as f:
+				f.write(f"# failJSON: {json.dumps(j)}\n{str(self.addr)} @ {ts}:\
+				Attempted request without login. Control code: {hex(self.fromControlCode(A))}")
+			self.elog(f"Malformed or malicious packet from host {self.addr}")
+			self.send([ControlCodes["DISCONNECTED"], ResponseCodes["BAD_MESSAGE_CONTENT"]])
+		except:
+			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
 		self.close()
 
 	def getSpriteID(self,sprite):
