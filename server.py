@@ -93,7 +93,13 @@ class Server:
 		except:
 			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
 
-
+	def banlist(self):
+		print("[BANNED USERS]")
+		for b in BANNED_USERS:
+			print(b+"\n")
+		print("[BANNED IPS]")
+		for b in BANNED_IPS:
+			print(b+"\n")
 
 	def loadbans(self):
 		try:
@@ -272,6 +278,8 @@ class Server:
 					self.ban(line[1])
 				elif line[0]=="ipban":
 					self.ipban(line[1])
+				elif line[0]=="banlist":
+					self.banlist()
 				elif line[0]=="backup":
 					self.log("Saving...")
 					self.backupAll(line[1])
