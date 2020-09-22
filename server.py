@@ -195,16 +195,12 @@ class Server:
 			client = self.clients[conn]
 			if client.user==username:
 				client.disconnect()
-				del self.clients[conn]
-				break
 
 	def kickip(self,ip):
 		for conn in self.clients.keys():
 			client = self.clients[conn]
 			if client.addr==ip:
 				client.disconnect()
-				del self.clients[conn]
-				break
 
 	def ban(self,username):
 		self.kick(username)
