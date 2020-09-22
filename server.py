@@ -100,10 +100,10 @@ class Server:
 	def banlist(self):
 		print("[BANNED USERS]")
 		for b in Config.banned_users:
-			print(b+"\n")
+			print(b)
 		print("[BANNED IPS]")
 		for b in Config.banned_ips:
-			print(b+"\n")
+			print(b)
 
 	def loadbans(self):
 		try:
