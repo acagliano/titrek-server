@@ -119,9 +119,12 @@ class Server:
 			
 	def whitelist_add(self,ip):
 		try:
-			Config.whitelist.append(ip)
-			self.log(f"{ip} added to whitelist.")
-			self.save_whitelist()
+			if not ip in Config.whitelist:
+				Config.whitelist.append(ip)
+				self.log(f"{ip} added to whitelist.")
+				self.save_whitelist()
+			else:
+				self.log(f"{ip} already whitelisted.)
 		except:
 			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
 	
