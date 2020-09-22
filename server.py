@@ -51,7 +51,7 @@ class Config:
 	banned_ips = []
 	banned_users = []
 	packet_debug = False
-	use_ssl = false
+	use_ssl = False
 	ssl_path = ""
 	player_root = "data/players/"
 	invalid_characters = [bytes(a,'UTF-8') for a in ["/","\\","#","$","%","^","&","*","!","~","`","\"","|"]] + \
