@@ -105,11 +105,13 @@ class Server:
 		try:
 			with open("bans/userban.txt","r") as f:
 				BANNED_USERS = f.read().splitlines()
+			self.log(BANNED_USERS)
 		except:
 			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
 		try:
 			with open("bans/ipban.txt","r") as f:
 				BANNED_IPS = f.read().splitlines()
+			self.log(BANNED_IPS)
 		except:
 			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
 
