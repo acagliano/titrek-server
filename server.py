@@ -272,7 +272,7 @@ class Server:
 
 	def ipban(self,ip):
 		self.kickip(ip)
-		if not username in Config.banned_ips:
+		if not ip in Config.banned_ips:
 			Config.banned_ips.append(ip)
 			self.save_bans()
 		
