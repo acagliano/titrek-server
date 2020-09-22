@@ -15,15 +15,15 @@ from trek_space import *
 from trek_vec3 import *
 from trek_modules import loadModule
 
-PACKET_DEBUG = False
-USE_SSL = False
-PLAYER_ROOT = "data/players/"
+global PACKET_DEBUG = False
+global USE_SSL = False
+global PLAYER_ROOT = "data/players/"
 
-BANNED_USERS = []
-BANNED_IPS = []
-InvalidCharacters = [bytes(a,'UTF-8') for a in ["/","\\","#","$","%","^","&","*","!","~","`","\"","|"]] + \
+global BANNED_USERS = []
+global BANNED_IPS = []
+global InvalidCharacters = [bytes(a,'UTF-8') for a in ["/","\\","#","$","%","^","&","*","!","~","`","\"","|"]] + \
 					[bytes([a]) for a in range(1,0x20)] + [bytes([a]) for a in range(0x7F,0xFF)]
-TextBodyControlCodes = [ControlCodes["REGISTER"],ControlCodes["LOGIN"],ControlCodes["PING"],ControlCodes["MESSAGE"],\
+global TextBodyControlCodes = [ControlCodes["REGISTER"],ControlCodes["LOGIN"],ControlCodes["PING"],ControlCodes["MESSAGE"],\
 						ControlCodes["DEBUG"],ControlCodes["SERVINFO"],ControlCodes["DISCONNECT"]]
 with open(f'config.json', 'r') as f:
 	config = json.load(f)
