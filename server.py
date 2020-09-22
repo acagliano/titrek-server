@@ -559,8 +559,9 @@ class Client:
 			except Exception as e:
 				self.elog(traceback.print_exc(limit=None, file=None, chain=True))
 		else:
-			if not self.closed:
-				self.disconnect()
+			if self.closed:
+				del server.clients[self.conn]
+				self.conn.close()
 
 	def maliciousDisconnect(self,A):
 		ts = time.asctime()
@@ -682,9 +683,7 @@ class Client:
 				self.log("[",user,"] could not find user.")
 				self.send([ControlCodes["LOGIN"],ResponseCodes['MISSING']])  # Error: user does not exist
 		except Exception as e:
-			exc_type, exc_obj, exc_tb = sys.exc_info()
-			fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-			self.log(exc_type, fname, exc_tb.tb_lineno)
+			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
 
 	def disconnect(self):
 		self.save_player()
@@ -695,7 +694,6 @@ class Client:
 		Client.count -= 1
 		self.logged_in = False
 		self.closed = True
-		self.conn.close()
 
 if __name__ == '__main__':
 	logging.basicConfig(format='%(levelname)s: %(asctime)s: %(message)s',level=logging.DEBUG,handlers=[
