@@ -137,7 +137,7 @@ class Server:
 		try:
 			with open("whitelist.txt","w+") as f:
 				for w in Config.whitelist:
-					f.write(w+"\n")
+					f.write(str(w)+"\n")
 			self.log(f"Whitelist written successfully.")
 		except:
 			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
@@ -270,11 +270,11 @@ class Server:
 		try:
 			with open("bans/ipban.txt","w+") as f:
 				for w in Config.banned_ips:
-					f.write(w+"\n")
+					f.write(str(w)+"\n")
 				self.log(f"IP bans written successfully.")
 			with open("bans/userban.txt","w+") as f:
 				for w in Config.banned_users:
-					f.write(w+"\n")
+					f.write(str(w)+"\n")
 				self.log(f"User bans written successfully.")
 		except:
 			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
@@ -366,6 +366,8 @@ class Client:
 	def __init__(self, conn, addr, server):
 		self.conn = conn
 		self.addr = addr
+		self.ip,self.port = self.addr.split()
+		self.trustworthy = False
 		self.closed = False
 		self.logged_in = False
 		self.user = ''
@@ -477,8 +479,6 @@ class Client:
 					self.register(data)
 				elif data[0]==ControlCodes["LOGIN"]:
 					self.log_in(data)
-				elif data[0]==ControlCodes["DISCONNECT"]:
-					self.disconnect()
 				elif data[0]==ControlCodes["SERVINFO"]:
 					self.servinfo()
 				elif data[0]==ControlCodes["PING"]:
@@ -502,6 +502,8 @@ class Client:
 				elif self.logged_in:
 					if data[0]==ControlCodes["DEBUG"]:
 						self.server.log(ToUTF8(data[1:])) # send a debug message to the server console
+					elif data[0]==ControlCodes["DISCONNECT"]:
+						self.disconnect()
 					elif data[0]==ControlCodes["PLAYER_MOVE"]:
 						G = FromSignedInt(data[1])
 						if G>=self.max_acceleration:
@@ -628,17 +630,18 @@ class Client:
 				del server.clients[self.conn]
 				self.conn.close()
 
-	def maliciousDisconnect(self,ban=False):
+	def maliciousDisconnect(self):
 		try:
-			if ban:
-				server.ipban(self.addr)
-				server.whitelist_remove(self.addr)
-				self.elog(f"{self.addr} banned due to suspect behavior.")
-			if not ban:
-				self.elog(f"Packet from {self.addr} rejected for invalid characters.")
+			if not self.trustworthy:
+				server.ipban(self.ip)
+				server.whitelist_remove(self.ip)
+				self.elog(f"{self.ip} banned due to suspect behavior.")
+			if self.trustworthy:
+				self.elog(f"Packet from {self.ip} rejected for invalid characters.")
 				self.send([ControlCodes["DISCONNECT"],ResponseCodes['BAD_MESSAGE_CONTENT']]) # Disconnect user, inform of error
 			self.close()
-			self.elog(f"{self.addr} disconnected.")
+			self.elog(f"{self.ip} disconnected.")
+			self.trustworthy = False
 		except:
 			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
 
@@ -711,7 +714,7 @@ outputs:
 			self.send([ControlCodes['MESSAGE']]+output)
 
 	def register(self, data):
-		if self.addr not in Config.whitelist:
+		if self.ip not in Config.whitelist:
 			self.maliciousDisconnect(True)
 		user,passw,email = [ToUTF8(a) for a in data[1:].split(b"\0",maxsplit=2)]
 		self.sanitize(user)
@@ -752,7 +755,7 @@ outputs:
 		self.load_player()
 
 	def log_in(self, data):
-		server.whitelist_add(self.addr)
+		server.whitelist_add(self.ip)
 		user,passw,vers = [ToUTF8(a) for a in data[1:].split(b"\0",maxsplit=2)]
 		self.sanitize(user)
 		self.sanitize(passw)
@@ -781,6 +784,7 @@ outputs:
 							self.playerfile = f"{self.playerdir}player.json"
 							self.shipfile = f"{self.playerdir}ships.json"
 							self.load_player()
+							self.trustworthy = True
 						else:
 							self.log(f"[{user}] entered incorrect password.")
 							self.send([ControlCodes["LOGIN"],ResponseCodes['INVALID']])  # Error: incorrect password
@@ -791,8 +795,6 @@ outputs:
 			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
 
 	def disconnect(self):
-		if self.addr not in Config.whitelist:
-			self.maliciousDisconnect()
 		self.save_player()
 		self.send([ControlCodes['DISCONNECT']]) #Let the user know if disconnected. Might be useful eventually.
 		self.close()
