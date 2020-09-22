@@ -74,7 +74,7 @@ class Server:
 		
 		self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)         # Create a socket object
 		self.sock.settimeout(None)
-		self.port = PORT                # Reserve a port for your service.
+		self.port = Config.port                # Reserve a port for your service.
 		self.clients = {}
 		self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 		self.sock.bind(('', self.port))                 # Now wait for client connection.
