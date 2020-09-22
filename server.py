@@ -65,8 +65,6 @@ class Server:
 				pass
 		self.logger = logging.getLogger('titrek.server')
 		self.loadbans()
-		self.banlist = open("bans/userban.txt","a+")
-		self.ipbanlist = open("bans/ipban.txt","a+")
 
 		self.generator = Generator()
 		self.space = Space(self.log)
@@ -124,6 +122,10 @@ class Server:
 			self.sock.listen(1)
 			with context.wrap_socket(self.sock, server_side=True) as ssock:
 				conn, addr = ssock.accept()
+				for b in BANNED_IPS:
+					if addr==b:
+						conn.close()
+						continue
 				self.clients[conn] = client = Client(conn,addr,self)
 				try:
 					thread = threading.Thread(target=client.handle_connection)
@@ -138,6 +140,10 @@ class Server:
 		while self.online:
 			self.sock.listen(1)
 			conn, addr = self.sock.accept()
+			for b in BANNED_IPS:
+				if addr==b:
+					conn.close()
+					continue
 			self.clients[conn] = client = Client(conn,addr,self)
 			try:
 				thread = threading.Thread(target=client.handle_connection)
