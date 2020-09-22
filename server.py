@@ -169,7 +169,7 @@ class Server:
 			with context.wrap_socket(self.sock, server_side=True) as ssock:
 				conn, addr = ssock.accept()
 				for b in Config.banned_ips:
-					if addr==b:
+					if addr[0]==b:
 						self.log(f"Connection from {addr} rejected.")
 						conn.close()
 						continue
@@ -188,7 +188,7 @@ class Server:
 			self.sock.listen(1)
 			conn, addr = self.sock.accept()
 			for b in Config.banned_ips:
-				if addr==b:
+				if addr[0]==b:
 					self.log(f"Connection from {addr} rejected.")
 					conn.close()
 					continue
