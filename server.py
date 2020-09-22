@@ -108,6 +108,11 @@ class Server:
 		for b in Config.banned_ips:
 			print(b)
 
+	def print_whitelist(self):
+		print("[WHITELISTED IPS]")
+		for w in Config.whitelist:
+			print(w)
+	
 	def load_whitelist(self):
 		try:
 			with open("whitelist.txt","r") as f:
@@ -261,13 +266,15 @@ class Server:
 
 	def ban(self,username):
 		self.kick(username)
-		Config.banned_users.append(username)
-		self.save_bans()
+		if not username in Config.banned_users:
+			Config.banned_users.append(username)
+			self.save_bans()
 
 	def ipban(self,ip):
 		self.kickip(ip)
-		Config.banned_ips.append(ip)
-		self.save_bans()
+		if not username in Config.banned_ips:
+			Config.banned_ips.append(ip)
+			self.save_bans()
 		
 	def save_bans(self):
 		try:
@@ -339,6 +346,8 @@ class Server:
 					self.ipban(line[1])
 				elif line[0]=="banlist":
 					self.banlist()
+				elif line[0]=="whitelist"):
+					self.print_whitelist()
 				elif line[0]=="backup":
 					self.log("Saving...")
 					self.backupAll(line[1])
