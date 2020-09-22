@@ -478,152 +478,155 @@ class Client:
 					else: o.append("\\x"+hex(c)[2:])
 				self.dlog("recieved packet: ","".join(o))
 			try:
-				if data[0]==ControlCodes["REGISTER"]:
-					self.register(data)
-				elif data[0]==ControlCodes["LOGIN"]:
+				if data[0]==ControlCodes["LOGIN"]:
 					self.log_in(data)
-				elif data[0]==ControlCodes["SERVINFO"]:
-					self.servinfo()
-				elif data[0]==ControlCodes["PING"]:
-					self.server.log("Ping? Pong!")
-					self.send([ControlCodes["MESSAGE"]]+list(b"pong!"))
-				elif data[0]==ControlCodes["PRGMUPDATE"]:
-					gfx_hash = sum([data[x+1]*(2**(8*(x-1))) for x in range(4)])
-					paths = []
-					for root,dirs,files in os.walk("cli-versions/prgm/",topdown=False):
-						for d in dirs:
-							paths.append(d)
-					paths = sorted(paths,reverse=True)
-					try:
-						with open(f"cli-versions/prgm/{paths[0]}/TITREK.bin",'rb') as f:
-							program_data = bytearray(f.read())
-						for i in range(0,len(program_data),1020):
-							self.send(bytes([ControlCodes["PRGMUPDATE"]])+program_data[i:min(i+1020,len(program_data))])
-							time.sleep(1/4)
-					except:
-						self.elog(f"Could not find one or more required files in folder","cli-versions/prgm/{paths[0]}")
-				elif self.logged_in:
-					if data[0]==ControlCodes["DEBUG"]:
-						self.server.log(ToUTF8(data[1:])) # send a debug message to the server console
-					elif data[0]==ControlCodes["DISCONNECT"]:
-						self.disconnect()
-					elif data[0]==ControlCodes["PLAYER_MOVE"]:
-						G = FromSignedInt(data[1])
-						if G>=self.max_acceleration:
-							self.send([ControlCodes["DISCONNECT"]]+list(b"You were accelerating too fast. Hacking?\0"))
-							return
-						R1 = FromSignedInt(data[2])*math.pi/128
-						R2 = FromSignedInt(data[3])*math.pi/128
-						self.pos['vx']+=math.cos(R1)*math.cos(R2)*G
-						self.pos['vy']+=math.sin(R1)*G
-						self.pos['vz']-=math.sin(R1)*G
-					elif data[0]==ControlCodes["MESSAGE"]:
-						self.log("["+ToUTF8(self.user)+"]",ToUTF8(data[1:]))    # send a message to the server
-					elif data[0]==ControlCodes["FRAMEDATA_REQUEST"]:
-						out = []
-						R1 = FromSignedInt(data[1])*math.pi/128
-						R2 = FromSignedInt(data[2])*math.pi/128
-						R3 = FromSignedInt(data[3])*math.pi/128
-						Range = data[4]*1e6
-						for obj in self.server.space.gather_chunk(self.pos,Range):
-							x,y,z,r = obj['x'],obj['y'],obj['z'],obj['radius']
-							x-=self.pos['x']
-							y-=self.pos['y']
-							z-=self.pos['z']
-							x2 = (math.cos(R1)*x-math.sin(R1)*y)*(math.cos(R2)*x+math.sin(R2)*z)*256
-							y2 = (math.sin(R1)*x+math.cos(R1)*y)*(math.cos(R3)*y-math.sin(R3)*z)
-							z2 = (-math.sin(R2)*x+math.cos(R2)*z)*(math.sin(R3)*y+math.cos(R3)*z)*134
-							#only add object to frame data if it's visible
-							if (x2+r)>=-128 and (x2-r)<128 and (z2+r)>=-67 and (z2-r)<67 and y2>10:
-								out.append([Vec3(x2,y2,z2),obj])
-						out = sorted(out, key = lambda x: x[0]['y'])
-						out.reverse()
-						out2 = bytearray(1024)
-						out2[0]=ControlCodes['FRAMEDATA_REQUEST']
-						if len(out)>254:
-							J = len(out)-254
-							out2[1]=254
-						else:
-							J = 0
-							out2[1]=len(out)
-						I=2
-						while J<len(out):
-							obj=out[J]
-							x,y,z = obj['x'],obj['y'],obj['z']
-							out2[I]   = ToSignedByte(int(x))
-							out2[I+1] = ToSignedByte(int(z))
-							out2[I+2] = int(obj[1]['radius']/y)&0xFF
-							out2[I+3] = self.getSpriteID(obj["sprite"])
-							I+=4
-							if I>=1024:
-								break
-						self.send(out2)
-					elif data[0]==ControlCodes["POSITION_REQUEST"]:
-						x = int(self.pos['x'])
-						y = int(self.pos['y'])
-						z = int(self.pos['z'])
-						qx=x//1e15
-						qy=y//1e15
-						qz=z//1e15
-						if qx<0: qx=chr(0x61-qx)
-						else:    qx=chr(0x41+qx)
-						if qy<0: qy=chr(0x61-qy)
-						else:    qy=chr(0x41+qy)
-						if qz<0: qz=chr(0x61-qz)
-						else:    qz=chr(0x41+qz)
-						ax=(x//1e3)
-						ay=(y//1e3)
-						az=(z//1e3)
-						self.send(bytes([ControlCodes["POSITION_REQUEST"]])+\
-							b"Sector "+bytes([qx,qy,qz,0x20])+bytes("Coordinates x"+str(ax)+"y"+str(ay)+"z"+str(az),'UTF-8'))
-					elif data[0]==ControlCodes["SENSOR_DATA_REQUEST"]:
-						R1 = FromSignedInt(data[1])*math.pi/128
-						out=[]
-						for obj in self.server.space.gather_chunk(1e9):
-							x,z,r,c = obj['x'],obj['z'],obj['radius'],obj['colors'][0]
-							x-=self.pos['x']
-							z-=self.pos['z']
-							x2=(math.cos(R1)*x-math.sin(R1)*z)*256
-							z2=(math.sin(R1)*x+math.cos(R1)*z)*134
-							if (x2+r)>=-128 and (x2-r)<128 and (z2+r)>=-67 and (z2-r)<67:
-								out.append([x2,z2,r/100,c])
-						out2 = bytearray(1024)
-						out2[0]=ControlCodes["SENSOR_REQUEST"]
-						if len(out)>254:
-							J=len(out)-254
-							out2[1]=254
-						else:
-							J=0
-							out2[1]=len(out)
-						I=2
-						while J<len(out):
-							obj=out[J]
-							x,z,r,c = obj
-							out2[I]   = ToSignedByte(int(x))
-							out2[I+1] = ToSignedByte(int(z))
-							out2[I+2] = ToSignedByte(int(r))
-							out2[I+3] = c&0xFF
-							I+=4
-							if I>=1024:
-								break
-						self.send(out2)
-					elif data[0]==ControlCodes["MODULE_INFO_REQUEST"]:
-						pass
-					elif data[0]==ControlCodes["MODULE_STATE_CHANGE"]:
-						pass
-					elif data[0]==ControlCodes["LOAD_SHIP"]:
-						odata = [0,0,0,self.data["ships"][0]['hull']['health']]
-						for i in range(15):
-							if i<len(self.data["ships"][0]['modules']):
-								m = self.data["ships"][0]['modules'][i]
-								odata.extend([m['techclass'],m['techtype'],m['health'],m['status_flags']])
+				elif self.ip in Config.whitelist:
+					if data[0]==ControlCodes["REGISTER"]:
+						self.register(data)
+					elif data[0]==ControlCodes["SERVINFO"]:
+						self.servinfo()
+					elif data[0]==ControlCodes["PING"]:
+						self.server.log("Ping? Pong!")
+						self.send([ControlCodes["MESSAGE"]]+list(b"pong!"))
+					elif data[0]==ControlCodes["PRGMUPDATE"]:
+						gfx_hash = sum([data[x+1]*(2**(8*(x-1))) for x in range(4)])
+						paths = []
+						for root,dirs,files in os.walk("cli-versions/prgm/",topdown=False):
+							for d in dirs:
+								paths.append(d)
+						paths = sorted(paths,reverse=True)
+						try:
+							with open(f"cli-versions/prgm/{paths[0]}/TITREK.bin",'rb') as f:
+								program_data = bytearray(f.read())
+							for i in range(0,len(program_data),1020):
+								self.send(bytes([ControlCodes["PRGMUPDATE"]])+program_data[i:min(i+1020,len(program_data))])
+								time.sleep(1/4)
+						except:
+							self.elog(f"Could not find one or more required files in folder","cli-versions/prgm/{paths[0]}")
+					elif self.logged_in:
+						if data[0]==ControlCodes["DEBUG"]:
+							self.server.log(ToUTF8(data[1:])) # send a debug message to the server console
+						elif data[0]==ControlCodes["DISCONNECT"]:
+							self.disconnect()
+						elif data[0]==ControlCodes["PLAYER_MOVE"]:
+							G = FromSignedInt(data[1])
+							if G>=self.max_acceleration:
+								self.send([ControlCodes["DISCONNECT"]]+list(b"You were accelerating too fast. Hacking?\0"))
+								return
+							R1 = FromSignedInt(data[2])*math.pi/128
+							R2 = FromSignedInt(data[3])*math.pi/128
+							self.pos['vx']+=math.cos(R1)*math.cos(R2)*G
+							self.pos['vy']+=math.sin(R1)*G
+							self.pos['vz']-=math.sin(R1)*G
+						elif data[0]==ControlCodes["MESSAGE"]:
+							self.log("["+ToUTF8(self.user)+"]",ToUTF8(data[1:]))    # send a message to the server
+						elif data[0]==ControlCodes["FRAMEDATA_REQUEST"]:
+							out = []
+							R1 = FromSignedInt(data[1])*math.pi/128
+							R2 = FromSignedInt(data[2])*math.pi/128
+							R3 = FromSignedInt(data[3])*math.pi/128
+							Range = data[4]*1e6
+							for obj in self.server.space.gather_chunk(self.pos,Range):
+								x,y,z,r = obj['x'],obj['y'],obj['z'],obj['radius']
+								x-=self.pos['x']
+								y-=self.pos['y']
+								z-=self.pos['z']
+								x2 = (math.cos(R1)*x-math.sin(R1)*y)*(math.cos(R2)*x+math.sin(R2)*z)*256
+								y2 = (math.sin(R1)*x+math.cos(R1)*y)*(math.cos(R3)*y-math.sin(R3)*z)
+								z2 = (-math.sin(R2)*x+math.cos(R2)*z)*(math.sin(R3)*y+math.cos(R3)*z)*134
+								#only add object to frame data if it's visible
+								if (x2+r)>=-128 and (x2-r)<128 and (z2+r)>=-67 and (z2-r)<67 and y2>10:
+									out.append([Vec3(x2,y2,z2),obj])
+							out = sorted(out, key = lambda x: x[0]['y'])
+							out.reverse()
+							out2 = bytearray(1024)
+							out2[0]=ControlCodes['FRAMEDATA_REQUEST']
+							if len(out)>254:
+								J = len(out)-254
+								out2[1]=254
 							else:
-								odata.extend([0,0,0,0])
-						self.send(bytes([ControlCodes["LOAD_SHIP"]]+odata))
-					elif data[0]==ControlCodes["NEW_GAME_REQUEST"]:
-						self.create_new_game()
+								J = 0
+								out2[1]=len(out)
+							I=2
+							while J<len(out):
+								obj=out[J]
+								x,y,z = obj['x'],obj['y'],obj['z']
+								out2[I]   = ToSignedByte(int(x))
+								out2[I+1] = ToSignedByte(int(z))
+								out2[I+2] = int(obj[1]['radius']/y)&0xFF
+								out2[I+3] = self.getSpriteID(obj["sprite"])
+								I+=4
+								if I>=1024:
+									break
+							self.send(out2)
+						elif data[0]==ControlCodes["POSITION_REQUEST"]:
+							x = int(self.pos['x'])
+							y = int(self.pos['y'])
+							z = int(self.pos['z'])
+							qx=x//1e15
+							qy=y//1e15
+							qz=z//1e15
+							if qx<0: qx=chr(0x61-qx)
+							else:    qx=chr(0x41+qx)
+							if qy<0: qy=chr(0x61-qy)
+							else:    qy=chr(0x41+qy)
+							if qz<0: qz=chr(0x61-qz)
+							else:    qz=chr(0x41+qz)
+							ax=(x//1e3)
+							ay=(y//1e3)
+							az=(z//1e3)
+							self.send(bytes([ControlCodes["POSITION_REQUEST"]])+\
+								b"Sector "+bytes([qx,qy,qz,0x20])+bytes("Coordinates x"+str(ax)+"y"+str(ay)+"z"+str(az),'UTF-8'))
+						elif data[0]==ControlCodes["SENSOR_DATA_REQUEST"]:
+							R1 = FromSignedInt(data[1])*math.pi/128
+							out=[]
+							for obj in self.server.space.gather_chunk(1e9):
+								x,z,r,c = obj['x'],obj['z'],obj['radius'],obj['colors'][0]
+								x-=self.pos['x']
+								z-=self.pos['z']
+								x2=(math.cos(R1)*x-math.sin(R1)*z)*256
+								z2=(math.sin(R1)*x+math.cos(R1)*z)*134
+								if (x2+r)>=-128 and (x2-r)<128 and (z2+r)>=-67 and (z2-r)<67:
+									out.append([x2,z2,r/100,c])
+							out2 = bytearray(1024)
+							out2[0]=ControlCodes["SENSOR_REQUEST"]
+							if len(out)>254:
+								J=len(out)-254
+								out2[1]=254
+							else:
+								J=0
+								out2[1]=len(out)
+							I=2
+							while J<len(out):
+								obj=out[J]
+								x,z,r,c = obj
+								out2[I]   = ToSignedByte(int(x))
+								out2[I+1] = ToSignedByte(int(z))
+								out2[I+2] = ToSignedByte(int(r))
+								out2[I+3] = c&0xFF
+								I+=4
+								if I>=1024:
+									break
+							self.send(out2)
+						elif data[0]==ControlCodes["MODULE_INFO_REQUEST"]:
+							pass
+						elif data[0]==ControlCodes["MODULE_STATE_CHANGE"]:
+							pass
+						elif data[0]==ControlCodes["LOAD_SHIP"]:
+							odata = [0,0,0,self.data["ships"][0]['hull']['health']]
+							for i in range(15):
+								if i<len(self.data["ships"][0]['modules']):
+									m = self.data["ships"][0]['modules'][i]
+									odata.extend([m['techclass'],m['techtype'],m['health'],m['status_flags']])
+								else:
+									odata.extend([0,0,0,0])
+							self.send(bytes([ControlCodes["LOAD_SHIP"]]+odata))
+						elif data[0]==ControlCodes["NEW_GAME_REQUEST"]:
+							self.create_new_game()
+					else:
+						self.maliciousDisconnect()
 				else:
-					self.maliciousDisconnect(True)
+					self.maliciousDisconnect()
 			except socket.error:
 				pass
 			except Exception as e:
