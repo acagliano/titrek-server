@@ -639,11 +639,14 @@ class Client:
 	def maliciousDisconnect(self):
 		try:
 			if not self.trustworthy:
-				server.ipban(self.ip)
-				server.whitelist_remove(self.ip)
-				self.elog(f"{self.ip} banned due to suspect behavior.")
+				if self.ip in Config.whitelist:
+					server.whitelist_remove(self.ip)
+					self.elog(f"Packet from {self.ip} rejected. Bad contents, or invalid. De-whitelisting.")
+				else:
+					server.ipban(self.ip)
+					self.elog(f"Packet from {self.ip} rejected. IP banned due to suspect behavior.")
 			if self.trustworthy:
-				self.elog(f"Packet from {self.ip} rejected for invalid characters.")
+				self.elog(f"Packet from {self.ip} rejected. Bad contents, or invalid.")
 				self.send([ControlCodes["DISCONNECT"],ResponseCodes['BAD_MESSAGE_CONTENT']]) # Disconnect user, inform of error
 			self.close()
 			self.elog(f"{self.ip} disconnected.")
