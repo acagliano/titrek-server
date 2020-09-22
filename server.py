@@ -124,7 +124,7 @@ class Server:
 		self.logger.log(logging.ERROR, *args, **kwargs)
 		
 	def dlog(self,*args,**kwargs):
-		if Config.packet_debug::
+		if Config.packet_debug:
 			self.logger.log(logging.DEBUG, *args, **kwargs)
 	
 	def main_ssl(self):
