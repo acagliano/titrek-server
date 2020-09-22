@@ -19,7 +19,7 @@ from trek_modules import loadModule
 
 with open(f'config.json', 'r') as f:
 	config = json.load(f)
-	PORT = int(config["port"])
+	Config.port = int(config["port"])
 	if config["debug"] == "yes":
 		Config.packet_debug = True
 	if config["ssl"] == "yes":
@@ -48,6 +48,7 @@ def ToSignedByte(n):
 		return n%0x80
 	
 class Config:
+	port = None
 	banned_ips = []
 	banned_users = []
 	packet_debug = False
@@ -86,11 +87,12 @@ class Server:
 			self.writeinfo()
 			self.threads = [threading.Thread(target=self.autoSaveHandler)]
 			self.threads[0].start()
-			if USE_SSL:
+			if Config.use_ssl:
 				self.main_thread = threading.Thread(target=self.main_ssl)
 			else:
 				self.main_thread = threading.Thread(target=self.main_normal)
 			self.main_thread.start()
+			self.log(f"Server running on port {Config.port}")
 			self.console()
 			self.stop()
 			self.sock.close()
@@ -134,6 +136,7 @@ class Server:
 				conn, addr = ssock.accept()
 				for b in Config.banned_ips:
 					if addr==b:
+						self.log(f"Connection from {addr} rejected.")
 						conn.close()
 						continue
 				self.clients[conn] = client = Client(conn,addr,self)
@@ -152,6 +155,7 @@ class Server:
 			conn, addr = self.sock.accept()
 			for b in Config.banned_ips:
 				if addr==b:
+					self.log(f"Connection from {addr} rejected.")
 					conn.close()
 					continue
 			self.clients[conn] = client = Client(conn,addr,self)
