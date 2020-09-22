@@ -480,10 +480,10 @@ class Client:
 							x,y,z = obj[0]['x'],obj[0]['y'],obj[0]['z']
 							out2[I]   = ToSignedByte(int(x))
 							out2[I+1] = ToSignedByte(int(z))
-							out2[I+2] = int(obj[1]['radius']/y)
+							out2[I+2] = int(obj[1]['radius']/y)&0xFF
 							for X in range(3):
 								out2[I+3+X] = obj[1]['colors'][X]
-							out2[I+6] = int(time.time()*100)&FF
+							out2[I+6] = int(time.time()*100)&0xFF
 							I+=8
 							if I>=1024:
 								break
