@@ -15,24 +15,16 @@ from trek_space import *
 from trek_vec3 import *
 from trek_modules import loadModule
 
-global PACKET_DEBUG = False
-global USE_SSL = False
-global PLAYER_ROOT = "data/players/"
 
-global BANNED_USERS = []
-global BANNED_IPS = []
-global InvalidCharacters = [bytes(a,'UTF-8') for a in ["/","\\","#","$","%","^","&","*","!","~","`","\"","|"]] + \
-					[bytes([a]) for a in range(1,0x20)] + [bytes([a]) for a in range(0x7F,0xFF)]
-global TextBodyControlCodes = [ControlCodes["REGISTER"],ControlCodes["LOGIN"],ControlCodes["PING"],ControlCodes["MESSAGE"],\
-						ControlCodes["DEBUG"],ControlCodes["SERVINFO"],ControlCodes["DISCONNECT"]]
+
 with open(f'config.json', 'r') as f:
 	config = json.load(f)
 	PORT = int(config["port"])
 	if config["debug"] == "yes":
-		PACKET_DEBUG = True
+		Config.packet_debug = True
 	if config["ssl"] == "yes":
-		USE_SSL = True
-		SSL_PATH = config["ssl-path"]
+		Config.use_ssl = True
+		Config.ssl_path = config["ssl-path"]
 		context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
 		context.load_cert_chain(f'{SSL_PATH}/fullchain.pem', f'{SSL_PATH}/privkey.pem')
 
@@ -54,6 +46,18 @@ def ToSignedByte(n):
 	else:
 		while abs(n)>0x80: n-=0x80
 		return n%0x80
+	
+class Config:
+ 	banned_ips = []
+	banned_users = []
+	packet_debug = False
+	use_ssl = false
+	ssl_path = ""
+	player_root = "data/players/"
+	invalid_characters = [bytes(a,'UTF-8') for a in ["/","\\","#","$","%","^","&","*","!","~","`","\"","|"]] + \
+					[bytes([a]) for a in range(1,0x20)] + [bytes([a]) for a in range(0x7F,0xFF)]
+	textbody_controlcodes = [ControlCodes["REGISTER"],ControlCodes["LOGIN"],ControlCodes["PING"],ControlCodes["MESSAGE"],\
+						ControlCodes["DEBUG"],ControlCodes["SERVINFO"],ControlCodes["DISCONNECT"]]
 
 
 class Server:
@@ -95,23 +99,21 @@ class Server:
 
 	def banlist(self):
 		print("[BANNED USERS]")
-		for b in BANNED_USERS:
+		for b in Config.banned_users:
 			print(b+"\n")
 		print("[BANNED IPS]")
-		for b in BANNED_IPS:
+		for b in Config.banned_ips:
 			print(b+"\n")
 
 	def loadbans(self):
 		try:
 			with open("bans/userban.txt","r") as f:
-				BANNED_USERS = f.read().splitlines()
-			self.log(BANNED_USERS)
+				Config.banned_users = f.read().splitlines()
 		except:
 			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
 		try:
 			with open("bans/ipban.txt","r") as f:
-				BANNED_IPS = f.read().splitlines()
-			self.log(BANNED_IPS)
+				Config.banned_ips = f.read().splitlines()
 		except:
 			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
 
@@ -122,7 +124,7 @@ class Server:
 		self.logger.log(logging.ERROR, *args, **kwargs)
 		
 	def dlog(self,*args,**kwargs):
-		if PACKET_DEBUG:
+		if Config.packet_debug::
 			self.logger.log(logging.DEBUG, *args, **kwargs)
 	
 	def main_ssl(self):
@@ -130,7 +132,7 @@ class Server:
 			self.sock.listen(1)
 			with context.wrap_socket(self.sock, server_side=True) as ssock:
 				conn, addr = ssock.accept()
-				for b in BANNED_IPS:
+				for b in Config.banned_ips:
 					if addr==b:
 						conn.close()
 						continue
@@ -148,7 +150,7 @@ class Server:
 		while self.online:
 			self.sock.listen(1)
 			conn, addr = self.sock.accept()
-			for b in BANNED_IPS:
+			for b in Config.banned_ips:
 				if addr==b:
 					conn.close()
 					continue
@@ -326,13 +328,12 @@ class Client:
 		self.elog = server.elog
 		self.dlog = server.dlog
 		self.max_acceleration = 5 #accelerate at a maximum of 100m/s^2
-		if PACKET_DEBUG:
-			self.dlog(f"Got client from {addr}")
+		self.dlog(f"Got client from {addr}")
 		self.send([ControlCodes["MESSAGE"]]+list(b'Logging you in...'))
 
 	def load_player(self):
 		try:
-			os.makedirs(f"{PLAYER_ROOT}{self.user}")
+			os.makedirs(f"{Config.player_root}{self.user}")
 		except:
 			pass
 		try:
@@ -381,7 +382,7 @@ class Client:
 
 	def save_player(self):
 		try:
-			os.makedirs(f"data/players/{self.user}")
+			os.makedirs(f"{Config.player_root}{self.user}")
 		except:
 			pass
 		for k in ['x','y','z']:
@@ -401,7 +402,7 @@ class Client:
 			self.elog("Failed to send packet")
 			
 	def sanitize(self,i):
-		if any([a in bytes(i, 'UTF-8') for a in InvalidCharacters]):
+		if any([a in bytes(i, 'UTF-8') for a in Config.invalid_characters]):
 			self.maliciousDisconnect(data[0])
 			return
 			
@@ -414,13 +415,13 @@ class Client:
 			if len(data)==0:
 				time.sleep(1)
 				continue
-			if PACKET_DEBUG:
+			if Config.packet_debug:
 				o=[]
 				for c in data:
 					if c>=0x20 and c<0x80: o.append(chr(c)+"   ")
 					elif c<0x10: o.append("\\x0"+hex(c)[2:])
 					else: o.append("\\x"+hex(c)[2:])
-				self.log("recieved packet: ","".join(o))
+				self.dlog("recieved packet: ","".join(o))
 			try:
 				if data[0]==ControlCodes["REGISTER"]:
 					self.register(data)
@@ -662,10 +663,10 @@ outputs:
 		print(user,passw,email)
 		self.log(f"Registering user: [{user}]")
 		passw_md5 = hashlib.md5(bytes(passw,'UTF-8')).hexdigest()  # Generate md5 hash of password
-		for root,dirs,files in os.walk(f'{PLAYER_ROOT}'): #search in players directory
+		for root,dirs,files in os.walk(f'{Config.player_root}'): #search in players directory
 			for d in dirs: #only search directories
 				try:
-					with open(f'{PLAYER_ROOT}{d}/account.json', 'r') as f:
+					with open(f'{Config.player_root}{d}/account.json', 'r') as f:
 						account = json.load(f)
 				except IOError:
 					continue
@@ -678,17 +679,17 @@ outputs:
 					self.send([ControlCodes["REGISTER"],ResponseCodes['INVALID']])
 					return
 		try:
-			os.makedirs(f'{PLAYER_ROOT}{user}')
+			os.makedirs(f'{Config.player_root}{user}')
 		except:
 			self.elog("Directory already exists or error creating")
 			pass
-		with open(f'{PLAYER_ROOT}{user}/account.json','w') as f:
+		with open(f'{Config.player_root}{user}/account.json','w') as f:
 			json.dump({'displayname':user,'passw_md5':passw_md5,'email':email,'permLvl':0},f)
 		self.user = user
 		self.logged_in = True
 		self.log(f"[{user}] has been successfuly registered!")
 		self.send([ControlCodes["REGISTER"],ResponseCodes['SUCCESS']])       # Register successful
-		self.playerdir = f"{PLAYER_ROOT}{self.user}/"
+		self.playerdir = f"{Config.player_root}{self.user}/"
 		self.playerfile = f"{self.playerdir}player.json"
 		self.shipfile = f"{self.playerdir}ships.json"
 		self.create_new_game()
@@ -700,16 +701,16 @@ outputs:
 		self.sanitize(passw)
 		print(user,passw)
 		self.log(f"Logging in user: [{user}]")
-		if user in BANNED_USERS:
+		if user in Config.banned_users:
 			self.send([ControlCodes["LOGIN"],ResponseCodes['BANNED']])
 			self.log(f"[{user}] Banned user attempted login.")
 			return
 		passw_md5 = hashlib.md5(bytes(passw,'UTF-8')).hexdigest()  # Generate md5 hash of password
 		try:
-			for root, dirs, files in os.walk(f'{PLAYER_ROOT}'):  # search in players directory
+			for root, dirs, files in os.walk(f'{Config.player_root}'):  # search in players directory
 				for d in dirs:  # only search directories
 					try:
-						with open(f'{PLAYER_ROOT}{d}/account.json', 'r') as f:
+						with open(f'{Config.player_root}{d}/account.json', 'r') as f:
 							account = json.load(f)
 					except IOError:
 						continue
@@ -719,7 +720,7 @@ outputs:
 							self.logged_in = True
 							self.log(f"[{user}] has successfuly logged in!")
 							self.send([ControlCodes["LOGIN"],ResponseCodes['SUCCESS']])   # Log in successful
-							self.playerdir = f"{PLAYER_ROOT}{self.user}/"
+							self.playerdir = f"{Config.player_root}{self.user}/"
 							self.playerfile = f"{self.playerdir}player.json"
 							self.shipfile = f"{self.playerdir}ships.json"
 							self.load_player()
