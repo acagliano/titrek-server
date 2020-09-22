@@ -366,7 +366,7 @@ class Client:
 	def __init__(self, conn, addr, server):
 		self.conn = conn
 		self.addr = addr
-		self.ip,self.port = self.addr.split()
+		self.ip,self.port = list(self.addr).split()
 		self.trustworthy = False
 		self.closed = False
 		self.logged_in = False
