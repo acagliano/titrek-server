@@ -500,9 +500,9 @@ class Client:
 					except:
 						self.elog(f"Could not find one or more required files in folder","cli-versions/prgm/{paths[0]}")
 				elif self.logged_in:
-					elif data[0]==ControlCodes["DEBUG"]:
+					if data[0]==ControlCodes["DEBUG"]:
 						self.server.log(ToUTF8(data[1:])) # send a debug message to the server console
-					if data[0]==ControlCodes["PLAYER_MOVE"]:
+					elif data[0]==ControlCodes["PLAYER_MOVE"]:
 						G = FromSignedInt(data[1])
 						if G>=self.max_acceleration:
 							self.send([ControlCodes["DISCONNECT"]]+list(b"You were accelerating too fast. Hacking?\0"))
