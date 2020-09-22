@@ -748,6 +748,7 @@ outputs:
 		self.logged_in = True
 		self.log(f"[{user}] has been successfuly registered!")
 		self.send([ControlCodes["REGISTER"],ResponseCodes['SUCCESS']])       # Register successful
+		self.trustworthy = True
 		self.playerdir = f"{Config.player_root}{self.user}/"
 		self.playerfile = f"{self.playerdir}player.json"
 		self.shipfile = f"{self.playerdir}ships.json"
@@ -755,12 +756,12 @@ outputs:
 		self.load_player()
 
 	def log_in(self, data):
-		server.whitelist_add(self.ip)
 		user,passw,vers = [ToUTF8(a) for a in data[1:].split(b"\0",maxsplit=2)]
 		self.sanitize(user)
 		self.sanitize(passw)
 		print(user,passw)
 		self.log(f"Logging in user: [{user}]")
+		server.whitelist_add(self.ip)
 		if user in Config.banned_users:
 			self.send([ControlCodes["LOGIN"],ResponseCodes['BANNED']])
 			self.log(f"[{user}] Banned user attempted login.")
