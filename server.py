@@ -103,12 +103,12 @@ class Server:
 
 	def loadbans(self):
 		try:
-			with open("bans/userban.txt") as f:
+			with open("bans/userban.txt","r") as f:
 				BANNED_USERS = f.read().splitlines()
 		except:
 			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
 		try:
-			with open("bans/ipban.txt") as f:
+			with open("bans/ipban.txt","r") as f:
 				BANNED_IPS = f.read().splitlines()
 		except:
 			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
@@ -216,12 +216,14 @@ class Server:
 
 	def ban(self,username):
 		self.kick(username)
-		self.banlist.write(username+"\n")
+		with open("bans/userban.txt","a") as f:
+			f.write(username+"\n")
 		self.loadbans()
 
 	def ipban(self,ip):
 		self.kickip(ip)
-		self.ipbanlist.write(ip+"\n")
+		with open("bans/ipban.txt","a") as f:
+			f.write(ip+"\n")
 		self.loadbans()
 
 	def backupAll(self,sname):
