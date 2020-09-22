@@ -19,6 +19,7 @@ class Config:
 	port = None
 	banned_ips = []
 	banned_users = []
+	whitelist = []
 	packet_debug = False
 	use_ssl = False
 	ssl_path = ""
@@ -67,7 +68,9 @@ class Server:
 			except:
 				pass
 		self.logger = logging.getLogger('titrek.server')
+		self.malicious = logging.getLogger('titrek.idp')
 		self.loadbans()
+		self.load_whitelist()
 
 		self.generator = Generator()
 		self.space = Space(self.log)
@@ -105,15 +108,48 @@ class Server:
 		for b in Config.banned_ips:
 			print(b)
 
+	def load_whitelist(self):
+		try:
+			with open("whitelist.txt","r") as f:
+				Config.whitelist = f.read().splitlines()
+		except IOError:
+			pass
+		except:
+			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
+			
+	def whitelist_add(self,ip):
+		try:
+			Config.whitelist.append(ip)
+			self.log(f"{ip} added to whitelist.")
+			self.save_whitelist()
+		except:
+			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
+	
+	def whitelist_remove(self,ip):
+		try:
+			Config.whitelist.remove(ip)
+			self.log(f"{ip} removed from whitelist.")
+			self.save_whitelist()
+		except:
+			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
+	
+	def save_whitelist(self):
+		try:
+			with open("whitelist.txt","w+") as f:
+				for w in Config.whitelist:
+					f.write(w+"\n")
+			self.log(f"Whitelist written successfully.")
+		except:
+			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
+			
 	def loadbans(self):
 		try:
 			with open("bans/userban.txt","r") as f:
 				Config.banned_users = f.read().splitlines()
-		except:
-			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
-		try:
 			with open("bans/ipban.txt","r") as f:
 				Config.banned_ips = f.read().splitlines()
+		except IOError:
+			pass
 		except:
 			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
 
@@ -222,15 +258,27 @@ class Server:
 
 	def ban(self,username):
 		self.kick(username)
-		with open("bans/userban.txt","a") as f:
-			f.write(username+"\n")
-		self.loadbans()
+		Config.banned_users.append(username)
+		self.save_bans()
 
 	def ipban(self,ip):
 		self.kickip(ip)
-		with open("bans/ipban.txt","a") as f:
-			f.write(ip+"\n")
-		self.loadbans()
+		Config.banned_ips.append(ip)
+		self.save_bans()
+		
+	def save_bans(self):
+		try:
+			with open("bans/ipban.txt","w+") as f:
+				for w in Config.banned_ips:
+					f.write(w+"\n")
+				self.log(f"IP bans written successfully.")
+			with open("bans/userban.txt","w+") as f:
+				for w in Config.banned_users:
+					f.write(w+"\n")
+				self.log(f"User bans written successfully.")
+		except:
+			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
+		
 
 	def backupAll(self,sname):
 		try:
@@ -405,7 +453,7 @@ class Client:
 			
 	def sanitize(self,i):
 		if any([a in bytes(i, 'UTF-8') for a in Config.invalid_characters]):
-			self.maliciousDisconnect(data[0])
+			self.maliciousDisconnect()
 			return
 			
 	def handle_connection(self):
@@ -433,8 +481,6 @@ class Client:
 					self.disconnect()
 				elif data[0]==ControlCodes["SERVINFO"]:
 					self.servinfo()
-				elif data[0]==ControlCodes["DEBUG"]:
-					self.server.log(ToUTF8(data[1:])) # send a debug message to the server console
 				elif data[0]==ControlCodes["PING"]:
 					self.server.log("Ping? Pong!")
 					self.send([ControlCodes["MESSAGE"]]+list(b"pong!"))
@@ -454,6 +500,8 @@ class Client:
 					except:
 						self.elog(f"Could not find one or more required files in folder","cli-versions/prgm/{paths[0]}")
 				elif self.logged_in:
+					elif data[0]==ControlCodes["DEBUG"]:
+						self.server.log(ToUTF8(data[1:])) # send a debug message to the server console
 					if data[0]==ControlCodes["PLAYER_MOVE"]:
 						G = FromSignedInt(data[1])
 						if G>=self.max_acceleration:
@@ -570,7 +618,7 @@ class Client:
 					elif data[0]==ControlCodes["NEW_GAME_REQUEST"]:
 						self.create_new_game()
 				else:
-					self.maliciousDisconnect(data[0])
+					self.maliciousDisconnect(True)
 			except socket.error:
 				pass
 			except Exception as e:
@@ -580,18 +628,19 @@ class Client:
 				del server.clients[self.conn]
 				self.conn.close()
 
-	def maliciousDisconnect(self,A):
+	def maliciousDisconnect(self,ban=False):
 		try:
-			ts = time.asctime()
-			j = {"time": ts, "match": True, "host": str(self.addr)}
-			with open("malicious.txt", 'a+') as f:
-				f.write(f"# failJSON: {json.dumps(j)}\n{str(self.addr)} @ {ts}:\
-				Attempted request without login. Control code: {hex(self.fromControlCode(A))}")
-			self.elog(f"Malformed or malicious packet from host {self.addr}")
-			self.send([ControlCodes["DISCONNECTED"], ResponseCodes["BAD_MESSAGE_CONTENT"]])
+			if ban:
+				server.ipban(self.addr)
+				server.whitelist_remove(self.addr)
+				self.elog(f"{self.addr} banned due to suspect behavior.")
+			if not ban:
+				self.elog(f"Packet from {self.addr} rejected for invalid characters.")
+				self.send([ControlCodes["DISCONNECT"],ResponseCodes['BAD_MESSAGE_CONTENT']]) # Disconnect user, inform of error
+			self.close()
+			self.elog(f"{self.addr} disconnected.")
 		except:
 			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
-		self.close()
 
 	def getSpriteID(self,sprite):
 		if sprite not in self.sprite_ids:
@@ -662,6 +711,8 @@ outputs:
 			self.send([ControlCodes['MESSAGE']]+output)
 
 	def register(self, data):
+		if self.addr not in Config.whitelist:
+			self.maliciousDisconnect(True)
 		user,passw,email = [ToUTF8(a) for a in data[1:].split(b"\0",maxsplit=2)]
 		self.sanitize(user)
 		self.sanitize(passw)
@@ -701,6 +752,7 @@ outputs:
 		self.load_player()
 
 	def log_in(self, data):
+		server.whitelist_add(self.addr)
 		user,passw,vers = [ToUTF8(a) for a in data[1:].split(b"\0",maxsplit=2)]
 		self.sanitize(user)
 		self.sanitize(passw)
@@ -739,6 +791,8 @@ outputs:
 			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
 
 	def disconnect(self):
+		if self.addr not in Config.whitelist:
+			self.maliciousDisconnect()
 		self.save_player()
 		self.send([ControlCodes['DISCONNECT']]) #Let the user know if disconnected. Might be useful eventually.
 		self.close()
