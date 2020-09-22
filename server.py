@@ -15,6 +15,18 @@ from trek_space import *
 from trek_vec3 import *
 from trek_modules import loadModule
 
+class Config:
+	port = None
+	banned_ips = []
+	banned_users = []
+	packet_debug = False
+	use_ssl = False
+	ssl_path = ""
+	player_root = "data/players/"
+	invalid_characters = [bytes(a,'UTF-8') for a in ["/","\\","#","$","%","^","&","*","!","~","`","\"","|"]] + \
+					[bytes([a]) for a in range(1,0x20)] + [bytes([a]) for a in range(0x7F,0xFF)]
+	textbody_controlcodes = [ControlCodes["REGISTER"],ControlCodes["LOGIN"],ControlCodes["PING"],ControlCodes["MESSAGE"],\
+						ControlCodes["DEBUG"],ControlCodes["SERVINFO"],ControlCodes["DISCONNECT"]]
 
 
 with open(f'config.json', 'r') as f:
@@ -46,20 +58,6 @@ def ToSignedByte(n):
 	else:
 		while abs(n)>0x80: n-=0x80
 		return n%0x80
-	
-class Config:
-	port = None
-	banned_ips = []
-	banned_users = []
-	packet_debug = False
-	use_ssl = False
-	ssl_path = ""
-	player_root = "data/players/"
-	invalid_characters = [bytes(a,'UTF-8') for a in ["/","\\","#","$","%","^","&","*","!","~","`","\"","|"]] + \
-					[bytes([a]) for a in range(1,0x20)] + [bytes([a]) for a in range(0x7F,0xFF)]
-	textbody_controlcodes = [ControlCodes["REGISTER"],ControlCodes["LOGIN"],ControlCodes["PING"],ControlCodes["MESSAGE"],\
-						ControlCodes["DEBUG"],ControlCodes["SERVINFO"],ControlCodes["DISCONNECT"]]
-
 
 class Server:
 	def __init__(self):
