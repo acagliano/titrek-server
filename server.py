@@ -304,6 +304,8 @@ class Client:
 		self.logged_in = False
 		self.user = ''
 		self.data = {"player":{},"ships":{}}
+		self.sprite_ids = {}
+		self.sprite_data = []
 		Client.count += 1
 		self.server = server
 		self.log=server.log
@@ -468,23 +470,21 @@ class Client:
 						out.reverse()
 						out2 = bytearray(1024)
 						out2[0]=ControlCodes['FRAMEDATA_REQUEST']
-						if len(out)>127:
-							J = len(out)-127
-							out2[1]=127
+						if len(out)>254:
+							J = len(out)-254
+							out2[1]=254
 						else:
 							J = 0
 							out2[1]=len(out)
 						I=2
 						while J<len(out):
 							obj=out[J]
-							x,y,z = obj[0]['x'],obj[0]['y'],obj[0]['z']
+							x,y,z = obj['x'],obj['y'],obj['z']
 							out2[I]   = ToSignedByte(int(x))
 							out2[I+1] = ToSignedByte(int(z))
 							out2[I+2] = int(obj[1]['radius']/y)&0xFF
-							for X in range(3):
-								out2[I+3+X] = obj[1]['colors'][X]
-							out2[I+6] = int(time.time()*100)&0xFF
-							I+=8
+							out2[I+3] = self.getSpriteID(obj["sprite"])
+							I+=4
 							if I>=1024:
 								break
 						self.send(out2)
@@ -573,6 +573,39 @@ class Client:
 		self.send([ControlCodes["DISCONNECTED"], ResponseCodes["BAD_MESSAGE_CONTENT"]])
 		self.close()
 
+	def getSpriteID(self,sprite):
+		if sprite not in self.sprite_ids:
+			try:
+				self.defineSprite(sprite)
+			except:
+				return 0
+		return self.sprite_ids[sprite]
+
+	def defineSprite(self,sprite):
+		try:
+			with open(sprite+".bin",'rb'):
+				self.sprite_ids[sprite] = len(self.sprite_ids.keys())
+				self.sprite_data[sprite] = list(f.read())
+		except IOError:
+			with open("convimg.yaml",'w') as f:
+				f.write(f"""
+converts:
+    - name: myimages
+      palette: xlibc
+      images:
+        - data/sprites/{sprite}
+
+outputs:
+    - type: bin
+      converts:
+        - myimages
+      include-file: {sprite}.bin
+      directory: data/sprites/
+""")
+			os.system("convimg")
+			with open(sprite+".bin",'rb'):
+				self.sprite_ids[sprite] = len(self.sprite_ids.keys())
+				self.sprite_data[sprite] = list(f.read())
 
 	def fromControlCode(self,code):
 		if code in ControlCodes.values():
