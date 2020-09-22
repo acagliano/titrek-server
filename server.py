@@ -48,7 +48,7 @@ def ToSignedByte(n):
 		return n%0x80
 	
 class Config:
- 	banned_ips = []
+	banned_ips = []
 	banned_users = []
 	packet_debug = False
 	use_ssl = false
