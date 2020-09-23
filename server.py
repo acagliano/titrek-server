@@ -36,10 +36,9 @@ class Config:
 with open(f'config.json', 'r') as f:
 	config = json.load(f)
 	Config.port = int(config["port"])
-	if config["debug"] == "yes":
-		Config.packet_debug = True
-	if config["ssl"] == "yes":
-		Config.use_ssl = True
+	Config.packet_debug = config["debug"]
+	Config.use_ssl = config["ssl"]
+	if Config.use_ssl:
 		Config.ssl_path = config["ssl-path"]
 		context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
 		context.load_cert_chain(f'{SSL_PATH}/fullchain.pem', f'{SSL_PATH}/privkey.pem')
