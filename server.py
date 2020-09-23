@@ -7,7 +7,7 @@
 # Adam "beckadamtheinventor" Beckingham
 #This is the server program for TI-Trek CE.
 
-import socket,threading,ctypes,hashlib,json,os,sys,time,math,ssl,traceback,subprocess,logging,gzip
+import socket,threading,ctypes,hashlib,json,os,sys,time,datetime,math,ssl,traceback,subprocess,logging,gzip
 
 from trek_codes import *
 from trek_generate import *
@@ -25,7 +25,7 @@ class Config:
 	ssl_path = ""
 	player_root = "data/players/"
 	log_file = "logs/server.log"
-	log_archive = "logs/server.log.gz"
+	log_archive = f"logs/{datetime.now().year}-{datetime.now().month}_server.log.gz"
 	invalid_characters = [bytes(a,'UTF-8') for a in ["/","\\","#","$","%","^","&","*","!","~","`","\"","|"]] + \
 					[bytes([a]) for a in range(1,0x20)] + [bytes([a]) for a in range(0x7F,0xFF)]
 	textbody_controlcodes = [ControlCodes["REGISTER"],ControlCodes["LOGIN"],ControlCodes["PING"],ControlCodes["MESSAGE"],\
