@@ -111,9 +111,8 @@ class Server:
 			with gzip.open(Config.log_archive, 'ab') as gf:
 				with open(Config.log_file, 'rb') as lf:
 					gf.write(lf.read())
-					self.log("Archiving instance logfile")
 				os.remove(Config.log_file)
-				self.log("Flushing instance logfile")
+				self.log("Instance logfile flushed to archive.")
 		except:
 			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
 			
