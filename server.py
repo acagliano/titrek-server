@@ -99,6 +99,7 @@ class Server:
 				self.main_thread = threading.Thread(target=self.main_normal)
 			self.main_thread.start()
 			self.log(f"Server running on port {Config.port}")
+			self.dlog(f"Log archive set to {Config.log_archive}")
 			self.console()
 			self.stop()
 			self.sock.close()
