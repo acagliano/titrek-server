@@ -69,12 +69,12 @@ class Server:
 				pass
 		self.log_archive = "logs/server.log.gz"
 		try:
-			with gzip.open(self.log_archive, 'wb') as gf:
-				with open("logs/server.log", 'ab') as lf:
+			with gzip.open(self.log_archive, 'ab') as gf:
+				with open("logs/server.log", 'rb') as lf:
 					gf.write(lf.read())
 				open("logs/server.log", 'w').close()
 		except:
-			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
+			print("Error rolling logs")
 		self.logger = logging.getLogger('titrek.server')
 		self.malicious = logging.getLogger('titrek.idp')
 		self.loadbans()
