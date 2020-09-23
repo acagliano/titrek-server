@@ -7,7 +7,7 @@
 # Adam "beckadamtheinventor" Beckingham
 #This is the server program for TI-Trek CE.
 
-import socket,threading,ctypes,hashlib,json,os,sys,time,math,ssl,traceback,subprocess,logging
+import socket,threading,ctypes,hashlib,json,os,sys,time,math,ssl,traceback,subprocess,logging,gzip
 
 from trek_codes import *
 from trek_generate import *
@@ -67,6 +67,11 @@ class Server:
 				os.makedirs(directory)
 			except:
 				pass
+		self.log_archive = "logs/server.log.gz"
+		with gzip.open(self.log_archive, 'wb') as gf:
+			with open("logs/server.log", 'rb') as lf:
+				gf.write(lf.read())
+			os.remove("logs/server.log")
 		self.logger = logging.getLogger('titrek.server')
 		self.malicious = logging.getLogger('titrek.idp')
 		self.loadbans()
