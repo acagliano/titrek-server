@@ -55,7 +55,6 @@ def PlanetoidSystem(seed,pos):
 	rv=random.random()*.2+.9
 	r["mass"]*=rv
 	r["radius"]/=rv
-	r["colors"]=RandomDeviatingColor(r["colors"])
 	yield r
 	grav = GRAVITATIONAL_CONSTANT*mass
 	for i in range(random.randint(2,10)):
@@ -66,45 +65,22 @@ def PlanetoidSystem(seed,pos):
 		r["position"]=Vec3(x,y,z)
 		r["velocity"]=Vec3()
 		r["name"]="Planet "+chr(i+0x41)
-		r["colors"]=RandomDeviatingColor(r["colors"])
 		rv=random.random()*.2+.9
 		r["mass"]*=rv
 		r["radius"]/=rv
 		yield r
 
 
-#rrrbbggg
-#3 bits red, 2 bits blue, 3 bits green
-#returns color byte but red|blue|green is offset by +1|-1
-def RandomDeviatingColor(color):
-	if type(color) is float:
-		return RandomDeviatingColor(color)+color-int(color)
-	elif type(color) is int:
-		red=(color//(2**5))&7
-		blue=(color//(2**3))&3
-		green=(color)&7
-
-		rv=random.randint(0,4)
-		ri=random.choice([-1,1])
-
-		if rv==0: red+=ri
-		elif rv==1: blue+=ri
-		elif rv==2: green+=ri
-
-		return ((int(red)&7)*(2**5))+((int(blue)&3)*(2**3))+(int(green)&7)
-	elif type(color) is list:
-		return [RandomDeviatingColor(c) for c in color]
-
 
 StandardPlanetList = LoadJsonFile("data/planetoids/planets.json")["data"]
 StandardStarList = LoadJsonFile("data/planetoids/stars.json")["data"]
 Materials = LoadJsonFile("data/materials/materials.json")["data"]
 
-if __name__=='__main__':
+#if __name__=='__main__':
 	#do some tests
-	def getRBGBinStr(c):
-		return str((c//(2**5))&7)+"r "+str((c//(2**3))&3)+"b "+str(c&7)+"g"
-	for i in range(16):
-		color=random.randint(0,256)
-		print(getRBGBinStr(color),"->",getRBGBinStr(RandomDeviatingColor(color)),"=",hex(color))
+#	def getRBGBinStr(c):
+#		return str((c//(2**5))&7)+"r "+str((c//(2**3))&3)+"b "+str(c&7)+"g"
+#	for i in range(16):
+#		color=random.randint(0,256)
+#		print(getRBGBinStr(color),"->",getRBGBinStr(RandomDeviatingColor(color)),"=",hex(color))
 
