@@ -73,8 +73,8 @@ class Server:
 				with open("logs/server.log", 'ab') as lf:
 					gf.write(lf.read())
 				open("logs/server.log", 'w').close()
-		except IOError:
-			pass
+		except:
+			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
 		self.logger = logging.getLogger('titrek.server')
 		self.malicious = logging.getLogger('titrek.idp')
 		self.loadbans()
