@@ -24,6 +24,8 @@ class Config:
 	use_ssl = False
 	ssl_path = ""
 	player_root = "data/players/"
+	log_file = "logs/server.log"
+	log_archive = "logs/server.log.gz"
 	invalid_characters = [bytes(a,'UTF-8') for a in ["/","\\","#","$","%","^","&","*","!","~","`","\"","|"]] + \
 					[bytes([a]) for a in range(1,0x20)] + [bytes([a]) for a in range(0x7F,0xFF)]
 	textbody_controlcodes = [ControlCodes["REGISTER"],ControlCodes["LOGIN"],ControlCodes["PING"],ControlCodes["MESSAGE"],\
@@ -67,29 +69,22 @@ class Server:
 				os.makedirs(directory)
 			except:
 				pass
-		self.log_archive = "logs/server.log.gz"
 		try:
-			with gzip.open(self.log_archive, 'ab') as gf:
-				with open("logs/server.log", 'rb') as lf:
-					gf.write(lf.read())
-				os.remove("logs/server.log")
-		except:
-			print("Error rolling logs")
-		time.sleep(0.2)
-		self.logger = logging.getLogger('titrek.server')
-		self.malicious = logging.getLogger('titrek.idp')
-		self.loadbans()
-		self.load_whitelist()
+			self.logger = logging.getLogger('titrek.server')
+			self.loadbans()
+			self.load_whitelist()
 
-		self.generator = Generator()
-		self.space = Space(self.log)
+			self.generator = Generator()
+			self.space = Space(self.log)
 		
-		self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)         # Create a socket object
-		self.sock.settimeout(None)
-		self.port = Config.port                # Reserve a port for your service.
-		self.clients = {}
-		self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-		self.sock.bind(('', self.port))                 # Now wait for client connection.
+			self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)         # Create a socket object
+			self.sock.settimeout(None)
+			self.port = Config.port                # Reserve a port for your service.
+			self.clients = {}
+			self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+			self.sock.bind(('', self.port))                 # Now wait for client connection.
+		except:
+			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
 
 	def run(self):
 		try:
@@ -106,9 +101,21 @@ class Server:
 			self.console()
 			self.stop()
 			self.sock.close()
+			self.flush_log_to_archive()
 		except:
 			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
 
+	def flush_log_to_archive(self):
+		try:
+			with gzip.open(Config.log_archive, 'ab') as gf:
+				with open(Config.log_file, 'rb') as lf:
+					gf.write(lf.read())
+					self.log("Archiving instance logfile")
+				os.remove(Config.log_file)
+				self.log("Flushing instance logfile")
+		except:
+			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
+			
 	def banlist(self):
 		print("[BANNED USERS]")
 		for b in Config.banned_users:
@@ -834,7 +841,7 @@ if __name__ == '__main__':
 	server = Server()
 	logging.basicConfig(format='%(levelname)s: %(asctime)s: %(message)s',level=logging.DEBUG,handlers=[
 		logging.StreamHandler(), # writes to stderr
-		logging.FileHandler('logs/server.log'),
+		logging.FileHandler(Config.log_file),
 	])
 	server.run()
 
