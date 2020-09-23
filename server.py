@@ -68,10 +68,13 @@ class Server:
 			except:
 				pass
 		self.log_archive = "logs/server.log.gz"
-		with gzip.open(self.log_archive, 'wb') as gf:
-			with open("logs/server.log", 'rb') as lf:
-				gf.write(lf.read())
-			open("logs/server.log", 'w').close()
+		try:
+			with gzip.open(self.log_archive, 'wb') as gf:
+				with open("logs/server.log", 'rb') as lf:
+					gf.write(lf.read())
+				open("logs/server.log", 'w').close()
+		except IOError:
+			pass
 		self.logger = logging.getLogger('titrek.server')
 		self.malicious = logging.getLogger('titrek.idp')
 		self.loadbans()
