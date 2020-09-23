@@ -254,13 +254,16 @@ class Server:
 
 
 	def stop(self):
-		self.log("Shutting down.")
-		self.space.save("space/data")
-		for client in self.clients.keys():
-			self.clients[client].disconnect()
-			del self.clients[client]
-		self.online = False
-		self.writeinfo()
+		try:
+			self.log("Shutting down.")
+			self.space.save("space/data")
+			for client in self.clients.keys():
+				self.clients[client].disconnect()
+				del self.clients[client]
+			self.online = False
+			self.writeinfo()
+		except:
+			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
 
 	def kick(self,username):
 		for conn in self.clients.keys():
