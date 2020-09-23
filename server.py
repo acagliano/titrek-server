@@ -7,7 +7,8 @@
 # Adam "beckadamtheinventor" Beckingham
 #This is the server program for TI-Trek CE.
 
-import socket,threading,ctypes,hashlib,json,os,sys,time,datetime,math,ssl,traceback,subprocess,logging,gzip
+import socket,threading,ctypes,hashlib,json,os,sys,time,math,ssl,traceback,subprocess,logging,gzip
+from datetime import datetime
 
 from trek_codes import *
 from trek_generate import *
