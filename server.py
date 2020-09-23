@@ -261,11 +261,6 @@ class Server:
 			del self.clients[client]
 		self.online = False
 		self.writeinfo()
-		self.closeFiles()
-
-	def closeFiles(self):
-		self.banlist.close()
-		self.ipbanlist.close()
 
 	def kick(self,username):
 		for conn in self.clients.keys():
