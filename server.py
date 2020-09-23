@@ -327,7 +327,7 @@ class Server:
 	def console(self):
 		while True:
 			try:
-				line = input(">")
+				line = input("")
 				self.log("[Console] "+line+"\n")
 				if " " in line:
 					line = line.split()
