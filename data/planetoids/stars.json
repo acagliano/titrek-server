@@ -3,6 +3,6 @@
 		{"type": "star","mass": 2e30,"radius":8e5,"sprite":"yellow-star.png"},
 		{"type": "star","mass": 3e30,"radius":5e7,"sprite":"red-giant-star.png"},
 		{"type": "star","mass": 1e32,"radius":7e6,"sprite":"blue-giant-star.png"},
-		{"type": "black hole","mass":2e31,"radius":3e4,"sprite":"black-hole.png"}
+		{"type": "black hole","mass":2e31,"radius":30,"sprite":"black-hole.png"}
 	]
 }
