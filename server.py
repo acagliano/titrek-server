@@ -70,7 +70,7 @@ class Server:
 		self.log_archive = "logs/server.log.gz"
 		try:
 			with gzip.open(self.log_archive, 'wb') as gf:
-				with open("logs/server.log", 'rb') as lf:
+				with open("logs/server.log", 'ab') as lf:
 					gf.write(lf.read())
 				open("logs/server.log", 'w').close()
 		except IOError:
