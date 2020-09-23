@@ -72,7 +72,7 @@ class Server:
 			with gzip.open(self.log_archive, 'ab') as gf:
 				with open("logs/server.log", 'rb') as lf:
 					gf.write(lf.read())
-				open("logs/server.log", 'w').close()
+				os.remove("logs/server.log")
 		except:
 			print("Error rolling logs")
 		self.logger = logging.getLogger('titrek.server')
