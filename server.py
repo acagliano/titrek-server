@@ -75,6 +75,7 @@ class Server:
 				os.remove("logs/server.log")
 		except:
 			print("Error rolling logs")
+		time.sleep(0.2)
 		self.logger = logging.getLogger('titrek.server')
 		self.malicious = logging.getLogger('titrek.idp')
 		self.loadbans()
