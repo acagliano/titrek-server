@@ -71,7 +71,7 @@ class Server:
 		with gzip.open(self.log_archive, 'wb') as gf:
 			with open("logs/server.log", 'rb') as lf:
 				gf.write(lf.read())
-			os.remove("logs/server.log")
+			open("logs/server.log", 'w').close()
 		self.logger = logging.getLogger('titrek.server')
 		self.malicious = logging.getLogger('titrek.idp')
 		self.loadbans()
@@ -827,10 +827,10 @@ outputs:
 		self.closed = True
 
 if __name__ == '__main__':
+	server = Server()
 	logging.basicConfig(format='%(levelname)s: %(asctime)s: %(message)s',level=logging.DEBUG,handlers=[
 		logging.StreamHandler(), # writes to stderr
 		logging.FileHandler('logs/server.log'),
 	])
-	server = Server()
 	server.run()
 
