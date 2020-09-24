@@ -337,6 +337,9 @@ class Server:
 							print(f.read())
 					except:
 						print("No help document availible.")
+				elif line[0]=="broadcast":
+					self.log("[Server] "+line[1])
+					# broadcast to all clients
 				elif line[0]=="stop":
 					self.log("Received stop command.")
 					break
