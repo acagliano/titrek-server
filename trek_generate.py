@@ -18,17 +18,28 @@ class Generator:
 		with open("space/SEED.txt",'w') as f:
 			f.write(str(seed))
 	def generate_all(self,space):
-		x=y=z=0
-		for i in range(2000):
-			x+=random.randint(-6e6,6e6)*1e3
-			z+=random.randint(-6e6,6e6)*1e3
-			y=random.randint(-1e6,1e6)*1e2
-			for planet in self.generate(Vec3(x,y,z)):
-				planet["name"] = "system "+str(i)+"; "+planet["name"]
-				space.append(planet)
-	def generate(self,vec3):
 		if self._seed is None:
-			self.seed(random.random())
+			self._seed = random.random()
+		random.seed(self._seed)
+		for ri in range(11):
+			rn = ri/(math.pi*2)
+			x=y=z=rev=0
+			dist=random.randint(9e9, 1e11)*1e3
+			for i in range(500):
+				rev+=math.atan2(1.8e13,dist)
+				dist+=random.random()*1e13
+				x=math.cos(rev)*dist
+				z=math.sin(rev)*dist
+				y=random.randint(-1e9,1e9)*1e3
+				gen_this = True
+				for planet in space:
+					if abs(math.hypot(x-planet["x"],y-planet["y"],z-planet["z"]))<1e13:
+						gen_this = False; break
+				if gen_this:
+					for planet in self.generate(Vec3(x,y,z)):
+						planet["name"] = "system "+chr(0x41+ri)+str(i)+"; "+planet["name"]
+						space.append(planet)
+	def generate(self,vec3):
 		for planet in PlanetoidSystem(self._seed,vec3):
 			yield planet
 
