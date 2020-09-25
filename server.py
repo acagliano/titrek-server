@@ -76,7 +76,7 @@ def ToSignedByte(n):
 
 class Server:
 	def __init__(self):
-		Config.setpaths()
+		Config().setpaths()
 		for directory in [
 			"logs",
 			f"{Config.dir_gamedata}",
