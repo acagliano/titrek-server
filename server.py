@@ -24,13 +24,25 @@ class Config:
 	packet_debug = False
 	use_ssl = False
 	ssl_path = ""
-	player_root = "data/players/"
+	dir_gamedata = "data/"
+	dir_player = "players/"
+	dir_map = "space/"
+	dir_modules = "modules/"
+	dir_missions = "missions/"
+	dir_downloads = "downloads/"
 	log_file = "logs/server.log"
 	log_archive = f"logs/{datetime.now().year}-{datetime.now().month}_server.log.gz"
 	invalid_characters = [bytes(a,'UTF-8') for a in ["/","\\","#","$","%","^","&","*","!","~","`","\"","|"]] + \
 					[bytes([a]) for a in range(1,0x20)] + [bytes([a]) for a in range(0x7F,0xFF)]
 	textbody_controlcodes = [ControlCodes["REGISTER"],ControlCodes["LOGIN"],ControlCodes["PING"],ControlCodes["MESSAGE"],\
 						ControlCodes["DEBUG"],ControlCodes["SERVINFO"],ControlCodes["DISCONNECT"]]
+	
+	def setpaths(self):
+		player_path = f"{Config.dir_gamedata}{Config.dir_player}"
+		map_path = f"{Config.dir_gamedata}{Config.dir_map}"
+		module_path = f"{Config.dir_gamedata}{Config.dir_modules}"
+		mission_path = f"{Config.dir_gamedata}{Config.dir_missions}"
+		downloads_path = f"{Config.dir_gamedata}{Config.dir_downloads}"
 
 
 with open(f'config.json', 'r') as f:
@@ -64,7 +76,17 @@ def ToSignedByte(n):
 
 class Server:
 	def __init__(self):
-		for directory in ["logs","space/data","players","terrain","cache","missions","notes","bans"]:
+		Config.setpaths()
+		for directory in [
+			"logs",
+			f"{Config.dir_gamedata}",
+			f"{Config.player_path}",
+			f"{Config.map_path}",
+			f"{Config.module_path}",
+			f"{Config.mission_path}",
+			f"{Config.downloads_path}",
+			"cache",
+			"bans"]:
 			try:
 				os.makedirs(directory)
 			except:
@@ -248,14 +270,14 @@ class Server:
 			if (cur_time-last_save_time)>=600:
 				last_save_time = time.time()
 				self.log("Autosaving...")
-				threading.Thread(target=self.space.save,args=("space/data", )).start()
+				threading.Thread(target=self.space.save,args=(f"{Config.map_path}", )).start()
 			time.sleep(60)
 
 
 	def stop(self):
 		try:
 			self.log("Shutting down.")
-			self.space.save("space/data")
+			self.space.save(f"{Config.map_path}")
 			for client in self.clients.keys():
 				self.clients[client].disconnect()
 				del self.clients[client]
@@ -412,7 +434,7 @@ class Client:
 
 	def load_player(self):
 		try:
-			os.makedirs(f"{Config.player_root}{self.user}")
+			os.makedirs(f"{Config.player_path}{self.user}")
 		except:
 			pass
 		try:
@@ -461,7 +483,7 @@ class Client:
 
 	def save_player(self):
 		try:
-			os.makedirs(f"{Config.player_root}{self.user}")
+			os.makedirs(f"{Config.player_path}{self.user}")
 		except:
 			pass
 		for k in ['x','y','z']:
@@ -755,10 +777,10 @@ outputs:
 		print(user,passw,email)
 		self.log(f"Registering user: [{user}]")
 		passw_md5 = hashlib.md5(bytes(passw,'UTF-8')).hexdigest()  # Generate md5 hash of password
-		for root,dirs,files in os.walk(f'{Config.player_root}'): #search in players directory
+		for root,dirs,files in os.walk(f'{Config.player_path}'): #search in players directory
 			for d in dirs: #only search directories
 				try:
-					with open(f'{Config.player_root}{d}/account.json', 'r') as f:
+					with open(f'{Config.player_path}{d}/account.json', 'r') as f:
 						account = json.load(f)
 				except IOError:
 					continue
@@ -771,18 +793,18 @@ outputs:
 					self.send([ControlCodes["REGISTER"],ResponseCodes['INVALID']])
 					return
 		try:
-			os.makedirs(f'{Config.player_root}{user}')
+			os.makedirs(f'{Config.player_path}{user}')
 		except:
 			self.elog("Directory already exists or error creating")
 			pass
-		with open(f'{Config.player_root}{user}/account.json','w') as f:
+		with open(f'{Config.player_path}{user}/account.json','w') as f:
 			json.dump({'displayname':user,'passw_md5':passw_md5,'email':email,'permLvl':0},f)
 		self.user = user
 		self.logged_in = True
 		self.log(f"[{user}] has been successfuly registered!")
 		self.send([ControlCodes["REGISTER"],ResponseCodes['SUCCESS']])       # Register successful
 		self.trustworthy = True
-		self.playerdir = f"{Config.player_root}{self.user}/"
+		self.playerdir = f"{Config.player_path}{self.user}/"
 		self.playerfile = f"{self.playerdir}player.json"
 		self.shipfile = f"{self.playerdir}ships.json"
 		self.create_new_game()
@@ -801,10 +823,10 @@ outputs:
 			return
 		passw_md5 = hashlib.md5(bytes(passw,'UTF-8')).hexdigest()  # Generate md5 hash of password
 		try:
-			for root, dirs, files in os.walk(f'{Config.player_root}'):  # search in players directory
+			for root, dirs, files in os.walk(f'{Config.player_path}'):  # search in players directory
 				for d in dirs:  # only search directories
 					try:
-						with open(f'{Config.player_root}{d}/account.json', 'r') as f:
+						with open(f'{Config.player_path}{d}/account.json', 'r') as f:
 							account = json.load(f)
 					except IOError:
 						continue
@@ -814,7 +836,7 @@ outputs:
 							self.logged_in = True
 							self.log(f"[{user}] has successfuly logged in!")
 							self.send([ControlCodes["LOGIN"],ResponseCodes['SUCCESS']])   # Log in successful
-							self.playerdir = f"{Config.player_root}{self.user}/"
+							self.playerdir = f"{Config.player_path}{self.user}/"
 							self.playerfile = f"{self.playerdir}player.json"
 							self.shipfile = f"{self.playerdir}ships.json"
 							self.load_player()
