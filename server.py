@@ -36,13 +36,18 @@ class Config:
 					[bytes([a]) for a in range(1,0x20)] + [bytes([a]) for a in range(0x7F,0xFF)]
 	textbody_controlcodes = [ControlCodes["REGISTER"],ControlCodes["LOGIN"],ControlCodes["PING"],ControlCodes["MESSAGE"],\
 						ControlCodes["DEBUG"],ControlCodes["SERVINFO"],ControlCodes["DISCONNECT"]]
+	player_path = ""
+	map_path = ""
+	module_path = ""
+	mission_path = ""
+	downloads_path = ""
 	
 	def setpaths(self):
-		player_path = f"{Config.dir_gamedata}{Config.dir_player}"
-		map_path = f"{Config.dir_gamedata}{Config.dir_map}"
-		module_path = f"{Config.dir_gamedata}{Config.dir_modules}"
-		mission_path = f"{Config.dir_gamedata}{Config.dir_missions}"
-		downloads_path = f"{Config.dir_gamedata}{Config.dir_downloads}"
+		Config.player_path = f"{Config.dir_gamedata}{Config.dir_player}"
+		Config.map_path = f"{Config.dir_gamedata}{Config.dir_map}"
+		Config.module_path = f"{Config.dir_gamedata}{Config.dir_modules}"
+		Config.mission_path = f"{Config.dir_gamedata}{Config.dir_missions}"
+		Config.downloads_path = f"{Config.dir_gamedata}{Config.dir_downloads}"
 
 
 with open(f'config.json', 'r') as f:
