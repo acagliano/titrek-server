@@ -541,7 +541,10 @@ class Client:
 				data = self.conn.recv(1024)
 			except socket.timeout:
 				self.log(f"Inactive timeout for user {self.user}. Disconnecting.")
-				self.disconnect()
+				if self.logged_in:
+					self.save_player()
+					self.logged_in = False
+				self.closed = True
 			if not data or len(data)==0:
 				time.sleep(1)
 				continue
@@ -717,7 +720,7 @@ class Client:
 			if self.trustworthy:
 				self.elog(f"Packet from {self.ip} rejected. Bad contents, or invalid.")
 				self.send([ControlCodes["DISCONNECT"],ResponseCodes['BAD_MESSAGE_CONTENT']]) # Disconnect user, inform of error
-			self.close()
+			self.disconnect()
 			self.elog(f"{self.ip} disconnected.")
 			self.trustworthy = False
 		except:
