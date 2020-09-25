@@ -534,16 +534,15 @@ class Client:
 			return
 			
 	def handle_connection(self):
-		last_packet_time = time.time()
+		self.conn.settimeout(Config.inactive_timeout)
 		while self.server.online and not self.closed:
-			data = self.conn.recv(1024)
+			try:
+				data = self.conn.recv(1024)
+			except socket.timeout:
+				self.disconnect()
 			if not data or len(data)==0:
-				cur_time = time.time()
-				if (cur_time-last_packet_time)>=Config.inactive_timeout:
-					self.disconnect()
 				time.sleep(1)
 				continue
-			last_packet_time = time.time()
 			if Config.packet_debug:
 				packet_string = "".join([s.ljust(5," ") for s in [chr(c) if c in range(0x20,0x80) else "0x0"+hex(c)[2] if c<0x10 else hex(c) for c in data]])
 				self.dlog(f"recieved packet: {packet_string}")
