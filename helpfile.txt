@@ -8,6 +8,8 @@ seed [seed]               set the map seed
 kick username             kick the player with username username
 ban username              ban the player with username username
 ipban ip                  ban ip address ip
+banlist		 	  show all banned users and ips
+whitelist		  show all whitelisted ips
 
 
 backup save_name          backup the map
