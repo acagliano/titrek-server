@@ -539,6 +539,7 @@ class Client:
 			try:
 				data = self.conn.recv(1024)
 			except socket.timeout:
+				self.log(f"Inactive timeout for user {self.user}. Disconnecting.")
 				self.disconnect()
 			if not data or len(data)==0:
 				time.sleep(1)
