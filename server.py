@@ -24,6 +24,7 @@ class Config:
 	packet_debug = False
 	use_ssl = False
 	ssl_path = ""
+	inactive_timeout = 600
 	dir_gamedata = "data/"
 	dir_player = "players/"
 	dir_map = "space/"
@@ -310,7 +311,7 @@ class Server:
 	def kickip(self,ip):
 		for conn in self.clients.keys():
 			client = self.clients[conn]
-			if client.addr==ip:
+			if client.ip==ip:
 				client.disconnect()
 
 	def ban(self,username):
@@ -533,14 +534,16 @@ class Client:
 			return
 			
 	def handle_connection(self):
+		last_packet_time = time.time()
 		while self.server.online and not self.closed:
 			data = self.conn.recv(1024)
-			if not data:
+			if not data or len(data)==0:
+				cur_time = time.time()
+				if (cur_time-last_packet_time)>=Config.inactive_timeout:
+					self.disconnect()
 				time.sleep(1)
 				continue
-			if len(data)==0:
-				time.sleep(1)
-				continue
+			last_packet_time = time.time()
 			if Config.packet_debug:
 				packet_string = "".join([s.ljust(5," ") for s in [chr(c) if c in range(0x20,0x80) else "0x0"+hex(c)[2] if c<0x10 else hex(c) for c in data]])
 				self.dlog(f"recieved packet: {packet_string}")
