@@ -525,8 +525,8 @@ class Client:
 				o=[]
 				for c in data:
 					if c>=0x20 and c<0x80: o.append(chr(c)+"   ")
-					elif c<0x10: o.append("\\x0"+hex(c)[2:])
-					else: o.append("\\x"+hex(c)[2:])
+					elif c<0x10: o.append("\\\\x0"+hex(c)[2:])
+					else: o.append("\\\\x"+hex(c)[2:])
 				self.dlog("recieved packet: ","".join(o))
 			try:
 				if data[0]==ControlCodes["LOGIN"]:
