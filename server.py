@@ -545,6 +545,7 @@ class Client:
 					self.save_player()
 					self.logged_in = False
 				self.closed = True
+				continue
 			if not data or len(data)==0:
 				time.sleep(1)
 				continue
