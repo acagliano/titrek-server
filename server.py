@@ -48,17 +48,23 @@ class Config:
 		Config.module_path = f"{Config.dir_gamedata}{Config.dir_modules}"
 		Config.mission_path = f"{Config.dir_gamedata}{Config.dir_missions}"
 		Config.downloads_path = f"{Config.dir_gamedata}{Config.dir_downloads}"
-
-
-with open(f'config.json', 'r') as f:
-	config = json.load(f)
-	Config.port = int(config["port"])
-	Config.packet_debug = config["debug"]
-	Config.use_ssl = config["ssl"]
-	if Config.use_ssl:
-		Config.ssl_path = config["ssl-path"]
-		context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-		context.load_cert_chain(f'{SSL_PATH}/fullchain.pem', f'{SSL_PATH}/privkey.pem')
+	
+	def loadconfig(self):
+		try:
+			with open(f'config.json', 'r') as f:
+				config = json.load(f)
+				Config.port = int(config["port"])
+				Config.packet_debug = config["debug"]
+				Config.use_ssl = config["ssl"]
+				if Config.use_ssl:
+					Config.ssl_path = config["ssl-path"]
+					context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+					context.load_cert_chain(f'{SSL_PATH}/fullchain.pem', f'{SSL_PATH}/privkey.pem')
+				if config["dir_gamedata"]:
+					Config.dir_gamedata = config["dir_gamedata"]
+				self.setpaths()
+		except:
+			print(traceback.print_exc(limit=None, file=None, chain=True))
 
 def ToUTF8(dt):
 	if b"\0" in dt:
@@ -81,7 +87,7 @@ def ToSignedByte(n):
 
 class Server:
 	def __init__(self):
-		Config().setpaths()
+		Config().loadconfig()
 		for directory in [
 			"logs",
 			f"{Config.dir_gamedata}",
