@@ -86,6 +86,7 @@ def ToSignedByte(n):
 		return n%0x80
 
 class Server:
+	purge = False
 	def __init__(self):
 		Config().loadconfig()
 		for directory in [
@@ -236,6 +237,8 @@ class Server:
 					thread.start()
 				except:
 					self.elog(traceback.print_exc(limit=None, file=None, chain=True))
+				if Server.purge:
+					self.purgeinactive(self)
 				time.sleep(0.002)
 				self.writeinfo()
 				
@@ -254,7 +257,8 @@ class Server:
 				thread.start()
 			except:
 				self.elog(traceback.print_exc(limit=None, file=None, chain=True))
-
+			if Server.purge:
+				self.purgeinactive(self)
 			time.sleep(0.002)
 			self.writeinfo()
 
@@ -291,7 +295,7 @@ class Server:
 			self.space.save(f"{Config.map_path}")
 			for client in self.clients.keys():
 				self.clients[client].disconnect()
-				del self.clients[client]
+			self.clients.clear()
 			self.online = False
 			self.writeinfo()
 		except:
@@ -333,6 +337,13 @@ class Server:
 				self.log(f"User bans written successfully.")
 		except:
 			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
+			
+	def purgeinactive(self):
+		for conn in self.clients.keys():
+			client = self.clients[conn]
+			if client.closed:
+				del self.clients[conn]
+		Server.purge = False
 		
 
 	def backupAll(self,sname):
@@ -684,10 +695,8 @@ class Client:
 				pass
 			except Exception as e:
 				self.elog(traceback.print_exc(limit=None, file=None, chain=True))
-		else:
-			if self.closed:
-				del server.clients[self.conn]
-				self.conn.close()
+		Server.purge = True
+
 
 	def maliciousDisconnect(self):
 		try:
@@ -860,12 +869,9 @@ outputs:
 	def disconnect(self):
 		self.save_player()
 		self.send([ControlCodes['DISCONNECT']]) #Let the user know if disconnected. Might be useful eventually.
-		self.close()
-
-	def close(self):
-		Client.count -= 1
 		self.logged_in = False
 		self.closed = True
+		
 
 if __name__ == '__main__':
 	server = Server()
