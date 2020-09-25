@@ -339,10 +339,13 @@ class Server:
 			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
 			
 	def purgeinactive(self):
+		o = []
 		for conn in self.clients.keys():
 			client = self.clients[conn]
 			if client.closed:
-				del self.clients[conn]
+				o.append(conn)
+		for i in o:
+			del self.clients[i]
 		Server.purge = False
 		
 
