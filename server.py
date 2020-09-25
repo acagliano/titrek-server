@@ -57,6 +57,7 @@ class Config:
 				Config.port = int(config["port"])
 				Config.packet_debug = config["debug"]
 				Config.use_ssl = config["ssl"]
+				Config.inactive_timeout = config["idle_timeout"]
 				if Config.use_ssl:
 					Config.ssl_path = config["ssl-path"]
 					context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
