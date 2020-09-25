@@ -529,7 +529,7 @@ class Client:
 				continue
 			if Config.packet_debug:
 				packet_string = "".join([s.ljust(5," ") for s in [chr(c) if c in range(0x20,0x80) else "0x0"+hex(c)[2] if c<0x10 else hex(c) for c in data]])
-				self.dlog("recieved packet: ", packet_string)
+				self.dlog(f"recieved packet: {packet_string}")
 			try:
 				if data[0]==ControlCodes["LOGIN"]:
 					self.log_in(data)
