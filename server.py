@@ -477,7 +477,7 @@ class Client:
 		fname=m['file']+f".json"
 		level=m['level']-1
 		try:
-			with open(fname) as f:
+			with open(f"{Config.module_path}{fname}") as f:
 				j = json.load(f)
 			for k in j['module'][level].keys():				
 				m[k] = j['module'][level][k]
@@ -751,9 +751,9 @@ outputs:
 		except:
 			pass
 		try:
-			j = [{"hull": {'level':1, 'file':'modules/hull','modifiers':[]},"modules":[
-				{'level': 1, 'file': 'modules/core', 'modifiers': []},
-				{'level': 1, 'file': 'modules/phaser', 'modifiers': []},
+			j = [{"hull": {'level':1, 'file':'hull','modifiers':[]},"modules":[
+				{'level': 1, 'file': 'core', 'modifiers': []},
+				{'level': 1, 'file': 'phaser', 'modifiers': []},
 				]}
 			]
 			self.data["ships"] = j
