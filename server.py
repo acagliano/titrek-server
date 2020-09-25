@@ -521,13 +521,9 @@ class Client:
 			if len(data)==0:
 				time.sleep(1)
 				continue
-			if Config.packet_debug:
-				o=[]
-				for c in data:
-					if c>=0x20 and c<0x80: o.append(chr(c)+"   ")
-					elif c<0x10: o.append("\\\\x0"+hex(c)[2:])
-					else: o.append("\\\\x"+hex(c)[2:])
-				self.dlog("recieved packet: ","".join(o))
+				if Config.packet_debug:
+					packet_string = "".join([s.ljust(5," ") for s in [chr(c) if c in range(0x20,0x80) else "0x0"+hex(c)[2] if c<0x10 else hex(c) for c in data]])
+					self.dlog("recieved packet: ", packet_string)
 			try:
 				if data[0]==ControlCodes["LOGIN"]:
 					self.log_in(data)
