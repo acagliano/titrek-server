@@ -17,10 +17,13 @@ ControlCodes = {
     
     # CONNECTION/ADMIN
     # 0 - 9
-    "REGISTER":0,
-    "LOGIN":1,
-    "DISCONNECT":2,
-    "VERSION_MISMATCH":3,   # This is for the client not up to date response , See response codes. VERSION_* must be the second byte of packet
+    # "CONNECT":0
+    # "DISCONNECT":1
+    # Both reserved for client => bridge directives
+    "REGISTER":2,
+    "LOGIN":3,
+    "DISCONNECT":4,
+    "VERSION_MISMATCH":5,   # This is for the client not up to date response , See response codes. VERSION_* must be the second byte of packet
     
     # GAMEPLAY
     # Map Interfacing: 10 - 19 
