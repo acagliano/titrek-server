@@ -239,10 +239,10 @@ class Server:
 					thread.start()
 				except:
 					self.elog(traceback.print_exc(limit=None, file=None, chain=True))
-				if Server.purge:
-					self.purgeinactive(self)
 				time.sleep(0.002)
 				self.writeinfo()
+			if Server.purge:
+				self.purgeinactive()
 				
 	def main_normal(self):
 		while self.online:
@@ -259,10 +259,10 @@ class Server:
 				thread.start()
 			except:
 				self.elog(traceback.print_exc(limit=None, file=None, chain=True))
-			if Server.purge:
-				self.purgeinactive(self)
 			time.sleep(0.002)
 			self.writeinfo()
+		if Server.purge:
+			self.purgeinactive()
 
 	def writeinfo(self):
 		if self.online:
@@ -545,7 +545,8 @@ class Client:
 					self.save_player()
 					self.logged_in = False
 				self.closed = True
-				continue
+				Server.purge = True
+				break
 			if not data or len(data)==0:
 				time.sleep(1)
 				continue
@@ -706,7 +707,6 @@ class Client:
 				pass
 			except Exception as e:
 				self.elog(traceback.print_exc(limit=None, file=None, chain=True))
-		Server.purge = True
 
 
 	def maliciousDisconnect(self):
@@ -882,6 +882,7 @@ outputs:
 		self.send([ControlCodes['DISCONNECT']]) #Let the user know if disconnected. Might be useful eventually.
 		self.logged_in = False
 		self.closed = True
+		Server.purge = True
 		
 
 if __name__ == '__main__':
