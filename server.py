@@ -88,7 +88,6 @@ def ToSignedByte(n):
 		return n%0x80
 
 class Server:
-	purge = False
 	def __init__(self):
 		Config().loadconfig()
 		for directory in [
@@ -241,8 +240,6 @@ class Server:
 					self.elog(traceback.print_exc(limit=None, file=None, chain=True))
 				time.sleep(0.002)
 				self.writeinfo()
-			if Server.purge:
-				self.purgeinactive()
 				
 	def main_normal(self):
 		while self.online:
@@ -261,8 +258,6 @@ class Server:
 				self.elog(traceback.print_exc(limit=None, file=None, chain=True))
 			time.sleep(0.002)
 			self.writeinfo()
-		if Server.purge:
-			self.purgeinactive()
 
 	def writeinfo(self):
 		if self.online:
@@ -340,15 +335,8 @@ class Server:
 		except:
 			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
 			
-	def purgeinactive(self):
-		o = []
-		for conn in self.clients.keys():
-			client = self.clients[conn]
-			if client.closed:
-				o.append(conn)
-		for i in o:
-			del self.clients[i]
-		Server.purge = False
+	def purgeclient(self, conn):
+		del self.clients[conn]
 		
 
 	def backupAll(self,sname):
@@ -545,7 +533,6 @@ class Client:
 					self.save_player()
 					self.logged_in = False
 				self.closed = True
-				Server.purge = True
 				break
 			if not data or len(data)==0:
 				time.sleep(1)
@@ -707,7 +694,8 @@ class Client:
 				pass
 			except Exception as e:
 				self.elog(traceback.print_exc(limit=None, file=None, chain=True))
-
+		server.purgeclient(self.conn)
+		
 
 	def maliciousDisconnect(self):
 		try:
