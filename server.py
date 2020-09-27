@@ -537,9 +537,9 @@ class Client:
 				self.closed = True
 				break
 			if not data:
-				self.log(f"Remote socket at {self.conn} appears to have been closed. Terminating thread.")
+				self.log(f"Remote socket at {self.addr} appears to have been closed. Terminating thread.")
 				self.conn.close()
-				self.closed = true
+				self.closed = True
 				continue
 			if Config.packet_debug:
 				packet_string = "".join([s.ljust(5," ") for s in [chr(c) if c in range(0x20,0x80) else "0x0"+hex(c)[2] if c<0x10 else hex(c) for c in data]])
