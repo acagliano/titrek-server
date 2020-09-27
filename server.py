@@ -540,7 +540,7 @@ class Client:
 				self.log(f"{self.user} disconnected!")
 				self.disconnect()
 				self.closed = True
-				continue
+				break
 			if Config.packet_debug:
 				packet_string = "".join([s.ljust(5," ") for s in [chr(c) if c in range(0x20,0x80) else "0x0"+hex(c)[2] if c<0x10 else hex(c) for c in data]])
 				self.dlog(f"recieved packet: {packet_string}")
