@@ -54,7 +54,8 @@ ResponseCodes = {
     "DUPLICATE":0x2,
     "MISSING":0x3,
     "BANNED":0x4,
-    "BAD_MESSAGE_CONTENT":0x5,
+    "UNVERIFIED":0x5,
+    "BAD_MESSAGE_CONTENT":0x6,
 }
 
 VersionCheckCodes = {
