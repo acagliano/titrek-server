@@ -812,8 +812,16 @@ outputs:
 		except:
 			self.elog("Directory already exists or error creating")
 			pass
+		verif_code = str(hex(int(time.time()*1000)))
 		with open(f'{Config.player_path}{user}/account.json','w') as f:
-			json.dump({'displayname':user,'passw_md5':passw_md5,'email':email,'permLvl':0},f)
+			json.dump({
+				'displayname':user,
+				'passw_md5':passw_md5,
+				'email':email,
+				'permLvl':0,
+				'verif-code':verif_code,
+				'verified':False
+				},f)
 		self.user = user
 		self.logged_in = True
 		self.log(f"[{user}] has been successfuly registered!")
