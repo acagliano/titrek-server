@@ -857,6 +857,9 @@ outputs:
 						continue
 					if d == user:
 						if account['passw_md5'] == passw_md5:
+							if account['verified'] == False:
+								self.send([ControlCodes["LOGIN"],ResponseCodes["UNVERIFIED"]])
+								return
 							self.user = user
 							self.logged_in = True
 							self.log(f"[{user}] has successfuly logged in!")
