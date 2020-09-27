@@ -42,6 +42,7 @@ class Config:
 	module_path = ""
 	mission_path = ""
 	downloads_path = ""
+	min_client = ""
 	
 	def setpaths(self):
 		Config.player_path = f"{Config.dir_gamedata}{Config.dir_player}"
@@ -58,6 +59,7 @@ class Config:
 				Config.packet_debug = config["debug"]
 				Config.use_ssl = config["ssl"]
 				Config.inactive_timeout = config["idle_timeout"]
+				Config.min_client = config["min-client"]
 				if Config.use_ssl:
 					Config.ssl_path = config["ssl-path"]
 					context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
