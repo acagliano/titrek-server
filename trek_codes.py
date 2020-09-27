@@ -23,7 +23,7 @@ ControlCodes = {
     "REGISTER":2,
     "LOGIN":3,
     "DISCONNECT":4,
-    "VERSION_MISMATCH":5,   # This is for the client not up to date response , See response codes. VERSION_* must be the second byte of packet
+    "VERSION_CHECK":5,   # This is for the client not up to date response , See response codes. VERSION_* must be the second byte of packet
     
     # GAMEPLAY
     # Map Interfacing: 10 - 19 
@@ -55,9 +55,13 @@ ResponseCodes = {
     "DUPLICATE":0x2,
     "MISSING":0x3,
     "BANNED":0x4,
-    "VERSION_ERROR":0x5,    # This will produce a blocking error on client saying (1) update, or (2) disconnect
-    "VERSION_OUTDATED":0x6,     # this will show a non-blocking error on client letting you update or proceed.
-    "BAD_MESSAGE_CONTENT":0x7,
+    "BAD_MESSAGE_CONTENT":0x5,
+}
+
+VersionCheckCodes = {
+    "VERSION_OK":0x0,
+    "VERSION_OUTDATED":0x1,     # this will show a non-blocking error on client letting you update or proceed.
+    "VERSION_ERROR":0x2    # This will produce a blocking error on client saying (1) update, or (2) disconnect
 }
 
 ModuleStateChange = {
