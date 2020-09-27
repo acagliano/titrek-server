@@ -537,8 +537,8 @@ class Client:
 				self.closed = True
 				break
 			if not data:
-				self.log(f"Remote socket at {self.addr} appears to have been closed. Terminating thread.")
-				self.conn.close()
+				self.log(f"{self.user} disconnected!")
+				self.disconnect()
 				self.closed = True
 				continue
 			if Config.packet_debug:
@@ -880,8 +880,7 @@ outputs:
 	def disconnect(self):
 		if self.logged_in:
 			self.save_player()
-		self.send([ControlCodes['DISCONNECT']]) #Let the user know if disconnected. Might be useful eventually.
-		self.logged_in = False
+			self.logged_in = False
 		self.closed = True
 		Server.purge = True
 		
