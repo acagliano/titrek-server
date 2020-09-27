@@ -874,7 +874,8 @@ outputs:
 			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
 
 	def disconnect(self):
-		self.save_player()
+		if self.logged_in:
+			self.save_player()
 		self.send([ControlCodes['DISCONNECT']]) #Let the user know if disconnected. Might be useful eventually.
 		self.logged_in = False
 		self.closed = True
