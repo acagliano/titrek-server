@@ -573,8 +573,6 @@ class Client:
 					elif self.logged_in:
 						if data[0]==ControlCodes["DEBUG"]:
 							self.server.log(ToUTF8(data[1:])) # send a debug message to the server console
-						elif data[0]==ControlCodes["DISCONNECT"]:
-							self.disconnect()
 						elif data[0]==ControlCodes["PLAYER_MOVE"]:
 							G = FromSignedInt(data[1])
 							if G>=self.max_acceleration:
