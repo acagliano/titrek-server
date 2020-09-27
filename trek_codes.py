@@ -22,8 +22,7 @@ ControlCodes = {
     # Both reserved for client => bridge directives
     "REGISTER":2,
     "LOGIN":3,
-    "DISCONNECT":4,
-    "VERSION_CHECK":5,   # This is for the client not up to date response , See response codes. VERSION_* must be the second byte of packet
+    "VERSION_CHECK":4,   # This is for the client not up to date response , See response codes. VERSION_* must be the second byte of packet
     
     # GAMEPLAY
     # Map Interfacing: 10 - 19 
