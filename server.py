@@ -547,6 +547,8 @@ class Client:
 			try:
 				if data[0]==ControlCodes["LOGIN"]:
 					self.log_in(data)
+				elif data[0]==ControlCodes["VERSION_CHECK"]:
+					self.version_check(data)
 				elif self.ip in Config.whitelist:
 					if data[0]==ControlCodes["REGISTER"]:
 						self.register(data)
@@ -836,7 +838,7 @@ outputs:
 		self.load_player()
 
 	def log_in(self, data):
-		user,passw,vers = [ToUTF8(a) for a in data[1:].split(b"\0",maxsplit=2)]
+		user,passw = [ToUTF8(a) for a in data[1:].split(b"\0",maxsplit=1)]
 		self.sanitize(user)
 		self.sanitize(passw)
 		print(user,passw)
@@ -877,6 +879,20 @@ outputs:
 				self.send([ControlCodes["LOGIN"],ResponseCodes['MISSING']])  # Error: user does not exist
 		except Exception as e:
 			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
+			
+	def version_check(self, data):
+		client_version = [ToUTF8(a) for a in data[1:4]]
+		gfx_version = [ToUTF8(a) for a in data[4:6]] # not used yet
+		# convert Config.min_client a 3-byte array
+		# convert client_version to a 3-byte array
+		# compare the two arrays to produce the conditions below
+		if client_version == config_minclient_converted:
+			self.send([ControlCodes["VERSION_CHECK"],ResponseCodes['VERSION_OK']])
+		elif client_version > config_minclient_converted:
+			self.send([ControlCodes["VERSION_CHECK"],ResponseCodes['VERSION_OUTDATED']]) # outdated but playable
+		else client_version < config_minclient_converted:
+			self.send([ControlCodes["VERSION_CHECK"],ResponseCodes['VERSION_ERROR']])  # Version error
+				   
 
 	def disconnect(self):
 		if self.logged_in:
