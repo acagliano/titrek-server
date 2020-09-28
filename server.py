@@ -721,7 +721,7 @@ class Client:
 				self.elog(f"Packet from {self.ip} rejected. IP banned due to suspect behavior.")
 			else:
 				self.elog(f"Packet from {self.ip} rejected. Bad contents, or invalid.")
-				self.send([ControlCodes["MESSAGE"]]+list(b'server rejected packet')) # Disconnect user, inform of error
+				self.send([ControlCodes["MESSAGE"]]+list(b'server rejected packet\0')) # Disconnect user, inform of error
 				self.karma-=2
 		except:
 			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
@@ -845,7 +845,6 @@ outputs:
 		self.sanitize(passw)
 		print(user,passw)
 		self.log(f"Logging in user: [{user}]")
-		server.whitelist_add(self.ip)
 		if user in Config.banned_users:
 			self.send([ControlCodes["LOGIN"],ResponseCodes['BANNED']])
 			self.log(f"[{user}] Banned user attempted login.")
@@ -877,7 +876,9 @@ outputs:
 							self.trustworthy = True
 						else:
 							self.log(f"[{user}] entered incorrect password.")
+							self.send([ControlCodes["MESSAGE"]]+list(b'incorrect password\0'))
 							self.send([ControlCodes["LOGIN"],ResponseCodes['INVALID']])  # Error: incorrect password
+							return
 			if self.user == '':
 				self.log(f"Could not find user {user}.")
 				self.send([ControlCodes["LOGIN"],ResponseCodes['MISSING']])  # Error: user does not exist
