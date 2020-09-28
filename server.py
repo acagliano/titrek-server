@@ -396,7 +396,7 @@ class Server:
 					break
 				elif line[0]=="save":
 					self.log("Saving...")
-					threading.Thread(target=self.space.save,args=("space/data", )).start()
+					threading.Thread(target=self.space.save,args=(f"{Config.map_path}", )).start()
 					self.log("Saved.")
 				elif line[0]=="seed":
 					self.generator.seed(hash(line[1]))
