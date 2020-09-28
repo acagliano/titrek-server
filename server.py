@@ -381,7 +381,7 @@ class Server:
 							print(f.read())
 					except:
 						print("No help document availible.")
-				elif line[0]=="broadcast":
+				elif line[0]=="broadcast" or line[0]=="say":
 					ostring=""
 					for l in line[1:]:
 						ostring+=l
