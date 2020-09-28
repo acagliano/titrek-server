@@ -3,16 +3,19 @@ import os,json
 
 class Space:
 	def __init__(self,log):
-		self.log=log
-		self.space=[]
-		log("Loading map from space/data/")
-		for fname in self.walk("space/data"):
-			try:
-				with open(fname) as f:
-					self.space.extend(json.loads(f.read()))
-			except:
-				self.log(logging.ERROR,"Warning: could not load file \""+fname+"\"")
-		log("Finished loading map")
+		try:
+			self.log=log
+			self.space=[]
+			log("Loading map from space/data/")
+			for fname in self.walk("space/data"):
+				try:
+					with open(fname) as f:
+						self.space.extend(json.loads(f.read()))
+				except:
+					self.log(logging.ERROR,"Warning: could not load file \""+fname+"\"")
+			log("Finished loading map")
+		except:
+			print(traceback.print_exc(limit=None, file=None, chain=True))
 
 	def walk(self,path):
 		for root,dirs,files in os.walk(path):
@@ -26,11 +29,14 @@ class Space:
 			os.makedirs(dname)
 		except:
 			pass
+		try:
 		num=0; L=50
-		for I in range(0,len(self.space),L):
-			with open(dname+"/obj"+str(num)+".json",'w') as f:
-				json.dump(self.space[I:min(I+L,len(self.space))],f)
-			num+=1
+			for I in range(0,len(self.space),L):
+				with open(dname+"/obj"+str(num)+".json",'w') as f:
+					json.dump(self.space[I:min(I+L,len(self.space))],f)
+				num+=1
+		except:
+			print(traceback.print_exc(limit=None, file=None, chain=True))
 
 	def append(self,obj):
 		self.space.append(obj)
