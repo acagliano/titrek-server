@@ -382,8 +382,13 @@ class Server:
 					except:
 						print("No help document availible.")
 				elif line[0]=="broadcast":
-					self.log("[Server] "+line[1])
-					self.broadcast(line[1])	# broadcast to all clients
+					ostring=""
+					for l in line[1:]:
+						ostring+=l
+						ostring+=" "
+					ostring=ostring[:-1]
+					self.log("[Server] "+ostring)
+					self.broadcast(ostring)	# broadcast to all clients
 				elif line[0]=="stop":
 					self.log("Received stop command.")
 					break
