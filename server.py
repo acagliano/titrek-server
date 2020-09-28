@@ -884,12 +884,12 @@ outputs:
 		# convert Config.min_client a 3-byte array
 		# convert client_version to a 3-byte array
 		# compare the two arrays to produce the conditions below
-		if client_version == config_minclient_converted:
-			self.send([ControlCodes["VERSION_CHECK"],ResponseCodes['VERSION_OK']])
-		elif client_version > config_minclient_converted:
-			self.send([ControlCodes["VERSION_CHECK"],ResponseCodes['VERSION_OUTDATED']]) # outdated but playable
-		else client_version < config_minclient_converted:
-			self.send([ControlCodes["VERSION_CHECK"],ResponseCodes['VERSION_ERROR']])  # Version error
+	#	if client_version == config_minclient_converted:
+	#		self.send([ControlCodes["VERSION_CHECK"],ResponseCodes['VERSION_OK']])
+	#	elif client_version > config_minclient_converted:
+	#		self.send([ControlCodes["VERSION_CHECK"],ResponseCodes['VERSION_OUTDATED']]) # outdated but playable
+	#	else client_version < config_minclient_converted:
+	#		self.send([ControlCodes["VERSION_CHECK"],ResponseCodes['VERSION_ERROR']])  # Version error
 				   
 
 	def disconnect(self):
