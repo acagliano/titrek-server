@@ -861,7 +861,7 @@ outputs:
 							self.user = user
 							self.logged_in = True
 							self.log(f"[{user}] has successfuly logged in!")
-							self.broadcast(f"{user} logged in blah")
+							self.broadcast(f"{user} logged in")
 							self.send([ControlCodes["LOGIN"],ResponseCodes['SUCCESS']])   # Log in successful
 							self.dlog(f"User karma is {self.karma}")
 							self.playerdir = f"{Config.player_path}{self.user}/"
