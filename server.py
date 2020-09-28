@@ -451,7 +451,7 @@ class Client:
 		self.elog = server.elog
 		self.dlog = server.dlog
 		self.broadcast = server.broadcast
-		self.send([ControlCodes["MESSAGE"]]+list(b"test\0"))
+		self.send([ControlCodes["MESSAGE"]]+list(b"test make this msg long\0"))
 		self.max_acceleration = 5 #accelerate at a maximum of 100m/s^2
 		self.dlog(f"Got client from {addr}")
 
