@@ -570,7 +570,7 @@ class Client:
 					self.version_check(data)
 				elif data[0]==ControlCodes["PING"]:
 						self.server.log("Ping? Pong!")
-						self.send([ControlCodes["MESSAGE"]]+list(b"pong!"))
+						self.send([ControlCodes["PING"]])
 				elif data[0]==ControlCodes["PRGMUPDATE"]:
 						gfx_hash = sum([data[x+1]*(2**(8*(x-1))) for x in range(4)])
 						paths = []
