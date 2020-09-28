@@ -7,8 +7,8 @@ class Space:
 		try:
 			self.log=log
 			self.space=[]
-			log("Loading map from space/data/")
-			for fname in self.walk("space/data"):
+			log(f"Loading map from {Space.path}")
+			for fname in self.walk(f"{Space.path}"):
 				try:
 					with open(fname) as f:
 						self.space.extend(json.loads(f.read()))
@@ -25,9 +25,10 @@ class Space:
 			for fname in files:
 				yield path+"/"+fname
 
-	def save(self,dname):
+	def save(self):
+		dname=Space.path
 		try:
-			os.makedirs(dname)
+			os.makedirs(f"{dname}")
 		except:
 			pass
 		try:
