@@ -112,6 +112,7 @@ class Server:
 			self.load_whitelist()
 
 			self.generator = Generator()
+			Space.path = f"{Config.map_path}"
 			self.space = Space(self.log)
 		
 			self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)         # Create a socket object
