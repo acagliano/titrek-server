@@ -297,6 +297,8 @@ class Server:
 		try:
 			self.log("Shutting down.")
 			self.space.save(f"{Config.map_path}")
+			self.broadcast(f"server shutting down in 10s")
+			time.sleep(10)
 			for client in self.clients.keys():
 				self.clients[client].disconnect()
 			self.clients.clear()
