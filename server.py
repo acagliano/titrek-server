@@ -7,7 +7,7 @@
 # Adam "beckadamtheinventor" Beckingham
 #This is the server program for TI-Trek CE.
 
-import socket,threading,ctypes,hashlib,json,os,sys,time,math,ssl,traceback,subprocess,logging,gzip
+import socket,threading,ctypes,hashlib,json,os,sys,time,math,ssl,traceback,subprocess,logging,gzip,re
 from datetime import datetime
 
 from trek_codes import *
@@ -796,9 +796,13 @@ outputs:
 
 	def register(self, data):
 		user,passw,email = [ToUTF8(a) for a in data[1:].split(b"\0",maxsplit=2)]
+		emailregex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
+		print(user,passw,email)
 		self.sanitize(user)
 		self.sanitize(passw)
-		print(user,passw,email)
+		if not re.search(emailregex,email):
+			self.send([ControlCodes["MESSAGE"]]+list(b'invalid email\0'))
+			self.send([ControlCodes["REGISTER"],ResponseCodes['INVALID']])
 		self.log(f"Registering user: [{user}]")
 		passw_md5 = hashlib.md5(bytes(passw,'UTF-8')).hexdigest()  # Generate md5 hash of password
 		for root,dirs,files in os.walk(f'{Config.player_path}'): #search in players directory
@@ -831,6 +835,7 @@ outputs:
 		self.user = user
 		self.logged_in = True
 		self.log(f"[{user}] has been successfuly registered!")
+		self.broadcast(f"{user} registered")
 		self.send([ControlCodes["REGISTER"],ResponseCodes['SUCCESS']])       # Register successful
 		self.trustworthy = True
 		self.playerdir = f"{Config.player_path}{self.user}/"
