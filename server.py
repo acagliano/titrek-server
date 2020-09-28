@@ -877,7 +877,7 @@ outputs:
 							self.log(f"[{user}] entered incorrect password.")
 							self.send([ControlCodes["LOGIN"],ResponseCodes['INVALID']])  # Error: incorrect password
 			if self.user == '':
-				self.log("[",user,"] could not find user.")
+				self.log(f"Could not find user {user}.")
 				self.send([ControlCodes["LOGIN"],ResponseCodes['MISSING']])  # Error: user does not exist
 		except Exception as e:
 			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
