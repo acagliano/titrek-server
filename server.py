@@ -223,6 +223,11 @@ class Server:
 	def dlog(self,*args,**kwargs):
 		if Config.packet_debug:
 			self.logger.log(logging.DEBUG, *args, **kwargs)
+		
+	def broadcast(self,msg):
+		for conn in self.clients.keys():
+			client = self.clients[conn]
+			client.send([ControlCodes["MESSAGE"]]+list(bytes(msg)))
 	
 	def main_ssl(self):
 		while self.online:
@@ -445,9 +450,10 @@ class Client:
 		self.log=server.log
 		self.elog = server.elog
 		self.dlog = server.dlog
+		self.broadcast = server.broadcast
 		self.max_acceleration = 5 #accelerate at a maximum of 100m/s^2
 		self.dlog(f"Got client from {addr}")
-		self.send([ControlCodes["MESSAGE"]]+list(b'Logging you in...'))
+		self.send([ControlCodes["MESSAGE"]]+list(b'waiting for login'))
 
 	def load_player(self):
 		try:
@@ -698,6 +704,7 @@ class Client:
 				pass
 			except Exception as e:
 				self.elog(traceback.print_exc(limit=None, file=None, chain=True))
+		self.broadcast(f"{self.user} disconnected")
 		server.purgeclient(self.conn)
 		
 
@@ -865,6 +872,7 @@ outputs:
 							self.user = user
 							self.logged_in = True
 							self.log(f"[{user}] has successfuly logged in!")
+							self.broadcast(f"{user} logged in")
 							self.send([ControlCodes["LOGIN"],ResponseCodes['SUCCESS']])   # Log in successful
 							self.playerdir = f"{Config.player_path}{self.user}/"
 							self.playerfile = f"{self.playerdir}player.json"
