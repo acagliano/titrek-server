@@ -290,14 +290,14 @@ class Server:
 			if (cur_time-last_save_time)>=600:
 				last_save_time = time.time()
 				self.log("Autosaving...")
-				threading.Thread(target=self.space.save,args=(f"{Config.map_path}", )).start()
+				threading.Thread(target=self.space.save, ).start()
 			time.sleep(60)
 
 
 	def stop(self):
 		try:
 			self.log("Shutting down.")
-			self.space.save(f"{Config.map_path}")
+			self.space.save()
 			self.broadcast(f"server shutting down in 10s")
 			time.sleep(10)
 			for client in self.clients.keys():
@@ -397,7 +397,7 @@ class Server:
 					break
 				elif line[0]=="save":
 					self.log("Saving...")
-					threading.Thread(target=self.space.save,args=(f"{Config.map_path}", )).start()
+					threading.Thread(target=self.space.save, ).start()
 					self.log("Saved.")
 				elif line[0]=="seed":
 					self.generator.seed(hash(line[1]))
