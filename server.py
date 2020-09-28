@@ -227,7 +227,7 @@ class Server:
 	def broadcast(self,msg):
 		for conn in self.clients.keys():
 			client = self.clients[conn]
-			client.send([ControlCodes["MESSAGE"]]+list(bytes(msg+b'\0', 'UTF-8')))
+			client.send([ControlCodes["MESSAGE"]]+list(bytes(msg+'\0', 'UTF-8')))
 	
 	def main_ssl(self):
 		while self.online:
