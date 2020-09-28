@@ -2,6 +2,7 @@
 import os,json
 
 class Space:
+	path=""
 	def __init__(self,log):
 		try:
 			self.log=log
