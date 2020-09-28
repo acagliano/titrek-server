@@ -227,7 +227,7 @@ class Server:
 	def broadcast(self,msg):
 		for conn in self.clients.keys():
 			client = self.clients[conn]
-			client.send([ControlCodes["MESSAGE"]]+list(bytes(msg, 'UTF-8')))
+			client.send([ControlCodes["MESSAGE"]]+list(bytes(msg+b'\0', 'UTF-8')))
 	
 	def main_ssl(self):
 		while self.online:
@@ -451,6 +451,7 @@ class Client:
 		self.elog = server.elog
 		self.dlog = server.dlog
 		self.broadcast = server.broadcast
+		self.send([ControlCodes["MESSAGE"]]+list(b"test\0"))
 		self.max_acceleration = 5 #accelerate at a maximum of 100m/s^2
 		self.dlog(f"Got client from {addr}")
 
