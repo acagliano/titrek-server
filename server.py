@@ -453,7 +453,6 @@ class Client:
 		self.broadcast = server.broadcast
 		self.max_acceleration = 5 #accelerate at a maximum of 100m/s^2
 		self.dlog(f"Got client from {addr}")
-		self.send([ControlCodes["MESSAGE"]]+list(b'waiting for login'))
 
 	def load_player(self):
 		try:
