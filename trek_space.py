@@ -30,7 +30,7 @@ class Space:
 		except:
 			pass
 		try:
-		num=0; L=50
+			num=0; L=50
 			for I in range(0,len(self.space),L):
 				with open(dname+"/obj"+str(num)+".json",'w') as f:
 					json.dump(self.space[I:min(I+L,len(self.space))],f)
