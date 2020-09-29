@@ -31,6 +31,7 @@ class Config:
 	dir_modules = "modules/"
 	dir_missions = "missions/"
 	dir_downloads = "downloads/"
+	logger = logging.getLogger('titrek.server')
 	log_file = "logs/server.log"
 	log_archive = f"logs/{datetime.now().year}-{datetime.now().month}_server.log.gz"
 	invalid_characters = [bytes(a,'UTF-8') for a in ["/","\\","#","$","%","^","&","*","!","~","`","\"","|"]] + \
@@ -107,7 +108,7 @@ class Server:
 			except:
 				pass
 		try:
-			self.logger = logging.getLogger('titrek.server')
+			self.logger = Config.logger
 			self.loadbans()
 			self.load_whitelist()
 
@@ -916,10 +917,10 @@ outputs:
 		
 
 if __name__ == '__main__':
-	server = Server()
 	logging.basicConfig(format='%(levelname)s: %(asctime)s: %(message)s',level=logging.DEBUG,handlers=[
 		logging.StreamHandler(), # writes to stderr
 		logging.FileHandler(Config.log_file),
 	])
+	server = Server()
 	server.run()
 
