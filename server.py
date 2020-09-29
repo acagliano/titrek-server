@@ -889,8 +889,15 @@ outputs:
 			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
 			
 	def version_check(self, data):
-		client_version = [ToUTF8(a) for a in data[1:4]]
-		gfx_version = [ToUTF8(a) for a in data[4:6]] # not used yet
+		client_version = data[1:4]
+		gfx_version = data[4:6] # not used yet
+		for i in range(3):
+			if client_version[i] < Config.min_client[i]:
+				self.send([ControlCodes["VERSION_CHECK"],ResponseCodes['VERSION_ERROR']])
+				return
+		self.send([ControlCodes["VERSION_CHECK"],ResponseCodes['VERSION_OK']])
+				  
+			
 		# convert Config.min_client a 3-byte array
 		# convert client_version to a 3-byte array
 		# compare the two arrays to produce the conditions below
