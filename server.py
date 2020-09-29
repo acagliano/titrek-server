@@ -893,12 +893,12 @@ outputs:
 		gfx_version = data[4:6] # not used yet
 		for i in range(3):
 			if client_version[i] < Config.min_client[i]:
-				self.send([ControlCodes["VERSION_CHECK"],ResponseCodes['VERSION_ERROR']])
+				self.send([ControlCodes["VERSION_CHECK"],VersionCheckCodes['VERSION_ERROR']])
 				return
 			if client_version[i] > Config.min_client[i]:
-				self.send([ControlCodes["VERSION_CHECK"],ResponseCodes['VERSION_OK']])
+				self.send([ControlCodes["VERSION_CHECK"],VersionCheckCodes['VERSION_OK']])
 				return
-		self.send([ControlCodes["VERSION_CHECK"],ResponseCodes['VERSION_OK']])
+		self.send([ControlCodes["VERSION_CHECK"],VersionCheckCodes['VERSION_OK']])
 		
 				  
 			
