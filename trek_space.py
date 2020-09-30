@@ -13,7 +13,7 @@ class Space:
 					with open(fname) as f:
 						self.space.extend(json.loads(f.read()))
 				except:
-					self.log(logging.ERROR,"Warning: could not load file \""+fname+"\"")
+					self.log(f"Warning: could not load file {fname}")
 			log("Finished loading map")
 		except:
 			print(traceback.print_exc(limit=None, file=None, chain=True))
