@@ -404,7 +404,7 @@ class Server:
 					self.generator.seed(hash(line[1]))
 				elif line[0]=="generate":
 					self.log("Generating space...")
-					threading.Thread(target=self.generator.generate_all,args=(self.space, )).start()
+					threading.Thread(target=self.generator.generate_all,args=(self.space.space, )).start()
 					self.log("Finished generating.")
 				elif line[0]=="kick":
 					self.kick(line[1])
