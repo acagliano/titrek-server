@@ -34,7 +34,7 @@ class Generator:
 					y=random.randint(-1e9,1e9)*1e3
 					gen_this = True
 					for planet in space:
-						if abs(math.hypot(position["x"],position["y"],position["z"]))<1e13:
+						if abs(math.hypot(planet["position"]["x"],planet["position"]["y"],planet["position"]["z"]))<1e13:
 							gen_this = False; break
 					if gen_this:
 						for planet in self.generate(Vec3(x,y,z)):
