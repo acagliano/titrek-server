@@ -7,14 +7,18 @@ class Space:
 		try:
 			self.log=log
 			self.space=[]
+			count = 0
 			log(f"Loading map from {Space.path}")
 			for fname in self.walk(f"{Space.path}"):
 				try:
 					with open(fname) as f:
 						self.space.extend(json.loads(f.read()))
+						count+=1
 				except:
 					self.log(f"Warning: could not load file {fname}")
 			log("Finished loading map")
+			final = len(self.space)
+			log(f"{count} objects iterated; {final} objects loaded")
 		except:
 			print(traceback.print_exc(limit=None, file=None, chain=True))
 
