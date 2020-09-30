@@ -16,6 +16,7 @@ class Space:
 						count+=1
 				except:
 					self.log(f"Warning: could not load file {fname}")
+					continue
 			log("Finished loading map")
 			final = len(self.space)
 			log(f"{count} objects iterated; {final} objects loaded")
