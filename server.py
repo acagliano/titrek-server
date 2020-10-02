@@ -41,11 +41,11 @@ class Config:
 	min_client = ""
 	
 	def setpaths(self):
-		Config.players = f"{Config.gamedata}players"
-		Config.space = f"{Config.gamedata}space"
-		Config.modules = f"{Config.gamedata}modules"
-		Config.missions = f"{Config.gamedata}missions"
-		#Config.downloads = f"{Config.gamedata}downloads"
+		Config.players = f"{Config.gamedata}players/"
+		Config.space = f"{Config.gamedata}space/"
+		Config.modules = f"{Config.gamedata}modules/"
+		Config.missions = f"{Config.gamedata}missions/"
+		#Config.downloads = f"{Config.gamedata}downloads/"
 	
 	def loadconfig(self):
 		try:
