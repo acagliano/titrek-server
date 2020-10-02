@@ -25,12 +25,7 @@ class Config:
 	use_ssl = False
 	ssl_path = ""
 	inactive_timeout = 600
-	dir_gamedata = "data/"
-	dir_player = "players/"
-	dir_map = "space/"
-	dir_modules = "modules/"
-	dir_missions = "missions/"
-	dir_downloads = "downloads/"
+	gamedata = "data/"
 	logger = logging.getLogger('titrek.server')
 	log_file = "logs/server.log"
 	log_archive = f"logs/{datetime.now().year}-{datetime.now().month}_server.log.gz"
@@ -38,19 +33,19 @@ class Config:
 					[bytes([a]) for a in range(1,0x20)] + [bytes([a]) for a in range(0x7F,0xFF)]
 	textbody_controlcodes = [ControlCodes["REGISTER"],ControlCodes["LOGIN"],ControlCodes["PING"],ControlCodes["MESSAGE"],\
 						ControlCodes["DEBUG"],ControlCodes["SERVINFO"]]
-	player_path = ""
-	map_path = ""
-	module_path = ""
-	mission_path = ""
-	downloads_path = ""
+	players = ""
+	space = ""
+	modules = ""
+	missions = ""
+	#downloads = ""
 	min_client = ""
 	
 	def setpaths(self):
-		Config.player_path = f"{Config.dir_gamedata}{Config.dir_player}"
-		Config.map_path = f"{Config.dir_gamedata}{Config.dir_map}"
-		Config.module_path = f"{Config.dir_gamedata}{Config.dir_modules}"
-		Config.mission_path = f"{Config.dir_gamedata}{Config.dir_missions}"
-		Config.downloads_path = f"{Config.dir_gamedata}{Config.dir_downloads}"
+		Config.players = f"{Config.gamedata}players"
+		Config.space = f"{Config.gamedata}space"
+		Config.modules = f"{Config.gamedata}modules"
+		Config.missions = f"{Config.gamedata}missions"
+		#Config.downloads = f"{Config.gamedata}downloads"
 	
 	def loadconfig(self):
 		try:
@@ -65,8 +60,8 @@ class Config:
 					Config.ssl_path = config["ssl-path"]
 					context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
 					context.load_cert_chain(f'{SSL_PATH}/fullchain.pem', f'{SSL_PATH}/privkey.pem')
-				if config["dir_gamedata"]:
-					Config.dir_gamedata = config["dir_gamedata"]
+				if config["gamedata"]:
+					Config.gamedata = config["gamedata"]
 				self.setpaths()
 		except:
 			print(traceback.print_exc(limit=None, file=None, chain=True))
@@ -95,12 +90,12 @@ class Server:
 		Config().loadconfig()
 		for directory in [
 			"logs",
-			f"{Config.dir_gamedata}",
-			f"{Config.player_path}",
-			f"{Config.map_path}",
-			f"{Config.module_path}",
-			f"{Config.mission_path}",
-			f"{Config.downloads_path}",
+			f"{Config.gamedata}",
+			f"{Config.players}",
+			f"{Config.space}",
+			f"{Config.modules}",
+			f"{Config.missions}",
+			#f"{Config.downloads_path}",
 			"cache",
 			"bans"]:
 			try:
@@ -113,7 +108,7 @@ class Server:
 			self.load_whitelist()
 
 			self.generator = Generator()
-			Space.path = f"{Config.map_path}"
+			Space.path = f"{Config.space}"
 			self.space = Space(self.log)
 		
 			self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)         # Create a socket object
@@ -465,7 +460,7 @@ class Client:
 
 	def load_player(self):
 		try:
-			os.makedirs(f"{Config.player_path}{self.user}")
+			os.makedirs(f"{Config.players}{self.user}")
 		except:
 			pass
 		try:
@@ -505,7 +500,7 @@ class Client:
 		fname=m['file']+f".json"
 		level=m['level']-1
 		try:
-			with open(f"{Config.module_path}{fname}") as f:
+			with open(f"{Config.modules}{fname}") as f:
 				j = json.load(f)
 			for k in j['module'][level].keys():				
 				m[k] = j['module'][level][k]
@@ -516,7 +511,7 @@ class Client:
 
 	def save_player(self):
 		try:
-			os.makedirs(f"{Config.player_path}{self.user}")
+			os.makedirs(f"{Config.players}{self.user}")
 		except:
 			pass
 		self.data["player"]["karma"] = self.karma
@@ -803,14 +798,16 @@ outputs:
 		self.sanitize(user)
 		self.sanitize(passw)
 		if not re.search(emailregex,email):
+			self.log(f"Invalid email for {user}")
 			self.send([ControlCodes["MESSAGE"]]+list(b'invalid email\0'))
 			self.send([ControlCodes["REGISTER"],ResponseCodes['INVALID']])
+			return
 		self.log(f"Registering user: [{user}]")
 		passw_md5 = hashlib.md5(bytes(passw,'UTF-8')).hexdigest()  # Generate md5 hash of password
-		for root,dirs,files in os.walk(f'{Config.player_path}'): #search in players directory
+		for root,dirs,files in os.walk(f'{Config.players}'): #search in players directory
 			for d in dirs: #only search directories
 				try:
-					with open(f'{Config.player_path}{d}/account.json', 'r') as f:
+					with open(f'{Config.players}{d}/account.json', 'r') as f:
 						account = json.load(f)
 				except IOError:
 					continue
@@ -823,16 +820,17 @@ outputs:
 					self.send([ControlCodes["REGISTER"],ResponseCodes['INVALID']])
 					return
 		try:
-			os.makedirs(f'{Config.player_path}{user}')
+			os.makedirs(f'{Config.players}{user}')
 		except:
 			self.elog("Directory already exists or error creating")
 			pass
-		with open(f'{Config.player_path}{user}/account.json','w') as f:
+		with open(f'{Config.players}{user}/account.json','w') as f:
 			json.dump({
 				'displayname':user,
 				'passw_md5':passw_md5,
 				'email':email,
 				'permLvl':0,
+				'subscribe':False,
 				},f)
 		self.user = user
 		self.logged_in = True
@@ -840,7 +838,7 @@ outputs:
 		self.broadcast(f"{user} registered")
 		self.send([ControlCodes["REGISTER"],ResponseCodes['SUCCESS']])       # Register successful
 		self.trustworthy = True
-		self.playerdir = f"{Config.player_path}{self.user}/"
+		self.playerdir = f"{Config.players}{self.user}/"
 		self.playerfile = f"{self.playerdir}player.json"
 		self.shipfile = f"{self.playerdir}ships.json"
 		self.create_new_game()
@@ -858,35 +856,37 @@ outputs:
 			return
 		passw_md5 = hashlib.md5(bytes(passw,'UTF-8')).hexdigest()  # Generate md5 hash of password
 		try:
-			for root, dirs, files in os.walk(f'{Config.player_path}'):  # search in players directory
-				for d in dirs:  # only search directories
+			for root, dirs, files in os.walk(f'{Config.players}'):  # search in players directory
+				if user in dirs:
 					try:
-						with open(f'{Config.player_path}{d}/account.json', 'r') as f:
+						with open(f'{Config.players}{user}/account.json', 'r') as f:
 							account = json.load(f)
+							if account['passw_md5'] == passw_md5:
+								self.user = user
+								self.logged_in = True
+								self.log(f"[{user}] has successfully logged in!")
+								self.broadcast(f"{user} logged in")
+								self.send([ControlCodes["LOGIN"],ResponseCodes['SUCCESS']])   # Log in successful
+								self.dlog(f"User karma is {self.karma}")
+								self.playerdir = f"{Config.players}{self.user}/"
+								self.playerfile = f"{self.playerdir}player.json"
+								self.shipfile = f"{self.playerdir}ships.json"
+								self.load_player()
+								return
+							else:
+								self.log(f"[{user}] entered incorrect password.")
+								self.send([ControlCodes["MESSAGE"]]+list(b'incorrect password\0'))
+								self.send([ControlCodes["LOGIN"],ResponseCodes['INVALID']])  # Error: incorrect password
+								return
 					except IOError:
-						continue
-					if d == user:
-						if account['passw_md5'] == passw_md5:
-							self.user = user
-							self.logged_in = True
-							self.log(f"[{user}] has successfuly logged in!")
-							self.broadcast(f"{user} logged in")
-							self.send([ControlCodes["LOGIN"],ResponseCodes['SUCCESS']])   # Log in successful
-							self.dlog(f"User karma is {self.karma}")
-							self.playerdir = f"{Config.player_path}{self.user}/"
-							self.playerfile = f"{self.playerdir}player.json"
-							self.shipfile = f"{self.playerdir}ships.json"
-							self.load_player()
-							self.trustworthy = True
-						else:
-							self.log(f"[{user}] entered incorrect password.")
-							self.send([ControlCodes["MESSAGE"]]+list(b'incorrect password\0'))
-							self.send([ControlCodes["LOGIN"],ResponseCodes['INVALID']])  # Error: incorrect password
-							return
-			if self.user == '':
-				self.log(f"Could not find user {user}.")
-				self.send([ControlCodes["LOGIN"],ResponseCodes['MISSING']])  # Error: user does not exist
-		except Exception as e:
+						self.dlog(f"Error reading account file for {user}")
+						self.send([ControlCodes["MESSAGE"]]+list(b'server i/o error\0'))
+						return
+				else:
+					self.log(f"Could not find user {user}.")
+					self.send([ControlCodes["LOGIN"],ResponseCodes['MISSING']])  # Error: user does not exist
+					return
+		except:
 			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
 			
 	def version_check(self, data):
