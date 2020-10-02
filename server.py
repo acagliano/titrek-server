@@ -859,7 +859,8 @@ outputs:
 			for root, dirs, files in os.walk(f'{Config.players}'):  # search in players directory
 				if user in dirs:
 					try:
-						with open(f'{Config.players}{user}/account.json', 'r') as f:
+						self.dlog(f"Opening {Config.players}{user}/account.json")
+						with open(f"{Config.players}{user}/account.json", 'r') as f:
 							account = json.load(f)
 							if account['passw_md5'] == passw_md5:
 								self.user = user
