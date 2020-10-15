@@ -311,10 +311,15 @@ class Server:
 				client.disconnect()
 
 	def kickip(self,ip):
+		o=[]
 		for conn in self.clients.keys():
 			client = self.clients[conn]
 			if client.ip==ip:
-				client.disconnect()
+				o.append(conn)
+		for conn in o:
+			client = self.clients[conn]
+			client.disconnect()
+			self.purgeclient(conn)
 
 	def ban(self,username):
 		self.kick(username)
