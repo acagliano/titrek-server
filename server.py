@@ -775,7 +775,10 @@ outputs:
 			pass
 		try:
 			j = [{"hull": {'level':1, 'file':'hull','modifiers':[]},"modules":[
+				{'level': 1, 'file': 'lifesupport', 'modifiers': []},
 				{'level': 1, 'file': 'core', 'modifiers': []},
+				{'level': 1, 'file': 'thruster', 'modifiers': []},
+				{'level': 1, 'file': 'engine', 'modifiers': []},
 				{'level': 1, 'file': 'phaser', 'modifiers': []},
 				]}
 			]
