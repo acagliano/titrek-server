@@ -1,0 +1,19 @@
+{
+	"module":[
+		{
+		"Type":"lifesupport",
+		"MaxHealth":100,
+		"WarnHealth":25,
+		"MaxPower":{
+			"Amount":1000,
+			"OverCharge":false
+		},
+		"techclass":1,
+		"techtype":3,
+		"health":100,
+		"status_flags":1,
+		"composition": []
+		"maxoccupancy":250,
+		}
+	]
+}
