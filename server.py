@@ -774,15 +774,12 @@ outputs:
 		except:
 			pass
 		try:
-			j = [{"hull": {'level':1, 'file':'hull','modifiers':[]},"modules":[
-				{'level': 1, 'file': 'lifesupport', 'modifiers': []},
-				{'level': 1, 'file': 'core', 'modifiers': []},
-				{'level': 1, 'file': 'thruster', 'modifiers': []},
-				{'level': 1, 'file': 'engine', 'modifiers': []},
-				{'level': 1, 'file': 'phaser', 'modifiers': []},
-				]}
-			]
-			self.data["ships"] = j
+			with open(f"{Config.modules}defaults.json","r") as f:
+				j=json.load(f)
+				self.data["ships"] = j
+			except IOError:
+				self.elog("Error reading default modules")
+				
 			with open(self.shipfile,"w") as f:
 				json.dump(self.data["ships"],f)
 		except IOError:
