@@ -777,13 +777,11 @@ outputs:
 			with open(f"{Config.modules}defaults.json","r") as f:
 				j=json.load(f)
 				self.data["ships"] = j
-			except IOError:
-				self.elog("Error reading default modules")
 				
 			with open(self.shipfile,"w") as f:
 				json.dump(self.data["ships"],f)
 		except IOError:
-			self.elog("Failed to write file!")
+			self.elog("File IO Error [create_new_game]!")
 		except:
 			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
 
