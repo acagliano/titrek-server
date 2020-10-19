@@ -17,7 +17,7 @@
 		"techtype":3,
 		"health":100,
 		"status_flags":1,
-		"composition": []
+		"composition": [],
 		"maxspeed":10000,
 		"maxaccel":1000
 		}
