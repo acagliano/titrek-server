@@ -1,0 +1,25 @@
+{
+	"module":[
+		{
+		"Type":"thruster",
+		"MaxHealth":100,
+		"WarnHealth":25,
+		"MaxPower":{
+			"Amount":1000,
+			"OverCharge":{
+				"Amount":1500,
+				"Time":30,
+				"HazardChance":0.1,
+				"HazardAction":"explosion"
+			}
+		},
+		"techclass":1,
+		"techtype":3,
+		"health":100,
+		"status_flags":1,
+		"composition": []
+		"maxspeed":10000,
+		"maxaccel":1000
+		}
+	]
+}
