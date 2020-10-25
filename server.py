@@ -603,7 +603,7 @@ class Client:
 						self.pos['vz']-=math.sin(R1)*G
 					elif data[0]==ControlCodes["MESSAGE"]:
 						if len(data[1:]) > 1:
-							msg = str(data[1:-1])
+							msg = ToUTF8(data[1:-1])
 							self.broadcast(f"{self.user}: {msg}")
 							self.log(f"{self.user}: {msg}")    # send a message to the server
 					elif data[0]==ControlCodes["FRAMEDATA_REQUEST"]:
