@@ -602,9 +602,10 @@ class Client:
 						self.pos['vy']+=math.sin(R1)*G
 						self.pos['vz']-=math.sin(R1)*G
 					elif data[0]==ControlCodes["MESSAGE"]:
-						msg = data[1:]
-						self.broadcast(f"{self.user}: {msg}")
-						self.log(f"{self.user}: {msg}")    # send a message to the server
+						if len(data[1:]) > 1:
+							msg = data[1:-1]
+							self.broadcast(f"{self.user}: {msg}")
+							self.log(f"{self.user}: {msg}")    # send a message to the server
 					elif data[0]==ControlCodes["FRAMEDATA_REQUEST"]:
 						out = []
 						R1 = FromSignedInt(data[1])*math.pi/128
