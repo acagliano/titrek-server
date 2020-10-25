@@ -298,6 +298,7 @@ class Server:
 			time.sleep(10)
 			for client in self.clients.keys():
 				self.clients[client].disconnect()
+				time.sleep(.05)
 			self.clients.clear()
 			self.online = False
 			self.writeinfo()
