@@ -36,6 +36,7 @@ ControlCodes = {
     "MODULE_INFO_REQUEST":21,
     "MODULE_STATE_CHANGE":22,
     "NEW_GAME_REQUEST":23,
+    "GET_ENGINE_MAXIMUMS":24,
     
     # File Streaming: 90 - 91
     "PRGMUPDATE":90,
