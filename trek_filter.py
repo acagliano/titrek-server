@@ -19,10 +19,15 @@ class TrekFilter:
         self.path=path
         self.log=log
         self.hitcount=hitcount
-        try:
-            os.makedirs(f"{self.path}")
-        except:
-            pass
+        for directory in [
+            f"{self.path}",
+            f"{self.path}checks/",
+            f"{self.path}actions/"
+            ]
+            try:
+                os.makedirs(f"{directory}")
+            except:
+                pass
         self.offenders=[]
         try:
             with open(f'{self.path}blacklist.txt', 'r') as f:
@@ -38,8 +43,8 @@ class TrekFilter:
                 {"check":"sanity","method":self.isSane,"failaction":self.drop_packet},
                 {"check":"overthreshold","method":self.overThresh,"failaction":self.blacklist}
             ]
-        checks=[self.isBlacklisted,self.isSane,self.overThresh]
-        actions=[self.refuse_connection,self.drop_packet,self.blacklist]
+        #checks=[self.isBlacklisted,self.isSane,self.overThresh]
+        #actions=[self.refuse_connection,self.drop_packet,self.blacklist]
     
     def savestate(self):
         try:
@@ -54,9 +59,9 @@ class TrekFilter:
     def filter(self,conn,addr,data):
         for r in rules:
             try:
-                if not r["method"] in self.checks:
+                if not method_exists('TrekFilter', f'{r["method"]}'):
                     raise Exception(f'Method {r["method"]} not implemented')
-                if not r["failaction"] in self.actions:
+                if not method_exists('TrekFilter', f'{r["failaction"]}'):
                     raise Exception(f'Method {r["failaction"]} not implemented')
                 response = r["method"](addr, data)
                 if not response:
