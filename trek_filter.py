@@ -47,7 +47,7 @@ class TrekFilter:
                 json.dump(self.blacklist,f)
             with open(f'{self.path}blacklist.txt', 'w+') as f:
                 for b in self.blacklist:
-					f.write(str(b)+"\n")
+                    f.write(str(b)+"\n")
         except:
             self.log(traceback.print_exc(limit=None, file=None, chain=True))
     
