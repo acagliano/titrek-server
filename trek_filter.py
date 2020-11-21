@@ -27,7 +27,7 @@ class TrekFilter:
             f"{self.path}",
             f"{self.path}checks/",
             f"{self.path}actions/"
-            ]
+            ]:
             try:
                 os.makedirs(f"{directory}")
             except:
