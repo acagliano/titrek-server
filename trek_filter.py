@@ -19,7 +19,10 @@ class TrekFilter:
         self.path=path
         self.log=log
         self.hitcount=hitcount
-        os.makedirs(f"{self.path}")
+        try:
+            os.makedirs(f"{self.path}")
+        except:
+            pass
         self.offenders=[]
         try:
             with open(f'{self.path}blacklist.txt', 'r') as f:
