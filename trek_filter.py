@@ -34,12 +34,12 @@ class TrekFilter:
                 self.rules = json.load(f)
         except:
             self.rules=[
-                {"check":"blacklist","method":self.isBlacklisted,"failaction":self.log_and_disconnect},
+                {"check":"blacklist","method":self.isBlacklisted,"failaction":self.refuse_connection},
                 {"check":"sanity","method":self.isSane,"failaction":self.drop_packet},
                 {"check":"overthreshold","method":self.overThresh,"failaction":self.blacklist}
             ]
         checks=[self.isBlacklisted,self.isSane,self.overThresh]
-        actions=[self.log_and_disconnect,self.drop_packet,self.blacklist]
+        actions=[self.refuse_connection,self.drop_packet,self.blacklist]
     
     def savestate(self):
         try:
@@ -52,20 +52,22 @@ class TrekFilter:
             self.log(traceback.print_exc(limit=None, file=None, chain=True))
     
     def filter(self,conn,addr,data):
-        try:
-            for r in rules:
+        for r in rules:
+            try:
                 if not r["method"] in self.checks:
                     raise Exception(f'Method {r["method"]} not implemented')
+                if not r["failaction"] in self.actions:
+                    raise Exception(f'Method {r["failaction"]} not implemented')
                 return = r["method"](addr, data)
                 if not return:
-                    if not r["failaction"] in self.actions:
-                        raise Exception(f'Method {r["failaction"]} not implemented')
                     data = r["failaction"](conn, addr, data)
                     if not data:
                         break
-            return data
-        except:
-            self.log(traceback.print_exc(limit=None, file=None, chain=True))
+            except:
+                self.log(traceback.print_exc(limit=None, file=None, chain=True))
+                continue
+        return data
+       
         
         
     def isBlacklisted(self, addr, data):
@@ -79,11 +81,11 @@ class TrekFilter:
     def isSane(self, addr, data):
         return
     
-    def log_and_disconnect(self, conn, addr):
+    def refuse_connection(self, conn, addr):
         ip, port = addr
         self.log(f'[FILTER] Connection logged to fail2ban')
         # append properly formatted fail2ban log
-        self.log(f'[FILTER] Connection closed')
+        self.log(f'[FILTER] Connection refused')
         conn.close()
         data=[]
         return data
