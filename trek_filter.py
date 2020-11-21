@@ -58,8 +58,8 @@ class TrekFilter:
                     raise Exception(f'Method {r["method"]} not implemented')
                 if not r["failaction"] in self.actions:
                     raise Exception(f'Method {r["failaction"]} not implemented')
-                return = r["method"](addr, data)
-                if not return:
+                response = r["method"](addr, data)
+                if not response:
                     data = r["failaction"](conn, addr, data)
                     if not data:
                         break
