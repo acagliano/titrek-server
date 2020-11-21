@@ -1,3 +1,15 @@
+# This file is the beginning of a packet filter module for the service
+# to provide more solid protection than a regex and a banlist
+# it has a series of rules that will be written to a file on the server,
+# much like your standard packet filter
+# "check" name of the test to be done
+# "method" the self.method to call to perform the check
+# "failaction" the action to take should the packet fail the check
+# Might add the ability to pass a format specifier to the filter, such that our sanity checks...
+# ... can know what type of data to expect in different packet segments
+
+# Not yet implemented, but this module will be designed as a class
+# that can be invoked optionally, should a user wish to provide it on their own server
 
 import os,json,traceback
 

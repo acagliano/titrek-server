@@ -1,5 +1,5 @@
 
-import os,json
+import os,json,traceback
 
 class Space:
 	path=""
