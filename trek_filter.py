@@ -14,11 +14,15 @@
 import os,json,traceback
 
 class TrekFilter:
-  
+    status=False
+    
     def __init__(self,path,log,hitcount):
+        # Filter settings
         self.path=path
         self.log=log
         self.hitcount=hitcount
+        
+        # Create directory structure
         for directory in [
             f"{self.path}",
             f"{self.path}checks/",
@@ -28,7 +32,9 @@ class TrekFilter:
                 os.makedirs(f"{directory}")
             except:
                 pass
-        self.offenders=[]
+
+    def start(self):
+        self.log("[FILTER] Starting...")
         try:
             with open(f'{self.path}blacklist.txt', 'r') as f:
                 self.blacklist = f.read().splitlines()
@@ -39,17 +45,23 @@ class TrekFilter:
                 self.rules = json.load(f)
         except:
             self.rules=[
-                {"check":"blacklist","method":self.isBlacklisted,"failaction":self.refuse_connection},
-                {"check":"sanity","method":self.isSane,"failaction":self.drop_packet},
-                {"check":"overthreshold","method":self.overThresh,"failaction":self.blacklist}
+                {"check":"blacklist","method":self.blacklisted,"failaction":self.refuse_connection},
+                {"check":"sanity","method":self.sanity,"failaction":self.drop_packet},
+                {"check":"threshold","method":self.threshold,"failaction":self.blacklist}
             ]
-        #checks=[self.isBlacklisted,self.isSane,self.overThresh]
-        #actions=[self.refuse_connection,self.drop_packet,self.blacklist]
-    
-    def savestate(self):
-        try:
             with open(f'{self.path}filter_rules.json', 'w+') as f:
-                json.dump(self.blacklist,f)
+                json.dump(self.rules,f)
+        TrekFilter.status=True
+        self.log("[FILTER] Packet filter enabled!")
+        
+    def stop(self):
+        self.log("[FILTER] Stopping...")
+        self.save_blacklist()
+        TrekFilter.status=False
+        self.log("[FILTER] Packet filter disabled!")
+    
+    def save_blacklist(self):
+        try:
             with open(f'{self.path}blacklist.txt', 'w+') as f:
                 for b in self.blacklist:
                     f.write(str(b)+"\n")
@@ -75,7 +87,7 @@ class TrekFilter:
        
         
         
-    def isBlacklisted(self, addr, data):
+    def blacklisted(self, addr, data):
         ip, port = addr
         if ip in self.blacklist:
             self.log(f'[FILTER] {ip} is blacklisted')
@@ -83,7 +95,7 @@ class TrekFilter:
         else
             return True
             
-    def isSane(self, addr, data):
+    def sanity(self, addr, data):
         return
     
     def refuse_connection(self, conn, addr):
