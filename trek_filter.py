@@ -86,11 +86,13 @@ class TrekFilter:
         self.log(f'[FILTER] Connection closed')
         conn.close()
         data=[]
+        return data
         
     def drop_packet(self, conn, addr):
         ip, port = addr
         self.log(f'[FILTER] Dropping packet')
         data=[]
+        return data
         
     
       
