@@ -1,8 +1,9 @@
-# This file is the beginning of a packet filter module for the service
-# to provide more solid protection than a regex and a banlist
-# it has a series of rules that will be written to a file on the server,
-# much like your standard packet filter
+# This file is the beginning of a self-contained, custom firewall
+# for the TI-Trek server. It uses a JSON rules file, containing
+# check names, methods, and actions.
+
 # "check" name of the test to be done
+#  -----(also the name of the file in which the method can be found)
 # "method" the self.method to call to perform the check
 # "failaction" the action to take should the packet fail the check
 # Might add the ability to pass a format specifier to the filter, such that our sanity checks...
@@ -69,6 +70,8 @@ class TrekFilter:
             self.log(traceback.print_exc(limit=None, file=None, chain=True))
     
     def filter(self,conn,addr,data):
+        if not TrekFilter.status:
+            return
         for r in rules:
             try:
                 if not method_exists('TrekFilter', f'{r["method"]}'):
@@ -83,7 +86,7 @@ class TrekFilter:
             except:
                 self.log(traceback.print_exc(limit=None, file=None, chain=True))
                 continue
-        return data
+        return
        
         
         
@@ -105,13 +108,13 @@ class TrekFilter:
         self.log(f'[FILTER] Connection refused')
         conn.close()
         data=[]
-        return data
+        return
         
     def drop_packet(self, conn, addr):
         ip, port = addr
         self.log(f'[FILTER] Dropping packet')
         data=[]
-        return data
+        return
         
     
       
