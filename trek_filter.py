@@ -46,9 +46,9 @@ class TrekFilter:
                 self.rules = json.load(f)
         except:
             self.rules=[
-                {"check":"blacklist","method":self.blacklisted,"failaction":self.refuse_connection},
-                {"check":"sanity","method":self.sanity,"failaction":self.drop_packet},
-                {"check":"threshold","method":self.threshold,"failaction":self.blacklist}
+                {"check":"blacklist","method":self.blacklisted,"failaction":[self.refuse_connection]},
+                {"check":"sanity","method":self.sanity,"failaction":[self.set_offender,self.drop_packet]},
+                {"check":"threshold","method":self.threshold,"failaction":[self.blacklist_ip]}
             ]
             with open(f'{self.path}filter_rules.json', 'w+') as f:
                 json.dump(self.rules,f)
@@ -69,8 +69,10 @@ class TrekFilter:
         except:
             self.log(traceback.print_exc(limit=None, file=None, chain=True))
     
-    def filter(self,conn,addr,data):
+    def filter(self,conn,addr,data,trusted=False):
         if not TrekFilter.status:
+            return
+        if trusted:
             return
         for r in rules:
             try:
@@ -79,8 +81,9 @@ class TrekFilter:
                 if not method_exists('TrekFilter', f'{r["failaction"]}'):
                     raise Exception(f'Method {r["failaction"]} not implemented')
                 response = r["method"](addr, data)
-                if not response:
-                    data = r["failaction"](conn, addr, data)
+                if response:
+                    for action in r["failaction"]:
+                        action(conn, addr, data)
                     if not data:
                         break
             except:
@@ -94,12 +97,20 @@ class TrekFilter:
         ip, port = addr
         if ip in self.blacklist:
             self.log(f'[FILTER] {ip} is blacklisted')
-            return False
-        else
             return True
+        else
+            return False
             
     def sanity(self, addr, data):
         return
+        
+    def threshhold(self, addr, data):
+        ip, port = addr
+        if ip in self.offenders.keys():
+            self.offenders[ip]+=1
+            if self.offenders[ip]>=self.hitcount:
+                return True
+        return False
     
     def refuse_connection(self, conn, addr):
         ip, port = addr
@@ -116,8 +127,17 @@ class TrekFilter:
         data=[]
         return
         
-    
-      
+    def blacklist_ip(self, conn, addr):
+        ip, port = addr
+        self.blacklist.append(ip)
+        conn.close()
+        data=[]
+        return
+        
+    def set_offender(self, conn, addr):
+        ip, port = addr
+        self.offenders.update({f'{ip}':1})
+        return
     
     
   
