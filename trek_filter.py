@@ -78,11 +78,11 @@ class TrekFilter:
             try:
                 if not method_exists('TrekFilter', f'{r["method"]}'):
                     raise Exception(f'Method {r["method"]} not implemented')
-                if not method_exists('TrekFilter', f'{r["failaction"]}'):
-                    raise Exception(f'Method {r["failaction"]} not implemented')
                 response = r["method"](addr, data)
                 if response:
                     for action in r["failaction"]:
+                        if not method_exists('TrekFilter', action):
+                            raise Exception(f'Method {action} not implemented')
                         action(conn, addr, data)
                     if not data:
                         break
