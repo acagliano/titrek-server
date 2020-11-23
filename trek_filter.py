@@ -71,11 +71,11 @@ class TrekFilter:
         except:
             self.log(traceback.print_exc(limit=None, file=None, chain=True))
             
-    def loadModule(self, fname, conn, addr, data):
+    def loadModule(self, fname):
         spec = importlib.util.spec_from_file_location("*", fname)
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        return module.main(conn, addr, data)
+        return module.main
     
     def filter(self,conn,addr,data,trusted=False):
         if not TrekFilter.status:
@@ -88,7 +88,7 @@ class TrekFilter:
                     response = r["method"](addr, data)
                 else:
                     try:
-                        response = self.loadModule(f'{self.modules}{r["method"]}.py', conn, addr, data)
+                        response = self.loadModule(f'{self.modules}{r["method"]}.py')(conn, addr, data)
                     except:
                         raise Exception(f'Method {r["method"]} not implemented')
                         continue
@@ -98,7 +98,7 @@ class TrekFilter:
                             action(conn, addr, data)
                         else:
                             try:
-                                self.loadModule(f'{self.actions}{action}.py', conn, addr, data)
+                                self.loadModule(f'{self.actions}{action}.py')(conn, addr, data)
                             except:
                                 raise Exception(f'Method {action} not implemented')
                                 continue
