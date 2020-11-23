@@ -22,15 +22,17 @@ class TrekFilter:
         self.path=path
         self.log=log
         self.hitcount=hitcount
+        self.modules=f"{self.path}/modules/"
+        self.actions=f"{self.path}/actions/"
         
         # Create directory structure
         for directory in [
             f"{self.path}",
-            f"{self.path}checks/",
-            f"{self.path}actions/"
+            f"{self.modules}",
+            f"{self.actions}"
             ]:
             try:
-                os.makedirs(f"{directory}")
+                os.makedirs(directory)
             except:
                 pass
 
@@ -68,6 +70,12 @@ class TrekFilter:
                     f.write(str(b)+"\n")
         except:
             self.log(traceback.print_exc(limit=None, file=None, chain=True))
+            
+    def loadModule(self, fname, conn, addr, data):
+        spec = importlib.util.spec_from_file_location("*", fname)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module.main(conn, addr, data)
     
     def filter(self,conn,addr,data,trusted=False):
         if not TrekFilter.status:
@@ -76,14 +84,24 @@ class TrekFilter:
             return
         for r in rules:
             try:
-                if not method_exists('TrekFilter', f'{r["method"]}'):
-                    raise Exception(f'Method {r["method"]} not implemented')
-                response = r["method"](addr, data)
+                if method_exists('TrekFilter', r["method"]):
+                    response = r["method"](addr, data)
+                else:
+                    try:
+                        response = self.loadModule(f'{self.modules}{r["method"]}.py', conn, addr, data)
+                    except:
+                        raise Exception(f'Method {r["method"]} not implemented')
+                        continue
                 if response:
                     for action in r["failaction"]:
-                        if not method_exists('TrekFilter', action):
-                            raise Exception(f'Method {action} not implemented')
-                        action(conn, addr, data)
+                        if method_exists('TrekFilter', action):
+                            action(conn, addr, data)
+                        else:
+                            try:
+                                self.loadModule(f'{self.actions}{action}.py', conn, addr, data)
+                            except:
+                                raise Exception(f'Method {action} not implemented')
+                                continue
                     if not data:
                         break
             except:
