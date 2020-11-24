@@ -125,7 +125,6 @@ class TrekFilter:
     def threshhold(self, addr, data):
         ip, port = addr
         if ip in self.offenders.keys():
-            self.offenders[ip]+=1
             if self.offenders[ip]>=self.hitcount:
                 return True
         return False
@@ -154,7 +153,10 @@ class TrekFilter:
         
     def set_offender(self, conn, addr):
         ip, port = addr
-        self.offenders.update({f'{ip}':1})
+        if ip in self.offenders.keys():
+            self.offenders[ip]+=1
+        else:
+            self.offenders.update({f'{ip}':1})
         return
     
     
