@@ -13,6 +13,7 @@
 # that can be invoked optionally, should a user wish to provide it on their own server
 
 import os,json,traceback
+from trek_codes import *
 
 class TrekFilter:
     status=False
@@ -49,6 +50,7 @@ class TrekFilter:
         except:
             self.rules=[
                 {"check":"blacklist","method":self.blacklisted,"failaction":[self.refuse_connection]},
+                {"check":"order","method":self.packet_order,"failaction":[self.set_offender,self.drop_packet]},
                 {"check":"sanity","method":self.sanity,"failaction":[self.set_offender,self.drop_packet]},
                 {"check":"threshold","method":self.threshold,"failaction":[self.blacklist_ip]}
             ]
@@ -108,8 +110,11 @@ class TrekFilter:
                 self.log(traceback.print_exc(limit=None, file=None, chain=True))
                 continue
         return
-       
-        
+      
+    def packet_order(self, addr, data):
+        if not data[0]<9:
+            return True
+        return False
         
     def blacklisted(self, addr, data):
         ip, port = addr
