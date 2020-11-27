@@ -15,6 +15,7 @@ from trek_generate import *
 from trek_space import *
 from trek_vec3 import *
 from trek_modules import loadModule
+from trek_util import *
 
 class Config:
 	port = None
@@ -66,24 +67,6 @@ class Config:
 		except:
 			print(traceback.print_exc(limit=None, file=None, chain=True))
 
-def ToUTF8(dt):
-	if b"\0" in dt:
-		return str(bytes(dt[:dt.find(b"\0")]),'UTF-8')
-	return str(bytes(dt),'UTF-8')
-
-def FromSignedInt(n):
-	if n&0x80:
-		return 0x80-n
-	else:
-		return n
-
-def ToSignedByte(n):
-	if n<0:
-		while abs(n)<-0x80: n+=0x80
-		return 0x100+n%0x80
-	else:
-		while abs(n)>0x80: n-=0x80
-		return n%0x80
 
 class Server:
 	def __init__(self):
@@ -474,10 +457,12 @@ class Client:
 				j = json.load(f)
 		except IOError:
 			self.log("player data not found - initializing")
-			j = {"x":0,"y":0,"z":0,"vx":0,"vy":0,"vz":0}
+			j = {"x":0,"y":0,"z":0,"vx":0,"vy":0,"vz":0,"speed":0,"acceleration":0}
 		except:
 			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
 		self.data["player"] = j
+		for key in ["x","y","z","vx","vy","vz","speed","acceleration"]:
+			if key not in j.keys(): j[key]=0
 		if "karma" in self.data["player"].keys():
 			self.karma = self.data["player"]["karma"]
 		try:
@@ -710,6 +695,16 @@ class Client:
 						self.send(bytes([ControlCodes["LOAD_SHIP"]]+odata))
 					elif data[0]==ControlCodes["NEW_GAME_REQUEST"]:
 						self.create_new_game()
+					elif data[0]==ControlCodes["GET_ENGINE_MAXIMUMS"]:
+						thruster = self.findModuleOfType("thruster")
+						engine = self.findModuleOfType("engine")
+						self.send(
+							i24(
+								thruster["maxspeed"], thruster["maxaccel"], thruster["curspeed"],
+								engine["maxspeed"], engine["maxaccel"], engine["curspeed"],
+								0, 0, 0
+							)
+						)
 				else:
 					self.badpacket()
 			except socket.error:
@@ -765,6 +760,14 @@ outputs:
 			with open(sprite+".bin",'rb'):
 				self.sprite_ids[sprite] = len(self.sprite_ids.keys())
 				self.sprite_data[sprite] = list(f.read())
+
+	def findModuleOfType(self,Type):
+		modules = self.data["ships"][0]["modules"]
+		for ml in modules:
+			for m in ml["module"]:
+				if m["Type"]==Type:
+					return m
+
 
 	def fromControlCode(self,code):
 		if code in ControlCodes.values():
