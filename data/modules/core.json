@@ -2,6 +2,7 @@
 	"module":[
 		{
 		"Type":"core",
+		"Name":"PwrCore",
 		"MaxHealth":100,
 		"WarnHealth":25,
 		"MaxPower":{
