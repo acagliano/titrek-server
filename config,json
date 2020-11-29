@@ -1,0 +1,15 @@
+{
+  "server-settings":{
+    "port":"51701",
+	  "ssl":false,
+    "debug":true,
+    "min-client":[0, 0, 96],
+    "idle_timeout":600,
+    "enable-filter":false,
+  }
+  "paths":{
+    "ssl":"ssl/"
+    "gamedata":"data/"
+    "filter":"filter/"
+  }
+}
