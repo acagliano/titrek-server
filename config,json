@@ -1,6 +1,6 @@
 {
   "server-settings":{
-    "port":"51701",
+    "port":51701,
     "enable-ssl":false,
     "enable-filter":false,
     "debug":true,
