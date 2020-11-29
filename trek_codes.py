@@ -78,6 +78,6 @@ ModuleIds = {
     "core":1,
     "thruster":2,
     "engine":3,
-    "phaser":9,
+    "weapon_beam":9,
     "hull":0xf0
 }
