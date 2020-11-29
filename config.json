@@ -2,7 +2,7 @@
   "settings":{
     "port":51701,
     "enable-ssl":false,
-    "enable-filter":false,
+    "enable-filter":true,
     "debug":true,
     "min-client":[0, 0, 96],
     "idle_timeout":600
