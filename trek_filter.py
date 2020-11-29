@@ -107,9 +107,8 @@ class TrekFilter:
                                 continue
                     if not data:
                         break
-            except:
-                self.log(traceback.print_exc(limit=None, file=None, chain=True))
-                continue
+        except:
+            self.log(traceback.print_exc(limit=None, file=None, chain=True))
         return
       
     def packet_order(self, conn, addr, data):
