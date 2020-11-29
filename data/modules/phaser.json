@@ -1,7 +1,7 @@
 {
 	"module":[
 		{
-		"Type":"weapon",
+		"Type":"weapon_beam",
 		"Name":"Phaser",
 		"WeaponType":"heat",
 		"MaxHealth":75,
