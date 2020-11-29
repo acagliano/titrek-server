@@ -699,7 +699,7 @@ class Client:
 					elif data[0]==ControlCodes["GET_ENGINE_MAXIMUMS"]:
 						thruster = self.findModuleOfType("thruster")
 						engine = self.findModuleOfType("engine")
-						self.send([ControlCodes['GET_ENGINE_MAXIMUMS']]
+						self.send([ControlCodes['GET_ENGINE_MAXIMUMS']] +
 							i24(
 								thruster["maxspeed"], thruster["maxaccel"], thruster["curspeed"],
 								engine["maxspeed"], engine["maxaccel"], engine["curspeed"],
