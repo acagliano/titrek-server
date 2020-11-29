@@ -697,22 +697,17 @@ class Client:
 					elif data[0]==ControlCodes["NEW_GAME_REQUEST"]:
 						self.create_new_game()
 					elif data[0]==ControlCodes["GET_ENGINE_MAXIMUMS"]:
-						try:
-							thruster = self.findModuleOfType("thruster")
-							if(thruster==None):
-								raise Exception(f'Thruster not found!')
-							engine = self.findModuleOfType("engine")
-							if(engine==None):
-								raise Exception(f'Engine not found!')
-							self.send(
-								i24(
-									thruster["maxspeed"], thruster["maxaccel"], thruster["curspeed"],
-									engine["maxspeed"], engine["maxaccel"], engine["curspeed"],
-									0, 0, 0
-								)
+						thruster = self.findModuleOfType("thruster")
+						engine = self.findModuleOfType("engine")
+						self.log(engine)
+						self.log(thruster)
+						self.send(
+							i24(
+								thruster["maxspeed"], thruster["maxaccel"], thruster["curspeed"],
+								engine["maxspeed"], engine["maxaccel"], engine["curspeed"],
+								0, 0, 0
 							)
-						except:
-							self.elog(traceback.print_exc(limit=None, file=None, chain=True))
+						)
 
 				else:
 					self.badpacket()
