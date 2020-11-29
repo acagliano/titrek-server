@@ -24,9 +24,11 @@ class Config:
 	whitelist = []
 	packet_debug = False
 	use_ssl = False
+	enable_filter = False
 	ssl_path = ""
 	inactive_timeout = 600
 	gamedata = "data/"
+	filter_path = "filter/"
 	logger = logging.getLogger('titrek.server')
 	log_file = "logs/server.log"
 	log_archive = f"logs/{datetime.now().year}-{datetime.now().month}_server.log.gz"
@@ -52,17 +54,22 @@ class Config:
 		try:
 			with open(f'config.json', 'r') as f:
 				config = json.load(f)
-				Config.port = int(config["port"])
-				Config.packet_debug = config["debug"]
-				Config.use_ssl = config["ssl"]
-				Config.inactive_timeout = config["idle_timeout"]
-				Config.min_client = config["min-client"]
+				settings=config["server-settings"]
+				paths=config["paths"]
+				Config.port = int(settings["port"])
+				Config.packet_debug = settings["debug"]
+				Config.use_ssl = settings["enable-ssl"]
+				Config.enable_filter = settings["enable-filter"]
+				Config.inactive_timeout = settings["idle_timeout"]
+				Config.min_client = settings["min-client"]
 				if Config.use_ssl:
-					Config.ssl_path = config["ssl-path"]
+					Config.ssl_path = paths["ssl-path"]
 					context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-					context.load_cert_chain(f'{SSL_PATH}/fullchain.pem', f'{SSL_PATH}/privkey.pem')
-				if config["gamedata"]:
-					Config.gamedata = config["gamedata"]
+					context.load_cert_chain(f'{Config.ssl_path}/fullchain.pem', f'{Config.ssl_path}/privkey.pem')
+				if paths["gamedata"]:
+					Config.gamedata = paths["gamedata"]
+				if Config.enable_filter:
+					Config.filter_path=paths["filter"]
 				self.setpaths()
 		except:
 			print(traceback.print_exc(limit=None, file=None, chain=True))
@@ -109,6 +116,9 @@ class Server:
 			self.writeinfo()
 			self.threads = [threading.Thread(target=self.autoSaveHandler)]
 			self.threads[0].start()
+			if Config.enable_filter:
+				self.fw=TrekFilter(Config.filter_path, self.log, 5)
+				self.fw.start()
 			if Config.use_ssl:
 				self.main_thread = threading.Thread(target=self.main_ssl)
 			else:
@@ -278,6 +288,7 @@ class Server:
 			self.log("Shutting down.")
 			self.space.save()
 			self.broadcast(f"server shutting down in 10s")
+			self.fw.stop()
 			time.sleep(10)
 			for client in self.clients.keys():
 				self.clients[client].disconnect()
@@ -441,6 +452,7 @@ class Client:
 		Client.count += 1
 		self.server = server
 		self.log=server.log
+		self.fw=server.fw
 		self.elog = server.elog
 		self.dlog = server.dlog
 		self.broadcast = server.broadcast
@@ -548,8 +560,7 @@ class Client:
 				packet_string = "".join([s.ljust(5," ") for s in [chr(c) if c in range(0x20,0x80) else "0x0"+hex(c)[2] if c<0x10 else hex(c) for c in data]])
 				self.dlog(f"recieved packet: {packet_string}")
 			try:
-				if self.karma<100:
-					self.karma+=1
+				self.fw(self.conn, self.addr, data, self.logged_in)
 				if data[0]==ControlCodes["LOGIN"]:
 					self.log_in(data)
 				elif data[0]==ControlCodes["REGISTER"]:
