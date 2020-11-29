@@ -154,7 +154,7 @@ class TrekFilter:
         ip, port = addr
         self.log(f'[Filter] Dropping packet')
         msg="Packet dropped by server: Invalid"
-        conn.send([ControlCodes["MESSAGE"]]+list(bytes(msg+'\0', 'UTF-8'))
+        conn.send([ControlCodes["MESSAGE"]]+list(bytes(msg+'\0', 'UTF-8')))
         data=[]
         return
         
