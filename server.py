@@ -689,7 +689,7 @@ class Client:
 						for i in range(15):
 							if i<len(self.data["ships"][0]['modules']):
 								m = self.data["ships"][0]['modules'][i]
-								odata.extend(bytes(self.load_shipmodule(m)))
+								odata.extend(self.load_shipmodule(m))
 							else:
 								padded_string=PaddedString("", 9, chr(0))+"\0"
 								odata.extend([ord(c) for c in padded_string]+[0,0,0,0])
