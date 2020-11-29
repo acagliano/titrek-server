@@ -6,7 +6,7 @@
     "debug":true,
     "min-client":[0, 0, 96],
     "idle_timeout":600
-  }
+  },
   "paths":{
     "ssl":"ssl/"
     "gamedata":"data/"
