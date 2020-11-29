@@ -692,7 +692,7 @@ class Client:
 								odata.extend(self.load_shipmodule(m))
 							else:
 								padded_string=PaddedString("", 9, chr(0))+"\0"
-								odata.extend([bytes(padded_string, 'UTF-8')),0,0,0,0])
+								odata.extend([bytes(padded_string, 'UTF-8'),0,0,0,0])
 						self.send(bytes([ControlCodes["LOAD_SHIP"]]+odata))
 					elif data[0]==ControlCodes["NEW_GAME_REQUEST"]:
 						self.create_new_game()
