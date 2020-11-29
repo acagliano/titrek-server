@@ -122,7 +122,7 @@ class TrekFilter:
         if ip in self.blacklist:
             self.log(f'[Filter][blacklist] Failed for {ip}')
             return True
-        else
+        else:
             return False
             
     def sanity(self, addr, data):
