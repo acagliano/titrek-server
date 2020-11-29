@@ -80,13 +80,14 @@ class TrekFilter:
         return module.main
     
     def filter(self,conn,addr,data,trusted=False):
-        if not TrekFilter.status:
-            return
-        if trusted:
-            return
-        for r in self.rules:
-            try:
-                response = getattr(self,r["method"])(addr, data)
+        try:
+            if not TrekFilter.status:
+                return
+            if trusted:
+                return
+            for r in self.rules:
+                try:
+                    response = getattr(self,r["method"])(addr, data)
                 except AttributeError:
                     try:
                         response = getattr(self,self.loadModule(f'{self.modules}{r["method"]}.py'))(conn, addr, data)
