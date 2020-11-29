@@ -561,7 +561,7 @@ class Client:
 				packet_string = "".join([s.ljust(5," ") for s in [chr(c) if c in range(0x20,0x80) else "0x0"+hex(c)[2] if c<0x10 else hex(c) for c in data]])
 				self.dlog(f"recieved packet: {packet_string}")
 			try:
-				self.fw(self.conn, self.addr, data, self.logged_in)
+				self.fw.filter(self.conn, self.addr, data, self.logged_in)
 				if data[0]==ControlCodes["LOGIN"]:
 					self.log_in(data)
 				elif data[0]==ControlCodes["REGISTER"]:
