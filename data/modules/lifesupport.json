@@ -14,7 +14,7 @@
 		"health":100,
 		"status_flags":1,
 		"composition": [],
-		"maxoccupancy":250,
+		"maxoccupancy":250
 		}
 	]
 }
