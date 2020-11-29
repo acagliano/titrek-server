@@ -8,8 +8,8 @@
     "idle_timeout":600
   },
   "paths":{
-    "ssl":"ssl/"
-    "gamedata":"data/"
+    "ssl":"ssl/",
+    "gamedata":"data/",
     "filter":"filter/"
   }
 }
