@@ -54,7 +54,6 @@ class Config:
 		try:
 			with open(f'config.json', 'r') as f:
 				config = json.load(f)
-				print(config)
 				settings=config["settings"]
 				paths=config["paths"]
 				Config.port = int(settings["port"])
