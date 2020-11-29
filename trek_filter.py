@@ -23,8 +23,8 @@ class TrekFilter:
         self.path=path
         self.log=log
         self.hitcount=hitcount
-        self.modules=f"{self.path}/modules/"
-        self.actions=f"{self.path}/actions/"
+        self.modules=f"{self.path}modules/"
+        self.actions=f"{self.path}actions/"
         
         # Create directory structure
         for directory in [
@@ -47,7 +47,7 @@ class TrekFilter:
         try:
             with open(f'{self.path}filter_rules.json', 'r') as f:
                 self.rules = json.load(f)
-        except:
+        except IOError:
             self.rules=[
                 {"check":"blacklist","method":self.blacklisted,"failaction":[self.refuse_connection]},
                 {"check":"order","method":self.packet_order,"failaction":[self.set_offender,self.drop_packet_no_response]},
