@@ -86,22 +86,22 @@ class TrekFilter:
             return
         for r in self.rules:
             try:
-                if method_exists('TrekFilter', r["method"]):
-                    response = getattr(self,r["method"])(addr, data)
-                else:
+                response = getattr(self,r["method"])(addr, data)
+                except AttributeError:
                     try:
                         response = getattr(self,self.loadModule(f'{self.modules}{r["method"]}.py'))(conn, addr, data)
-                    except:
+                        pass
+                    except AttributeError:
                         raise Exception(f'Method {r["method"]} not implemented')
-                        continue
                 if response:
                     for action in r["failaction"]:
-                        if method_exists('TrekFilter', action):
-                            action(conn, addr, data)
-                        else:
+                        try:
+                            getattr(self, action)(conn, addr, data)
+                        except AttributeError:
                             try:
                                 getattr(self,self.loadModule(f'{self.actions}{action}.py'))(conn, addr, data)
-                            except:
+                                pass
+                            except AttributeError:
                                 raise Exception(f'Method {action} not implemented')
                                 continue
                     if not data:
