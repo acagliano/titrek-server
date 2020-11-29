@@ -49,10 +49,10 @@ class TrekFilter:
                 self.rules = json.load(f)
         except IOError:
             self.rules=[
-                {"check":"blacklist","method":self.blacklisted,"failaction":[self.refuse_connection]},
-                {"check":"order","method":self.packet_order,"failaction":[self.set_offender,self.drop_packet_no_response]},
-                {"check":"sanity","method":self.sanity,"failaction":[self.set_offender,self.drop_packet_response]},
-                {"check":"threshold","method":self.threshhold,"failaction":[self.blacklist_ip]}
+                {"check":"blacklist","method":"blacklisted","failaction":["refuse_connection"]},
+                {"check":"order","method":"packet_order","failaction":["set_offender","drop_packet_no_response"]},
+                {"check":"sanity","method":"sanity","failaction":["set_offender","drop_packet_response"]},
+                {"check":"threshold","method":"threshhold","failaction":["blacklist_ip"]}
             ]
             with open(f'{self.path}filter_rules.json', 'w+') as f:
                 json.dump(self.rules,f)
@@ -87,10 +87,10 @@ class TrekFilter:
         for r in rules:
             try:
                 if method_exists('TrekFilter', r["method"]):
-                    response = r["method"](addr, data)
+                    response = getattr(self,r["method"])(addr, data)
                 else:
                     try:
-                        response = self.loadModule(f'{self.modules}{r["method"]}.py')(conn, addr, data)
+                        response = getattr(self,self.loadModule(f'{self.modules}{r["method"]}.py'))(conn, addr, data)
                     except:
                         raise Exception(f'Method {r["method"]} not implemented')
                         continue
@@ -100,7 +100,7 @@ class TrekFilter:
                             action(conn, addr, data)
                         else:
                             try:
-                                self.loadModule(f'{self.actions}{action}.py')(conn, addr, data)
+                                getattr(self,self.loadModule(f'{self.actions}{action}.py'))(conn, addr, data)
                             except:
                                 raise Exception(f'Method {action} not implemented')
                                 continue
