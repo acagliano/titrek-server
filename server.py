@@ -692,7 +692,7 @@ class Client:
 								odata.extend(self.load_shipmodule(m))
 							else:
 								padded_string=PaddedString("", 9, chr(0))+"\0"
-								odata.extend([list(bytes(padded_string, 'UTF-8')),0,0,0,0])
+								odata.extend([bytes(padded_string, 'UTF-8')),0,0,0,0])
 						self.send(bytes([ControlCodes["LOAD_SHIP"]]+odata))
 					elif data[0]==ControlCodes["NEW_GAME_REQUEST"]:
 						self.create_new_game()
@@ -717,7 +717,7 @@ class Client:
 		
 	def load_shipmodule(self,m):
 		padded_string=PaddedString(m["Name"], 9, chr(0))+"\0"
-		return [list(bytes(padded_string, 'UTF-8')), m["techclass"], m["techtype"], m["health"], m["status_flags"]]
+		return [bytes(padded_string, 'UTF-8'), m["techclass"], m["techtype"], m["health"], m["status_flags"]]
 		
 	def badpacket(self):
 		try:
