@@ -717,7 +717,7 @@ class Client:
 		
 	def load_shipmodule(self,m):
 		padded_string=PaddedString(m["Name"], 9, chr(0))+"\0"
-		return [ord(c) for c in padded_string]+[m["techclass"], m["techtype"], m["health"], m["status_flags"]]
+		return [ord(c) for c in padded_string]+[m["techclass"], ModuleIds[m["Type"]], m["health"], m["status_flags"]]
 		
 	def badpacket(self):
 		try:
