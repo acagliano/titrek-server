@@ -420,6 +420,13 @@ class Server:
 					self.log("Restoring from backup...")
 					self.restoreAll(line[1])
 					self.log("Restored.")
+				elif line[0]=="filter":
+					if line[1]=="start":
+						self.fw.start()
+					elif line[1]=="stop":
+						self.fw.stop()
+					else:
+						self.log("filter stop|start")
 				elif line[0]=="list":
 					self.log("Connected clients:")
 					if len(self.clients):
