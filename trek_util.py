@@ -67,6 +67,12 @@ def u8(*args):
 		o.append(int(arg)&0xFF)
 	return o
 
+def PaddedString(s, amt, char=" "):
+	if len(s)>=amt:
+		return s[:amt]
+	else:
+		return s.ljust(amt, char)
+
 if __name__=='__main__':
 	print("ToUTF8 test:",ToUTF8([0x41,0x42,0x43,0x44,0x45,0x00]))
 	print("FromSignedInt test:",FromSignedInt(0x7F),FromSignedInt(0xFF),FromSignedInt(0x01),FromSignedInt(0x80))
@@ -78,4 +84,5 @@ if __name__=='__main__':
 	print("u16 test:", i16(0,20,65535,33))
 	print("i8 test:", i8(0,2,7,123))
 	print("u8 test:", u8(0,2,7,123))
+	print("string padding test:", PaddedString("Hello World!", 20),":)")
 
