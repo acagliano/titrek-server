@@ -693,7 +693,7 @@ class Client:
 							else:
 								padded_string=PaddedString("", 9, chr(0))+"\0"
 								odata.extend(bytes(list(padded_string)+[0,0,0,0]))
-						self.send(bytes([ControlCodes["LOAD_SHIP"]])+odata])
+						self.send(bytes([ControlCodes["LOAD_SHIP"]])+odata)
 					elif data[0]==ControlCodes["NEW_GAME_REQUEST"]:
 						self.create_new_game()
 					elif data[0]==ControlCodes["GET_ENGINE_MAXIMUMS"]:
