@@ -1,11 +1,11 @@
 {
   "server-settings":{
     "port":"51701",
-	  "ssl":false,
+    "enable-ssl":false,
+    "enable-filter":false,
     "debug":true,
     "min-client":[0, 0, 96],
-    "idle_timeout":600,
-    "enable-filter":false,
+    "idle_timeout":600
   }
   "paths":{
     "ssl":"ssl/"
