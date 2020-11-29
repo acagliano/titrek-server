@@ -17,6 +17,7 @@ from trek_codes import *
 
 class TrekFilter:
     status=False
+    offenders=[]
     
     def __init__(self,path,log,hitcount):
         # Filter settings
