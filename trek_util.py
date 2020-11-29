@@ -20,9 +20,9 @@ def i24(*args):
 	o=[]
 	for arg in args:
 		if int(arg)>0:
-			o.append(int(arg).to_bytes(3,'little'))
+			o.extend(list(int(arg).to_bytes(3,'little')))
 		else:
-			o.append((0-abs(int(arg))&0x7FFFFF).to_bytes(3,'little'))
+			o.extend(list((0-abs(int(arg))&0x7FFFFF).to_bytes(3,'little')))
 	return o
 
 def u24(*args):
@@ -30,16 +30,16 @@ def u24(*args):
 	for arg in args:
 		if int(arg)<0: arg = abs(int(arg))
 		else: arg = int(arg)
-		o.append(int(arg).to_bytes(3,'little'))
+		o.extend(list(int(arg).to_bytes(3,'little')))
 	return o
 
 def i16(*args):
 	o=[]
 	for arg in args:
 		if int(arg)>0:
-			o.append(int(arg).to_bytes(2,'little'))
+			o.extend(list(int(arg).to_bytes(2,'little')))
 		else:
-			o.append((0-abs(int(arg))&0x7FFF).to_bytes(2,'little'))
+			o.extend(list((0-abs(int(arg))&0x7FFF).to_bytes(2,'little')))
 	return o
 
 def u16(*args):
@@ -47,7 +47,7 @@ def u16(*args):
 	for arg in args:
 		if int(arg)<0: arg = abs(int(arg))
 		else: arg = int(arg)
-		o.append(int(arg).to_bytes(2,'little'))
+		o.extend(list(int(arg).to_bytes(2,'little')))
 	return o
 
 def i8(*args):
