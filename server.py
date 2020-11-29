@@ -689,11 +689,11 @@ class Client:
 						for i in range(15):
 							if i<len(self.data["ships"][0]['modules']):
 								m = self.data["ships"][0]['modules'][i]
-								odata.extend(self.load_shipmodule(m))
+								odata.extend(bytes(self.load_shipmodule(m)))
 							else:
 								padded_string=PaddedString("", 9, chr(0))+"\0"
-								odata.extend(list(padded_string)+[0,0,0,0])
-						self.send(bytes([ControlCodes["LOAD_SHIP"]+odata]))
+								odata.extend(bytes(list(padded_string)+[0,0,0,0]))
+						self.send(bytes([ControlCodes["LOAD_SHIP"]]+odata])
 					elif data[0]==ControlCodes["NEW_GAME_REQUEST"]:
 						self.create_new_game()
 					elif data[0]==ControlCodes["GET_ENGINE_MAXIMUMS"]:
