@@ -12,7 +12,7 @@
 # Not yet implemented, but this module will be designed as a class
 # that can be invoked optionally, should a user wish to provide it on their own server
 
-import os,json,traceback
+import os,json,traceback,importlib
 from trek_codes import *
 
 class TrekFilter:
