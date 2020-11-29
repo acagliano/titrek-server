@@ -19,6 +19,7 @@
 		"health":100,
 		"status_flags":1,
 		"composition": [],
+		"curspeed":0,
 		"maxspeed":10000,
 		"maxaccel":1000
 		}
