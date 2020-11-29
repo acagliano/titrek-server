@@ -716,8 +716,8 @@ class Client:
 		server.purgeclient(self.conn)
 		
 	def load_shipmodule(self,m):
-		padded_string=PaddedString(m['Name'], 9, chr(0))+"\0"
-		return [padded_string, m['techclass'], m['techtype'], m['health'], m['status_flags']]
+		padded_string=PaddedString(m["Name"], 9, chr(0))+"\0"
+		return [padded_string, m["techclass"], m["techtype"], m["health"], m["status_flags"]]
 		
 	def badpacket(self):
 		try:
