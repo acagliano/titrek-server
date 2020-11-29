@@ -767,10 +767,9 @@ outputs:
 
 	def findModuleOfType(self,Type):
 		modules = self.data["ships"][0]["modules"]
-		for ml in modules:
-			for m in ml["module"]:
-				if m["Type"]==Type:
-					return m
+		for m in modules:
+			if m["Type"]==Type:
+			return m
 
 
 	def fromControlCode(self,code):
