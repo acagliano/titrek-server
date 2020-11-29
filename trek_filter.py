@@ -52,7 +52,7 @@ class TrekFilter:
                 {"check":"blacklist","method":self.blacklisted,"failaction":[self.refuse_connection]},
                 {"check":"order","method":self.packet_order,"failaction":[self.set_offender,self.drop_packet_no_response]},
                 {"check":"sanity","method":self.sanity,"failaction":[self.set_offender,self.drop_packet_response]},
-                {"check":"threshold","method":self.threshold,"failaction":[self.blacklist_ip]}
+                {"check":"threshold","method":self.threshhold,"failaction":[self.blacklist_ip]}
             ]
             with open(f'{self.path}filter_rules.json', 'w+') as f:
                 json.dump(self.rules,f)
