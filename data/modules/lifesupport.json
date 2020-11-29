@@ -10,11 +10,11 @@
 			"OverCharge":false
 		},
 		"techclass":1,
-		"techtype":3,
+		"techtype":0,
 		"health":100,
 		"status_flags":1,
 		"composition": [],
-		"maxoccupancy":250,
+		"maxoccupancy":250
 		}
 	]
 }

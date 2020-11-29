@@ -72,3 +72,12 @@ ModuleStateChange = {
     # CLIENT => SERVER
     "CHANGE_ONLINE_STATE":10
 }
+
+ModuleIds = {
+    "lifesupport":0,
+    "core":1,
+    "thruster":2,
+    "engine":3,
+    "weapon_beam":9,
+    "hull":0xf0
+}

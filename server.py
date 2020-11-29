@@ -567,7 +567,7 @@ class Client:
 								paths.append(d)
 						paths = sorted(paths,reverse=True)
 						try:
-							with open(f"cli-versions/prgm/{paths[0]}/TITREK.bin",'rb') as f:
+							with open(f"downloads/prgm/{paths[0]}/TITREK.bin",'rb') as f:
 								program_data = bytearray(f.read())
 							for i in range(0,len(program_data),1020):
 								self.send(bytes([ControlCodes["PRGMUPDATE"]])+program_data[i:min(i+1020,len(program_data))])
@@ -689,22 +689,24 @@ class Client:
 						for i in range(15):
 							if i<len(self.data["ships"][0]['modules']):
 								m = self.data["ships"][0]['modules'][i]
-								odata.extend([m['techclass'],m['techtype'],m['health'],m['status_flags']])
+								odata.extend(self.load_shipmodule(m))
 							else:
-								odata.extend([0,0,0,0])
+								padded_string=PaddedString("", 9, chr(0))+"\0"
+								odata.extend([ord(c) for c in padded_string]+[0,0,0,0])
 						self.send(bytes([ControlCodes["LOAD_SHIP"]]+odata))
 					elif data[0]==ControlCodes["NEW_GAME_REQUEST"]:
 						self.create_new_game()
 					elif data[0]==ControlCodes["GET_ENGINE_MAXIMUMS"]:
 						thruster = self.findModuleOfType("thruster")
 						engine = self.findModuleOfType("engine")
-						self.send(
+						self.send(list(
 							i24(
 								thruster["maxspeed"], thruster["maxaccel"], thruster["curspeed"],
 								engine["maxspeed"], engine["maxaccel"], engine["curspeed"],
 								0, 0, 0
 							)
-						)
+						))
+
 				else:
 					self.badpacket()
 			except socket.error:
@@ -714,7 +716,10 @@ class Client:
 		self.broadcast(f"{self.user} disconnected")
 		server.purgeclient(self.conn)
 		
-
+	def load_shipmodule(self,m):
+		padded_string=PaddedString(m["Name"], 9, chr(0))+"\0"
+		return [ord(c) for c in padded_string]+[m["techclass"], ModuleIds[m["Type"]], m["health"], m["status_flags"]]
+		
 	def badpacket(self):
 		try:
 			if not self.karma:
@@ -763,10 +768,10 @@ outputs:
 
 	def findModuleOfType(self,Type):
 		modules = self.data["ships"][0]["modules"]
-		for ml in modules:
-			for m in ml["module"]:
-				if m["Type"]==Type:
-					return m
+		for m in modules:
+			if m["Type"]==Type:
+				return m
+		return None
 
 
 	def fromControlCode(self,code):
