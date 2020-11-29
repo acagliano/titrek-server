@@ -84,7 +84,7 @@ class TrekFilter:
             return
         if trusted:
             return
-        for r in rules:
+        for r in self.rules:
             try:
                 if method_exists('TrekFilter', r["method"]):
                     response = getattr(self,r["method"])(addr, data)
