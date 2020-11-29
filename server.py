@@ -567,7 +567,7 @@ class Client:
 								paths.append(d)
 						paths = sorted(paths,reverse=True)
 						try:
-							with open(f"cli-versions/prgm/{paths[0]}/TITREK.bin",'rb') as f:
+							with open(f"downloads/prgm/{paths[0]}/TITREK.bin",'rb') as f:
 								program_data = bytearray(f.read())
 							for i in range(0,len(program_data),1020):
 								self.send(bytes([ControlCodes["PRGMUPDATE"]])+program_data[i:min(i+1020,len(program_data))])
@@ -692,7 +692,7 @@ class Client:
 								odata.extend(self.load_shipmodule(m))
 							else:
 								padded_string=PaddedString("", 9, chr(0))+"\0"
-								odata.extend([padded_string,0,0,0,0])
+								odata.extend([list(bytes(padded_string, 'UTF-8')),0,0,0,0])
 						self.send(bytes([ControlCodes["LOAD_SHIP"]]+odata))
 					elif data[0]==ControlCodes["NEW_GAME_REQUEST"]:
 						self.create_new_game()
@@ -717,7 +717,7 @@ class Client:
 		
 	def load_shipmodule(self,m):
 		padded_string=PaddedString(m["Name"], 9, chr(0))+"\0"
-		return [padded_string, m["techclass"], m["techtype"], m["health"], m["status_flags"]]
+		return [list(bytes(padded_string, 'UTF-8')), m["techclass"], m["techtype"], m["health"], m["status_flags"]]
 		
 	def badpacket(self):
 		try:
