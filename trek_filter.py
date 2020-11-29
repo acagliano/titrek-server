@@ -111,13 +111,13 @@ class TrekFilter:
                 continue
         return
       
-    def packet_order(self, addr, data):
+    def packet_order(self, conn, addr, data):
         if not data[0]<9:
             self.log(f'[Filter][order] Failed for {addr[0]}')
             return True
         return False
         
-    def blacklisted(self, addr, data):
+    def blacklisted(self, conn, addr, data):
         ip, port = addr
         if ip in self.blacklist:
             self.log(f'[Filter][blacklist] Failed for {ip}')
@@ -125,10 +125,10 @@ class TrekFilter:
         else:
             return False
             
-    def sanity(self, addr, data):
+    def sanity(self, conn, addr, data):
         return False
         
-    def threshhold(self, addr, data):
+    def threshhold(self, conn, addr, data):
         ip, port = addr
         if ip in self.offenders.keys():
             if self.offenders[ip]>=self.hitcount:
@@ -136,7 +136,7 @@ class TrekFilter:
                 return True
         return False
     
-    def refuse_connection(self, conn, addr):
+    def refuse_connection(self, conn, addr, data):
         ip, port = addr
         # append properly formatted fail2ban log
         self.log(f'[Filter] Connection refused. Logging connection.')
@@ -144,13 +144,13 @@ class TrekFilter:
         data=[]
         return
         
-    def drop_packet_no_response(self, conn, addr):
+    def drop_packet_no_response(self, conn, addr, data):
         ip, port = addr
         self.log(f'[Filter] Silently dropping packet')
         data=[]
         return
         
-    def drop_packet_response(self, conn, addr):
+    def drop_packet_response(self, conn, addr, data):
         ip, port = addr
         self.log(f'[Filter] Dropping packet')
         msg="Packet dropped by server: Invalid"
@@ -158,7 +158,7 @@ class TrekFilter:
         data=[]
         return
         
-    def blacklist_ip(self, conn, addr):
+    def blacklist_ip(self, conn, addr, data):
         ip, port = addr
         self.blacklist.append(ip)
         self.log(f'[Filter] {ip} blacklisted')
@@ -166,7 +166,7 @@ class TrekFilter:
         data=[]
         return
         
-    def set_offender(self, conn, addr):
+    def set_offender(self, conn, addr, data):
         ip, port = addr
         if ip in self.offenders.keys():
             self.offenders[ip]+=1
