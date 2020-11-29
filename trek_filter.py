@@ -126,7 +126,7 @@ class TrekFilter:
             return False
             
     def sanity(self, addr, data):
-        return
+        return False
         
     def threshhold(self, addr, data):
         ip, port = addr
