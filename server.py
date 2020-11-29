@@ -769,7 +769,7 @@ outputs:
 		modules = self.data["ships"][0]["modules"]
 		for m in modules:
 			if m["Type"]==Type:
-			return m
+				return m
 
 
 	def fromControlCode(self,code):
