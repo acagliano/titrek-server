@@ -9,7 +9,7 @@
 		"Damage":5,
 		"AttackSpeed":2,
 		"techclass":2,
-		"techtype":8,
+		"techtype":10,
 		"health":100,
 		"status_flags":0,
 		"composition": []
