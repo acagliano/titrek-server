@@ -70,10 +70,10 @@ class TrekFilter:
     def printinfo(self):
         self.log(f"TrekFilter v{TrekFilter.version}")
         self.log("Offenders:")
-        for o in offenders:
+        for o in self.offenders:
             self.log(o)
         self.log("Blacklist:")
-        for b in blacklist:
+        for b in self.blacklist:
             self.log(b)
     
     def save_blacklist(self):
