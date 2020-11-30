@@ -718,16 +718,15 @@ class Client:
 							)
 						)
 					elif data[0]==ControlCodes["ENGINE_SETSPEED"]:
-						slot=int(data[1])
 						speed=int(data[2:])
-						if slot==0:
+						if data[1]==0:
 							engine=self.findModuleOfType("thruster")
-						elif slot==1:
+						elif data[1]==1:
 							engine=self.findModuleOfType("engine")
-						elif slot==2:
+						elif data[1]==2:
 							engine=self.findModuleOfType("warp")
-						engine["curspeed"]=speed
-						self.send([ControlCodes["ENGINE_SETSPEED"], slot, speed])
+						engine["curspeed"]=int.from_bytes(data[2:], 'little')
+						self.send([ControlCodes["ENGINE_SETSPEED"], slot]+ data[2:])
 			except socket.error:
 				pass
 			except Exception as e:
