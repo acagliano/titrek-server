@@ -725,7 +725,7 @@ class Client:
 						elif data[1]==2:
 							engine=self.findModuleOfType("warp")
 						engine["curspeed"]=int.from_bytes(data[2:], 'little')
-						self.send([ControlCodes["ENGINE_SETSPEED"]]+ data[1:])
+						self.send([ControlCodes["ENGINE_SETSPEED"]]+ list(data[1:]))
 			except socket.error:
 				pass
 			except Exception as e:
