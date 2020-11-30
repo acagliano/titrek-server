@@ -718,7 +718,6 @@ class Client:
 							)
 						)
 					elif data[0]==ControlCodes["ENGINE_SETSPEED"]:
-						speed=int(data[2:])
 						if data[1]==0:
 							engine=self.findModuleOfType("thruster")
 						elif data[1]==1:
