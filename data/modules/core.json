@@ -17,7 +17,7 @@
 		"techclass":1,
 		"techtype":1,
 		"health":100,
-		"status_flags":0,
+		"status_flags":1,
 		"composition": []
 		}
 	]
