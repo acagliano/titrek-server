@@ -879,7 +879,6 @@ outputs:
 								self.log(f"[{user}] has successfully logged in!")
 								self.broadcast(f"{user} logged in")
 								self.send([ControlCodes["LOGIN"],ResponseCodes['SUCCESS']])   # Log in successful
-								self.dlog(f"User karma is {self.karma}")
 								self.playerdir = f"{Config.players}{self.user}/"
 								self.playerfile = f"{self.playerdir}player.json"
 								self.shipfile = f"{self.playerdir}ships.json"
