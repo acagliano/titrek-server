@@ -10,13 +10,13 @@
 import socket,threading,ctypes,hashlib,json,os,sys,time,math,ssl,traceback,subprocess,logging,gzip,re
 from datetime import datetime
 
-from trek_codes import *
-from trek_generate import *
-from trek_space import *
-from trek_vec3 import *
-from trek_filter import *
-from trek_modules import loadModule
-from trek_util import *
+from includes/trek_codes import *
+from includes/trek_generate import *
+from includes/trek_space import *
+from includes/trek_vec3 import *
+from includes/trek_filter import *
+from includes/trek_modules import loadModule
+from includes/trek_util import *
 
 class Config:
 	port = None
