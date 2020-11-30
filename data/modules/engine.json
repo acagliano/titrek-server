@@ -20,8 +20,8 @@
 		"status_flags":1,
 		"composition": [],
 		"curspeed":0,
-		"maxspeed":10,
-		"maxaccel":1
+		"maxspeed":29979,
+		"maxaccel":2998
 		}
 	]
 }
