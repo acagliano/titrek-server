@@ -411,8 +411,8 @@ class Server:
 					self.ipban(line[1])
 				elif line[0]=="banlist":
 					self.banlist()
-                elif line[0]=="fwinfo":
-                    self.fw.printinfo()
+				elif line[0]=="fwinfo":
+					self.fw.printinfo()
 				elif line[0]=="whitelist":
 					self.print_whitelist()
 				elif line[0]=="backup":
