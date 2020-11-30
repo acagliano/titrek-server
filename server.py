@@ -518,7 +518,6 @@ class Client:
 			os.makedirs(f"{Config.players}{self.user}")
 		except:
 			pass
-		self.data["player"]["karma"] = self.karma
 		for k in ['x','y','z']:
 			self.data["player"][k]=self.pos[k]
 		with open(self.playerfile,'w') as f:
@@ -718,9 +717,6 @@ class Client:
 								0, 0, 0
 							)
 						)
-
-				else:
-					self.badpacket()
 			except socket.error:
 				pass
 			except Exception as e:
@@ -731,18 +727,6 @@ class Client:
 	def load_shipmodule(self,m):
 		padded_string=PaddedString(m["Name"], 9, chr(0))+"\0"
 		return [ord(c) for c in padded_string]+[m["techclass"], ModuleIds[m["Type"]], m["health"], m["status_flags"]]
-		
-	def badpacket(self):
-		try:
-			if not self.karma:
-				server.ipban(self.ip)
-				self.elog(f"Packet from {self.ip} rejected. IP banned due to suspect behavior.")
-			else:
-				self.elog(f"Packet from {self.ip} rejected. Bad contents, or invalid.")
-				self.send([ControlCodes["MESSAGE"]]+list(b'server rejected packet\0')) # Disconnect user, inform of error
-				self.karma-=2
-		except:
-			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
 
 	def getSpriteID(self,sprite):
 		if sprite not in self.sprite_ids:
