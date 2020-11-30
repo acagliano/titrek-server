@@ -718,8 +718,8 @@ class Client:
 							)
 						)
 					elif data[0]==ControlCodes["ENGINE_SETSPEED"]:
-						slot=data[1]
-						speed=data[2:]
+						slot=int(data[1])
+						speed=int(data[2:])
 						if slot==0:
 							engine=self.findModuleOfType("thruster")
 						elif slot==1:
