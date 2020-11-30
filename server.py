@@ -411,6 +411,8 @@ class Server:
 					self.ipban(line[1])
 				elif line[0]=="banlist":
 					self.banlist()
+                elif line[0]=="fwinfo":
+                    self.fw.printinfo()
 				elif line[0]=="whitelist":
 					self.print_whitelist()
 				elif line[0]=="backup":
@@ -444,7 +446,6 @@ class Client:
 		self.conn = conn
 		self.addr = addr
 		self.ip,self.port = self.addr
-		self.karma = 10
 		self.closed = False
 		self.logged_in = False
 		self.user = ''
@@ -477,8 +478,6 @@ class Client:
 		self.data["player"] = j
 		for key in ["x","y","z","vx","vy","vz","speed","acceleration"]:
 			if key not in j.keys(): j[key]=0
-		if "karma" in self.data["player"].keys():
-			self.karma = self.data["player"]["karma"]
 		try:
 			with open(self.shipfile) as f:
 				j = json.load(f)

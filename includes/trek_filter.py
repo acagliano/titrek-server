@@ -16,6 +16,7 @@ import os,json,traceback,importlib
 from trek_codes import *
 
 class TrekFilter:
+    version="1.0b"
     status=False
     offenders={}
     
@@ -65,6 +66,15 @@ class TrekFilter:
         self.save_blacklist()
         TrekFilter.status=False
         self.log("[Filter] Disabled!")
+        
+    def printinfo(self):
+        self.log(f"TrekFilter v{TrekFilter.version}")
+        self.log("Offenders:")
+        for o in offenders:
+            self.log(o)
+        self.log("Blacklist:")
+        for b in blacklist:
+            self.log(b)
     
     def save_blacklist(self):
         try:
