@@ -700,6 +700,7 @@ class Client:
 							module["status_flags"] ^= (2**0)
 							self.log(module["status_flags"])
 						odata = self.load_shipmodule(module)
+						self.log(odata)
 						self.send(bytes([ControlCodes["MODULE_STATE_CHANGE"]]+odata))
 					elif data[0]==ControlCodes["LOAD_SHIP"]:
 						odata = [0,0,0,self.data["ships"][0]['hull']['health']]
