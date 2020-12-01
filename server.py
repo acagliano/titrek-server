@@ -696,7 +696,7 @@ class Client:
 					elif data[0]==ControlCodes["MODULE_STATE_CHANGE"]:
 						module=self.data["ships"][0]['modules'][data[1]]
 						if data[2]==ModuleStateChange["CHANGE_ONLINE_STATE"]:
-							module["status_flags"] ^= (2**1)
+							module["status_flags"] ^= (2**0)
 						odata = self.load_shipmodule(module)
 						self.send(bytes([ControlCodes["MODULE_STATE_CHANGE"]]+odata))
 					elif data[0]==ControlCodes["LOAD_SHIP"]:
