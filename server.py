@@ -529,6 +529,8 @@ class Client:
 		return self.user+" @"+str(self.addr)
 
 	def send(self,data):
+		if Config.packet_debug:
+			self.log(data)
 		if self.conn.send(bytes(data)):
 			self.log("Sent packet")
 		else:
