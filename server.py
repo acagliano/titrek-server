@@ -430,10 +430,13 @@ class Server:
 							self.log(str(client))
 					else:
 						self.log("No clients connected")
-				elif line[0]=="debug-on":
-					PACKET_DEBUG = True
-				elif line[0]=="debug-off":
-					PACKET_DEBUG = False
+				elif line[0]=="debug":
+					if line[1]=="on":
+						Config.packet_debug=True
+					elif line[1]="off":
+						Config.packet_debug=False
+					else:
+						self.log(f'Debug status: {Config.packet_debug}')
 			except KeyboardInterrupt:
 				break
 			except Exception as e:
