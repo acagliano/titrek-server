@@ -694,7 +694,9 @@ class Client:
 					elif data[0]==ControlCodes["MODULE_INFO_REQUEST"]:
 						pass
 					elif data[0]==ControlCodes["MODULE_STATE_CHANGE"]:
-						pass
+						module=self.data["ships"][0]['modules'][data[1]]
+                        if data[2]==ModuleStateChange["CHANGE_ONLINE_STATE"]:
+                            module["status"] ^= (2**1)
 					elif data[0]==ControlCodes["LOAD_SHIP"]:
 						odata = [0,0,0,self.data["ships"][0]['hull']['health']]
 						for i in range(15):
