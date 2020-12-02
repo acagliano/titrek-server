@@ -943,7 +943,6 @@ outputs:
 			self.logged_in = False
 		self.closed = True
 		Server.purge = True
-		server.purgeclient(self.conn)
 		
 
 if __name__ == '__main__':
