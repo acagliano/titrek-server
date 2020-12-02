@@ -5,7 +5,8 @@
     "enable-filter":true,
     "debug":true,
     "min-client":[0, 0, 96],
-    "idle_timeout":600
+    "max-players":100,
+    "idle-timeout":600
   },
   "paths":{
     "ssl":"ssl/",
