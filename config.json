@@ -3,6 +3,7 @@
     "port":51701,
     "enable-ssl":false,
     "enable-filter":true,
+    "filter-mode":"normal",
     "debug":true,
     "min-client":[0, 0, 98],
     "max-players":100,
