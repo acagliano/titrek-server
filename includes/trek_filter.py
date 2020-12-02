@@ -20,11 +20,12 @@ class TrekFilter:
     status=False
     offenders={}
     
-    def __init__(self,path,log,hitcount):
+    def __init__(self,path,log,hitcount,mode):
         # Filter settings
         self.path=path
         self.log=log
         self.hitcount=hitcount
+        self.mode=mode
         self.modules=f"{self.path}modules/"
         self.actions=f"{self.path}actions/"
         
@@ -58,8 +59,23 @@ class TrekFilter:
             ]
             with open(f'{self.path}filter_rules.json', 'w+') as f:
                 json.dump(self.rules,f)
-        TrekFilter.status=True
-        self.log("[Filter] Enabled!")
+        try:
+            self.log(f'[Filter] {self.mode} mode')
+            if self.mode == "normal":
+                with open(f'{self.path}packet_whitelist.json', 'r') as f:
+                    self.packetlist=json.load(f)
+            elif self.mode == "exclude":
+                with open(f'{self.path}packet_excludelist.json', 'r') as f:
+                    self.packetlist=json.load(f)
+            else:
+                raise Exception("Invalid option for filter-mode in config.json. Valid options: normal|exclude.")
+            TrekFilter.status=True
+            self.log("[Filter] Enabled!")
+        except IOError:
+            self.packetlist=[]
+        except:
+            self.log(traceback.print_exc(limit=None, file=None, chain=True))
+            
         
     def stop(self):
         self.log("[Filter] Stopping...")
@@ -69,6 +85,7 @@ class TrekFilter:
         
     def printinfo(self):
         self.log(f"TrekFilter v{TrekFilter.version}")
+        self.log(f"Mode: {self.mode}")
         self.log("Offenders:")
         for o in self.offenders:
             self.log(o)
@@ -94,8 +111,12 @@ class TrekFilter:
         try:
             if not TrekFilter.status:
                 return
-            if trusted:
-                return
+            if self.mode=="normal":
+                if not data[0] in self.packetlist:
+                    return
+            elif self.mode=="exclude":
+                if data[0] in self.packetlist:
+                    return
             for r in self.rules:
                 try:
                     response = getattr(self,r["method"])(addr, data)
