@@ -62,6 +62,7 @@ class Config:
 				Config.packet_debug = settings["debug"]
 				Config.use_ssl = settings["enable-ssl"]
 				Config.enable_filter = settings["enable-filter"]
+				Config.filter_mode = settings["filter-mode"]
 				Config.max_players = settings["max-players"]
 				Config.inactive_timeout = settings["idle-timeout"]
 				Config.min_client = settings["min-client"]
@@ -119,7 +120,7 @@ class Server:
 			self.writeinfo()
 			self.threads = [threading.Thread(target=self.autoSaveHandler)]
 			self.threads[0].start()
-			self.fw=TrekFilter(Config.filter_path, self.log, 5)
+			self.fw=TrekFilter(Config.filter_path, self.log, 5, Config.filter_mode)
 			if Config.enable_filter:
 				self.fw.start()
 			if Config.use_ssl:
