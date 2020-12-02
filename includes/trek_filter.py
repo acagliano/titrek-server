@@ -125,10 +125,10 @@ class TrekFilter:
             self.dlog(f"[Filter] Checking packet {data[0]} from {addr[0]}")
             for r in self.rules:
                 try:
-                    response = getattr(self,r["method"])(addr, data)
+                    response = getattr(self,r["method"])(addr, data, trusted)
                 except AttributeError:
                     try:
-                        response = getattr(self,self.loadModule(f'{self.modules}{r["method"]}.py'))(conn, addr, data)
+                        response = getattr(self,self.loadModule(f'{self.modules}{r["method"]}.py'))(conn, addr, data, trusted)
                         pass
                     except AttributeError:
                         raise Exception(f'Method {r["method"]} not implemented')
@@ -149,13 +149,14 @@ class TrekFilter:
             self.log(traceback.print_exc(limit=None, file=None, chain=True))
         return
       
-    def packet_order(self, addr, data):
-        if not data[0]<9:
-            self.log(f'[Filter][order] Failed for {addr[0]}')
-            return True
+    def packet_order(self, addr, data, trusted):
+        if not trusted:        
+            if not data[0]<9:
+                self.log(f'[Filter][order] Failed for {addr[0]}')
+                 return True
         return False
         
-    def blacklisted(self, addr, data):
+    def blacklisted(self, addr, data, trusted):
         ip, port = addr
         if ip in self.blacklist:
             self.log(f'[Filter][blacklist] Failed for {ip}')
@@ -163,10 +164,10 @@ class TrekFilter:
         else:
             return False
             
-    def sanity(self, addr, data):
+    def sanity(self, addr, data, trusted):
         return False
         
-    def threshhold(self, addr, data):
+    def threshhold(self, addr, data, trusted):
         ip, port = addr
         if ip in self.offenders.keys():
             if self.offenders[ip]>=self.hitcount:
