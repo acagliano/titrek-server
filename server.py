@@ -272,7 +272,7 @@ class Server:
 	"version":"'+version+'",\
 	"numclients":'+str(Client.count)+',\
 	"minversion":"0.0.92",\
-	"max_clients":'+str(Config.max_players+',\
+	"max_clients":'+str(Config.max_players)+',\
 	"online":'+status+'\
 }}')
 	def autoSaveHandler(self):
