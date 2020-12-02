@@ -343,6 +343,7 @@ class Server:
 			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
 			
 	def purgeclient(self, conn):
+		conn.close()
 		del self.clients[conn]
 		
 
@@ -940,9 +941,9 @@ outputs:
 		if self.logged_in:
 			self.save_player()
 			self.logged_in = False
-		self.conn.close()
 		self.closed = True
 		Server.purge = True
+		server.purgeclient(self.conn)
 		
 
 if __name__ == '__main__':
