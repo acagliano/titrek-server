@@ -263,7 +263,7 @@ class Server:
 			status="true"
 		else:
 			status="false"
-		versionbuild = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode(sys.stdout.encoding)
+		versionbuild = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode(sys.stdout.encoding).strip()
 		version = f"2.01.{versionbuild}"
 		with open("servinfo.json","w") as f:
 				f.write('\
