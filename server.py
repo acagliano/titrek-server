@@ -272,7 +272,7 @@ class Server:
 {"server":{\
 	"version":"'+version+'",\
 	"numclients":'+str(Client.count)+',\
-	"minversion":'+delim.join(list(Config.min_client))+',\
+	"minversion":'+delim.join([str(item) for item in Config.min_client])+',\
 	"max_clients":'+str(Config.max_players)+',\
 	"online":'+status+'\
 }}')
