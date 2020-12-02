@@ -266,12 +266,13 @@ class Server:
 			status="false"
 		versionbuild = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode(sys.stdout.encoding).strip()
 		version = f"2.01.{versionbuild}"
+		delim="."
 		with open("servinfo.json","w") as f:
 				f.write('\
 {"server":{\
 	"version":"'+version+'",\
 	"numclients":'+str(Client.count)+',\
-	"minversion":"0.0.92",\
+	"minversion":'+delim.join(Config.min_client)+',\
 	"max_clients":'+str(Config.max_players)+',\
 	"online":'+status+'\
 }}')
