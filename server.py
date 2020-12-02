@@ -433,7 +433,7 @@ class Server:
 				elif line[0]=="debug":
 					if line[1]=="on":
 						Config.packet_debug=True
-					elif line[1]="off":
+					elif line[1]=="off":
 						Config.packet_debug=False
 					else:
 						self.log(f'Debug status: {Config.packet_debug}')
