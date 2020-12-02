@@ -412,8 +412,14 @@ class Server:
 					self.ipban(line[1])
 				elif line[0]=="banlist":
 					self.banlist()
-				elif line[0]=="fwinfo":
-					self.fw.printinfo()
+				elif line[0]=="fw":
+					if line[1]=="info":
+						self.fw.printinfo()
+					elif line[1]=="reload":
+						self.fw.stop()
+						self.fw.start()
+					else:
+						self.log("Valid arguments: fw info|reload")
 				elif line[0]=="whitelist":
 					self.print_whitelist()
 				elif line[0]=="backup":
