@@ -923,7 +923,6 @@ outputs:
 		for i in range(3):
 			if client_version[i] < Config.min_client[i]:
 				self.send([ControlCodes["VERSION_CHECK"],VersionCheckCodes['VERSION_ERROR']])
-				self.log(f"{self.user}: client outdated")
 				self.disconnect()
 				return
 			if client_version[i] > Config.min_client[i]:
