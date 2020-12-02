@@ -89,6 +89,7 @@ class TrekFilter:
     def printinfo(self):
         self.log(f"TrekFilter v{TrekFilter.version}")
         self.log(f"Mode: {self.mode}")
+        self.log(f"Packet List: {self.packetlist}")
         self.log("Offenders:")
         for o in self.offenders:
             self.log(o)
