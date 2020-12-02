@@ -20,10 +20,11 @@ class TrekFilter:
     status=False
     offenders={}
     
-    def __init__(self,path,log,hitcount,mode):
+    def __init__(self,path,log,dlog,hitcount,mode):
         # Filter settings
         self.path=path
         self.log=log
+        self.dlog=dlog
         self.hitcount=hitcount
         self.mode=mode
         self.modules=f"{self.path}modules/"
@@ -115,10 +116,13 @@ class TrekFilter:
                 return
             if self.mode=="normal":
                 if not data[0] in self.packetlist:
+                    self.dlog(f"[Filter] Packet {data[0]} from {addr[0]} not in packet list. Skipping.")
                     return
             elif self.mode=="exclude":
                 if data[0] in self.packetlist:
+                    self.dlog(f"[Filter] Packet {data[0]} from {addr[0]} in exclude list. Skipping.")
                     return
+            self.dlog(f"[Filter] Checking packet {data[0]} from {addr[0]}")
             for r in self.rules:
                 try:
                     response = getattr(self,r["method"])(addr, data)
