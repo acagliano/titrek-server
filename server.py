@@ -941,6 +941,7 @@ outputs:
 		if self.logged_in:
 			self.save_player()
 			self.logged_in = False
+		self.conn.close()
 		self.closed = True
 		Server.purge = True
 		
