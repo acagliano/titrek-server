@@ -69,12 +69,14 @@ class TrekFilter:
                     self.packetlist=json.load(f)
             else:
                 raise Exception("Invalid option for filter-mode in config.json. Valid options: normal|exclude.")
-            TrekFilter.status=True
-            self.log("[Filter] Enabled!")
         except IOError:
             self.packetlist=[]
+            pass
         except:
             self.log(traceback.print_exc(limit=None, file=None, chain=True))
+        TrekFilter.status=True
+        self.log("[Filter] Enabled!")
+            
             
         
     def stop(self):
