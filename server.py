@@ -343,8 +343,8 @@ class Server:
 			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
 			
 	def purgeclient(self, conn):
-		conn.close()
 		del self.clients[conn]
+		conn.close()
 		
 
 	def backupAll(self,sname):
