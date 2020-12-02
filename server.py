@@ -62,7 +62,8 @@ class Config:
 				Config.packet_debug = settings["debug"]
 				Config.use_ssl = settings["enable-ssl"]
 				Config.enable_filter = settings["enable-filter"]
-				Config.inactive_timeout = settings["idle_timeout"]
+				Config.max_players = settings["max-players"]
+				Config.inactive_timeout = settings["idle-timeout"]
 				Config.min_client = settings["min-client"]
 				if Config.use_ssl:
 					Config.ssl_path = paths["ssl-path"]
@@ -271,7 +272,7 @@ class Server:
 	"version":"'+version+'",\
 	"numclients":'+str(Client.count)+',\
 	"minversion":"0.0.92",\
-	"max_clients":250,\
+	"max_clients":'+str(Config.max_players+',\
 	"online":'+status+'\
 }}')
 	def autoSaveHandler(self):
