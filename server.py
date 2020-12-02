@@ -267,15 +267,16 @@ class Server:
 		versionbuild = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode(sys.stdout.encoding).strip()
 		version = f"2.01.{versionbuild}"
 		delim="."
+		
 		with open("servinfo.json","w") as f:
-				f.write('\
-{"server":{\
-	"version":"'+version+'",\
-	"numclients":'+str(Client.count)+',\
-	"minversion":'+delim.join([str(item) for item in Config.min_client])+',\
-	"max_clients":'+str(Config.max_players)+',\
-	"online":'+status+'\
-}}')
+			servinfo={"server":{
+				"version": version,
+				"numclients":Client.count,
+				"minversion":delim.join([str(item) for item in Config.min_client]),
+				"max_clients":Config.max_players,
+				"online":status}}
+			json.dump(servinfo, f)
+			
 	def autoSaveHandler(self):
 		last_save_time = start_time = time.time()
 		while self.online:
