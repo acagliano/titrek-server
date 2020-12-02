@@ -120,7 +120,7 @@ class Server:
 			self.writeinfo()
 			self.threads = [threading.Thread(target=self.autoSaveHandler)]
 			self.threads[0].start()
-			self.fw=TrekFilter(Config.filter_path, self.log, 5, Config.filter_mode)
+			self.fw=TrekFilter(Config.filter_path, self.log, self.dlog, 5, Config.filter_mode)
 			if Config.enable_filter:
 				self.fw.start()
 			if Config.use_ssl:
