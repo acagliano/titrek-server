@@ -153,7 +153,7 @@ class TrekFilter:
         if not trusted:        
             if not data[0]<9:
                 self.log(f'[Filter][order] Failed for {addr[0]}')
-                 return True
+                return True
         return False
         
     def blacklisted(self, addr, data, trusted):
