@@ -42,6 +42,7 @@ ControlCodes = {
     # File Streaming: 90 - 91
     "PRGMUPDATE":90,
     "GFXUPDATE":91,
+    "CACHE_SPRITE":92,
     
     # DEBUG: 0xf*
     "PING":0xfc,
