@@ -260,10 +260,6 @@ class Server:
 			self.writeinfo()
 
 	def writeinfo(self):
-		if self.online:
-			status="true"
-		else:
-			status="false"
 		versionbuild = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode(sys.stdout.encoding).strip()
 		version = f"2.01.{versionbuild}"
 		delim="."
@@ -274,7 +270,7 @@ class Server:
 				"numclients":Client.count,
 				"minversion":delim.join([str(item) for item in Config.min_client]),
 				"max_clients":Config.max_players,
-				"online":status}}
+				"online":self.online}}
 			json.dump(servinfo, f)
 			
 	def autoSaveHandler(self):
