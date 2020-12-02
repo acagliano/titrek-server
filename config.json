@@ -4,7 +4,7 @@
     "enable-ssl":false,
     "enable-filter":true,
     "debug":true,
-    "min-client":[0, 0, 96],
+    "min-client":[0, 0, 98],
     "max-players":100,
     "idle-timeout":600
   },
