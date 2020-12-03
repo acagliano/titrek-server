@@ -101,9 +101,11 @@ class TrekFilter:
         self.log(f"TrekFilter v{TrekFilter.version}")
         self.log("active ruleset")
         index=1
+        rule_string="\n"
         for r in self.rules:
-            self.log(f'\n{index}# RUN CHECK {r["method"]} RESPOND WITH {r["failaction"]}')
-            index+=1                 
+            rule_string+='-{index} RUN CHECK {r["method"]} RESPOND WITH {r["failaction"]}\n'
+            index+=1
+        self.log(f"{rule_string}")
                                                  
     def save_blacklist(self):
         try:
