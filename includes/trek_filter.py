@@ -53,10 +53,10 @@ class TrekFilter:
                 self.rules = json.load(f)
         except IOError:
             self.rules=[
-                {"check":"blacklist","method":"blacklisted","failaction":["refuse_connection"]},
-                {"check":"order","method":"packet_order","failaction":["set_offender","drop_packet_no_response"]},
-                {"check":"sanity","method":"sanity","failaction":["set_offender","drop_packet_response"]},
-                {"check":"threshold","method":"threshhold","failaction":["blacklist_ip"]}
+                {"check":"blacklist","method":"blacklisted","failaction":["drop_packet","refuse_connection"]},
+                {"check":"order","method":"packet_order","failaction":["set_offender","drop_packet"]},
+                {"check":"sanity","method":"sanity","failaction":["set_offender","inform_user","drop_packet"]},
+                {"check":"threshold","method":"threshhold","failaction":["drop_packet","blacklist_ip"]}
             ]
             with open(f'{self.path}filter_rules.json', 'w+') as f:
                 json.dump(self.rules,f)
@@ -179,31 +179,26 @@ class TrekFilter:
     def refuse_connection(self, conn, addr, data):
         ip, port = addr
         # append properly formatted fail2ban log
-        self.log(f'[Filter] Connection refused. Logging connection.')
-        data.clear()                       
+        self.log(f'[Filter] Connection refused. Logging connection.')                       
         conn.close()
         return
         
-    def drop_packet_no_response(self, conn, addr, data):
-        ip, port = addr
-        self.log(f'[Filter] Silently dropping packet')
+    def drop_packet(self, conn, addr, data):
+        self.log(f'[Filter] Dropping packet')
         data.clear()
         return
         
-    def drop_packet_response(self, conn, addr, data):
-        ip, port = addr
-        self.log(f'[Filter] Dropping packet')
+    def inform_user(self, conn, addr, data):
+        self.log(f'[Filter] Sending "Invalid" to user')
         msg="Packet dropped by server: Invalid"
         conn.send([ControlCodes["MESSAGE"]]+list(bytes(msg+'\0', 'UTF-8')))
-        data.clear()
         return
         
     def blacklist_ip(self, conn, addr, data):
         ip, port = addr
         self.blacklist.append(ip)
         self.log(f'[Filter] {ip} blacklisted')
-        data.clear()                               
-        conn.close()
+        self.refuse_connection(conn, addr, data)                               
         return
         
     def set_offender(self, conn, addr, data):
