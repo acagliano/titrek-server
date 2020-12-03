@@ -97,6 +97,14 @@ class TrekFilter:
         for b in self.blacklist:
             self.log(b)
     
+    def printrules(self):
+        self.log(f"TrekFilter v{TrekFilter.version}")
+        self.log("active ruleset")
+        index=1
+        for r in self.rules:
+            self.log(f'{index}# CHECK {r["check"]} RUN {r["method"]} RESPOND WITH {r["failaction"]}')
+            index+=1                 
+                                                 
     def save_blacklist(self):
         try:
             with open(f'{self.path}blacklist.txt', 'w+') as f:
