@@ -96,10 +96,8 @@ class TrekFilter:
         self.log(f"Mode: {self.mode}")
     
     def printrules(self):
-        self.log(f"TrekFilter v{TrekFilter.version}")
-        self.log("active ruleset")
         index=1
-        rule_string="\n"
+        rule_string=f"TrekFilter active ruleset\n"
         for r in self.rules:
             rule_string+=f'-{index} RUN CHECK {r["method"]} RESPOND WITH {r["failaction"]}\n'
             index+=1
