@@ -180,14 +180,14 @@ class TrekFilter:
         ip, port = addr
         # append properly formatted fail2ban log
         self.log(f'[Filter] Connection refused. Logging connection.')
+        data.clear()                       
         conn.close()
-        data=[]
         return
         
     def drop_packet_no_response(self, conn, addr, data):
         ip, port = addr
         self.log(f'[Filter] Silently dropping packet')
-        data=[]
+        data.clear()
         return
         
     def drop_packet_response(self, conn, addr, data):
@@ -195,15 +195,15 @@ class TrekFilter:
         self.log(f'[Filter] Dropping packet')
         msg="Packet dropped by server: Invalid"
         conn.send([ControlCodes["MESSAGE"]]+list(bytes(msg+'\0', 'UTF-8')))
-        data=[]
+        data.clear()
         return
         
     def blacklist_ip(self, conn, addr, data):
         ip, port = addr
         self.blacklist.append(ip)
         self.log(f'[Filter] {ip} blacklisted')
+        data.clear()                               
         conn.close()
-        data=[]
         return
         
     def set_offender(self, conn, addr, data):

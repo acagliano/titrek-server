@@ -555,7 +555,7 @@ class Client:
 		self.conn.settimeout(Config.inactive_timeout)
 		while self.server.online and not self.closed:
 			try:
-				data = self.conn.recv(1024)
+				data = list(self.conn.recv(1024))
 			except socket.timeout:
 				self.log(f"Inactive timeout for user {self.user}. Disconnecting.")
 				if self.logged_in:
@@ -568,11 +568,14 @@ class Client:
 				self.disconnect()
 				self.closed = True
 				break
+			self.fw.filter(self.conn, self.addr, data, self.logged_in)
+			if not len(data):
+				continue
 			if Config.packet_debug:
 				packet_string = "".join([s.ljust(5," ") for s in [chr(c) if c in range(0x20,0x80) else "0x0"+hex(c)[2] if c<0x10 else hex(c) for c in data]])
 				self.dlog(f"recieved packet: {packet_string}")
 			try:
-				self.fw.filter(self.conn, self.addr, data, self.logged_in)
+				
 				if data[0]==ControlCodes["LOGIN"]:
 					self.log_in(data)
 				elif data[0]==ControlCodes["REGISTER"]:
