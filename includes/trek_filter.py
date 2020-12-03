@@ -88,14 +88,12 @@ class TrekFilter:
         
     def printinfo(self):
         self.log(f"TrekFilter v{TrekFilter.version}")
+        if TrekFilter.status:
+            active="enabled"
+        else:
+            active="disabled"
+        self.log(f"Status: {active}")
         self.log(f"Mode: {self.mode}")
-        self.log(f"Packet List: {self.packetlist}")
-        self.log("Offenders:")
-        for o in self.offenders:
-            self.log(o)
-        self.log("Blacklist:")
-        for b in self.blacklist:
-            self.log(b)
     
     def printrules(self):
         self.log(f"TrekFilter v{TrekFilter.version}")
@@ -105,7 +103,20 @@ class TrekFilter:
         for r in self.rules:
             rule_string+=f'-{index} RUN CHECK {r["method"]} RESPOND WITH {r["failaction"]}\n'
             index+=1
+        if self.mode=="normal"
+            rule_string+="Checking Packets: "
+        else:
+            rule_string+="Excluding Packets: "
+        rule_string+=f'{self.packetlist}'
         self.log(f"{rule_string}")
+        
+    def printoffenders(self):
+        self.log("Offenders:")
+        for o in self.offenders:
+            self.log(o)
+        self.log("Blacklist:")
+        for b in self.blacklist:
+            self.log(b)
                                                  
     def save_blacklist(self):
         try:
