@@ -103,7 +103,7 @@ class TrekFilter:
         index=1
         rule_string="\n"
         for r in self.rules:
-            rule_string+='-{index} RUN CHECK {r["method"]} RESPOND WITH {r["failaction"]}\n'
+            rule_string+=f'-{index} RUN CHECK {r["method"]} RESPOND WITH {r["failaction"]}\n'
             index+=1
         self.log(f"{rule_string}")
                                                  
