@@ -40,7 +40,9 @@ class TrekFilter:
                 os.makedirs(directory)
             except:
                 pass
-
+        open(f'{self.path}/packet_whitelist.json', 'w+').close()
+        open(f'{self.path}/packet_excludelist.json', 'w+').close()
+        
     def start(self):
         self.log("[Filter] Starting...")
         try:
