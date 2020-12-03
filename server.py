@@ -418,6 +418,8 @@ class Server:
 					elif line[1]=="reload":
 						self.fw.stop()
 						self.fw.start()
+					elif line[1]=="showrules":
+						self.fw.printrules()
 					else:
 						self.log("Valid arguments: fw info|reload")
 				elif line[0]=="whitelist":
