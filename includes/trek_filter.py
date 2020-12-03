@@ -103,7 +103,7 @@ class TrekFilter:
         for r in self.rules:
             rule_string+=f'-{index} RUN CHECK {r["method"]} RESPOND WITH {r["failaction"]}\n'
             index+=1
-        if self.mode=="normal"
+        if self.mode=="normal":
             rule_string+="Checking Packets: "
         else:
             rule_string+="Excluding Packets: "
