@@ -53,7 +53,7 @@ class TrekFilter:
                 self.rules = json.load(f)
         except IOError:
             self.rules=[
-                {"check":"blacklist","method":"blacklisted","failaction":["drop_packet","refuse_connection"]},
+                {"check":"blacklist","method":"blacklisted","failaction":["drop_packet","refuse_connection","fail2ban"]},
                 {"check":"order","method":"packet_order","failaction":["set_offender","drop_packet"]},
                 {"check":"sanity","method":"sanity","failaction":["set_offender","inform_user","drop_packet"]},
                 {"check":"threshold","method":"threshhold","failaction":["drop_packet","blacklist_ip"]}
@@ -228,5 +228,13 @@ class TrekFilter:
             self.offenders.update({f'{ip}':1})
         return
     
+    def fail2ban(self, conn, addr, data):
+        ip, port = addr
+        date_now=datetime.today().strftime('%Y-%m-%dT%H:%M:%S')
+        with open("{self.path}trek-f2b.log", "a+") as f:
+            json = f'# failJSON: { "time": "{date_now}", "match": true , "host": "{ip}" }\n'
+            text = f'{date_now} Connect from blacklisted IP at {ip}\n'
+            f.write(json)
+            f.write(text)
     
   
