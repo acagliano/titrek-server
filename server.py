@@ -831,7 +831,7 @@ outputs:
 			self.send([ControlCodes['MESSAGE']]+output)
 
 	def register(self, data):
-		user,passw,email = bytes([ToUTF8(a) for a in data[1:]).split(b"\0",maxsplit=2)]
+		user,passw,email = [ToUTF8(a) for a in bytes(data[1:]).split(b"\0",maxsplit=2)]
 		emailregex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
 		print(user,passw,email)
 		self.sanitize(user)
@@ -884,7 +884,7 @@ outputs:
 		self.load_player()
 
 	def log_in(self, data):
-		user,passw = bytes([ToUTF8(a) for a in data[1:]).split(b"\0",maxsplit=1)]
+		user,passw = [ToUTF8(a) for a in bytes(data[1:]).split(b"\0",maxsplit=1)]
 		self.sanitize(user)
 		self.sanitize(passw)
 		print(user,passw)
