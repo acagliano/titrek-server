@@ -66,10 +66,18 @@ class TrekFilter:
             self.log(f'[Filter] {self.mode} mode')
             if self.mode == "normal":
                 with open(f'{self.path}packet_whitelist.json', 'r') as f:
-                    self.packetlist=json.load(f)
+                    try:
+                        self.packetlist=json.load(f)
+                    except:
+                        self.packetlist=[]
+                        self.log("Packet whitelist empty or invalid. Initializing empty list.")
             elif self.mode == "exclude":
                 with open(f'{self.path}packet_excludelist.json', 'r') as f:
-                    self.packetlist=json.load(f)
+                    try:
+                        self.packetlist=json.load(f)
+                    except:
+                        self.packetlist=[]
+                        self.log("Packet excludelist empty or invalid. Initializing empty list.")
             else:
                 raise Exception("Invalid option for filter-mode in config.json. Valid options: normal|exclude.")
         except IOError:
