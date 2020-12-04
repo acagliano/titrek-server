@@ -100,8 +100,9 @@ class TrekFilter:
     def printrules(self):
         index=1
         rule_string=f"TrekFilter active ruleset\n"
+        delim=","
         for r in self.rules:
-            rule_string+=f'-{index} RUN CHECK {r["method"]} RESPOND WITH {r["failaction"]}\n'
+            rule_string+=f'-{index} RUN CHECK {r["method"]} RESPOND WITH {delim.join(r["failaction"])}\n'
             index+=1
         if self.mode=="normal":
             rule_string+="Checking Packets: "
