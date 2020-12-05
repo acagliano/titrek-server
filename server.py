@@ -100,6 +100,7 @@ class Server:
 			self.logger = Config.logger
 			self.loadbans()
 			self.load_whitelist()
+			self.load_convimg()
 
 			self.generator = Generator()
 			Space.path = f"{Config.space}"
@@ -114,6 +115,14 @@ class Server:
 		except:
 			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
 
+	def load_convimg(self):
+		try:
+			os.makedirs("bin/convimg")
+			os.system("cd bin && git clone https://github.com/mateoconlechuga/convimg")
+		except:
+			os.system("cd bin/convimg && git pull")
+		os.system("cd bin/convimg && make && cp bin/convimg /usr/local/bin/")
+		
 	def run(self):
 		try:
 			self.online = True
