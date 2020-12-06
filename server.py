@@ -122,14 +122,22 @@ class Server:
 			os.system("cd bin/convimg && git submodule update --init --recursive && make")
 			self.log("convimg sourced and built")
 		except:
-			self.log("convimg exists!")
+			self.log("convimg exists! skipping!")
 		try:
 			os.makedirs("bin/convbin")
 			os.system("cd bin && https://github.com/mateoconlechuga/convbin")
 			os.system("cd bin/convbin && git submodule update --init --recursive && make")
 			self.log("convbin sourced and built")
 		except:
-			self.log("convbin exists")
+			self.log("convbin exists! skipping!")
+		try:
+			exec_string="#!/bin/sh\n\ncd bin/convimg\ngit pull\nmake\n\ncd ../convbin\ngit pull\nmake\nexit 0"
+			with open("bin/update-bins", "w+") as f:
+				f.write(exec_string)
+				self.log("update script generated")
+			os.chmod("bin/update-bins", 0774)
+		except:
+			self.log("Error creating update script")
 		
 	def run(self):
 		try:
