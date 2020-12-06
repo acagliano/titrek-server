@@ -122,7 +122,7 @@ class Server:
 			os.system("cd bin/convimg && git submodule update --init --recursive")
 		except:
 			os.system("cd bin/convimg && git pull")
-		os.system("cd bin/convimg && make && cp bin/convimg /usr/local/bin/")
+		os.system("cd bin/convimg && make && cp bin/convimg /home/trek/server/bin/")
 		
 	def run(self):
 		try:
