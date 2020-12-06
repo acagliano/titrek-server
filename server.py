@@ -135,7 +135,7 @@ class Server:
 			with open("bin/update-bins", "w+") as f:
 				f.write(exec_string)
 				self.log("update script generated")
-			os.chmod("bin/update-bins", 0774)
+			os.chmod("bin/update-bins", 0o774)
 		except:
 			self.log("Error creating update script")
 		
