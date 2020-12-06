@@ -100,7 +100,7 @@ class Server:
 			self.logger = Config.logger
 			self.loadbans()
 			self.load_whitelist()
-			self.load_convimg()
+			self.init_binaries()
 
 			self.generator = Generator()
 			Space.path = f"{Config.space}"
@@ -115,14 +115,21 @@ class Server:
 		except:
 			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
 
-	def load_convimg(self):
+	def init_binaries(self):
 		try:
 			os.makedirs("bin/convimg")
 			os.system("cd bin && git clone https://github.com/mateoconlechuga/convimg")
-			os.system("cd bin/convimg && git submodule update --init --recursive")
+			os.system("cd bin/convimg && git submodule update --init --recursive && make")
+			self.log("convimg sourced and built")
 		except:
-			os.system("cd bin/convimg && git pull")
-		os.system("cd bin/convimg && make && cp bin/convimg /home/trek/server/bin/")
+			self.log("convimg exists!")
+		try:
+			os.makedirs("bin/convbin")
+			os.system("cd bin && https://github.com/mateoconlechuga/convbin")
+			os.system("cd bin/convbin && git submodule update --init --recursive && make")
+			self.log("convbin sourced and built")
+		except:
+			self.log("convbin exists")
 		
 	def run(self):
 		try:
