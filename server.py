@@ -119,6 +119,7 @@ class Server:
 		try:
 			os.makedirs("bin/convimg")
 			os.system("cd bin && git clone https://github.com/mateoconlechuga/convimg")
+			os.system("cd bin/convimg && git submodule update --init --recursive")
 		except:
 			os.system("cd bin/convimg && git pull")
 		os.system("cd bin/convimg && make && cp bin/convimg /usr/local/bin/")
