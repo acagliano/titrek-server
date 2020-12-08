@@ -67,6 +67,7 @@ class Config:
 				Config.max_players = settings["max-players"]
 				Config.inactive_timeout = settings["idle-timeout"]
 				Config.min_client = settings["min-client"]
+				Config.packet_size=max(4096, settings["packet-size"])
 				if Config.use_ssl:
 					Config.ssl_path = paths["ssl-path"]
 					context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
@@ -481,7 +482,6 @@ class Server:
 
 class Client:
 	count = 0
-	max_packet_size = 8192
 	
 	def __init__(self, conn, addr, server):
 		self.conn = conn
