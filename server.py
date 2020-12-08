@@ -571,21 +571,15 @@ class Client:
 	def send(self,data):
 		if Config.packet_debug:
 			self.log(data)
-		if len(data) < Client.max_packet_size: #if the packet is small enough to send in one packet
-			if self.conn.send(bytes(data)):
-				self.log("Sent packet")
-			else:
-				self.elog("Failed to send packet")
-		else: #if the packet is larger, send it in increments.
-			fully_sent = True
-			while i < len(data):
-				if not self.conn.send(bytes(data[i:min(len(data),i+max_packet_size)]):
-					fully_sent = False
-				i += max_packet_size
-			if fully_sent:
-				self.log("Sent Packet")
-			else:
-				self.elog("Failed to send packet")
+		packet_length = len(data)
+		i = 0
+		while packet_length:
+			bytes_sent = self.conn.send(bytes(data[i:min(packet_length, max_packet_size)])
+			if not bytes_sent:
+    				raise Exception("packet transmission error")
+				break
+			i+=bytes_sent
+			packet_length-=bytes_sent
 
 			
 	def sanitize(self,i):
