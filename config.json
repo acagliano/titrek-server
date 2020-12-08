@@ -5,6 +5,7 @@
     "enable-filter":true,
     "filter-mode":"exclude",
     "debug":true,
+    "packet-size":4096
     "min-client":[0, 0, 98],
     "max-players":100,
     "idle-timeout":600
