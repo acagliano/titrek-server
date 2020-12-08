@@ -584,7 +584,7 @@ class Client:
 		self.conn.settimeout(Config.inactive_timeout)
 		while self.server.online and not self.closed:
 			try:
-				data = list(self.conn.recv(1024))
+				data = list(self.conn.recv(4096))
 			except socket.timeout:
 				self.log(f"Inactive timeout for user {self.user}. Disconnecting.")
 				if self.logged_in:
