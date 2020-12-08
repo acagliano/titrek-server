@@ -29,6 +29,7 @@ class Config:
 	enable_filter = False
 	ssl_path = ""
 	inactive_timeout = 600
+	packet_size = 4096
 	gamedata = "data/"
 	filter_path = "filter/"
 	logger = logging.getLogger('titrek.server')
