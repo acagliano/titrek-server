@@ -480,6 +480,7 @@ class Server:
 
 class Client:
 	count = 0
+	max_packet_size = 8192
 	
 	def __init__(self, conn, addr, server):
 		self.conn = conn
@@ -570,10 +571,22 @@ class Client:
 	def send(self,data):
 		if Config.packet_debug:
 			self.log(data)
-		if self.conn.send(bytes(data)):
-			self.log("Sent packet")
-		else:
-			self.elog("Failed to send packet")
+		if len(data) < Client.max_packet_size: #if the packet is small enough to send in one packet
+			if self.conn.send(bytes(data)):
+				self.log("Sent packet")
+			else:
+				self.elog("Failed to send packet")
+		else: #if the packet is larger, send it in increments.
+			fully_sent = True
+			while i < len(data):
+				if not self.conn.send(bytes(data[i:min(len(data),i+max_packet_size)]):
+					fully_sent = False
+				i += max_packet_size
+			if fully_sent:
+				self.log("Sent Packet")
+			else:
+				self.elog("Failed to send packet")
+
 			
 	def sanitize(self,i):
 		if any([a in bytes(i, 'UTF-8') for a in Config.invalid_characters]):
