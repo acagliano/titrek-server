@@ -575,7 +575,7 @@ class Client:
 		packet_length = len(data)
 		i = 0
 		while packet_length:
-			bytes_sent = self.conn.send(bytes(data[i:min(packet_length, max_packet_size)])
+			bytes_sent = self.conn.send(bytes(data[i:min(packet_length, Config.packet_size)])
 			if not bytes_sent:
     				raise Exception("packet transmission error")
 				break
@@ -592,7 +592,7 @@ class Client:
 		self.conn.settimeout(Config.inactive_timeout)
 		while self.server.online and not self.closed:
 			try:
-				data = list(self.conn.recv(4096))
+				data = list(self.conn.recv(Config.packet_size))
 			except socket.timeout:
 				self.log(f"Inactive timeout for user {self.user}. Disconnecting.")
 				if self.logged_in:
