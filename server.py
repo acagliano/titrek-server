@@ -295,7 +295,7 @@ class Server:
 		with open("servinfo.json","w") as f:
 			servinfo={"server":{
 				"version": version,
-				"numclients":Client.count,
+				"numclients":len(self.clients),
 				"minversion":delim.join([str(item) for item in Config.min_client]),
 				"max_clients":Config.max_players,
 				"online":self.online}}
