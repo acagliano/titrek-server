@@ -575,8 +575,8 @@ class Client:
 		packet_length = len(data)
 		i = 0
 		while packet_length:
-			bytes_sent = self.conn.send(bytes(data[i:min(packet_length, Config.packet_size)])
-			if bytes_sent==0:
+			bytes_sent = self.conn.send(bytes(data[i:min(packet_length, Config.packet_size)]))
+			if not bytes_sent:
     				raise Exception("packet transmission error")
 				break
 			i+=bytes_sent
