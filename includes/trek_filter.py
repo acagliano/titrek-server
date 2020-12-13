@@ -172,7 +172,11 @@ class TrekFilter:
                         pass
                     except AttributeError:
                         raise Exception(f'Method {r["method"]} not implemented')
+                
+                resp_string = "Fail" if response else "Pass"
+                self.dlog(f"[Filter] Check: {r['check']}, Status: {resp_string}")
                 if response:
+                    self.dlog(f"[Filter] check: {r['check']}")
                     for action in r["failaction"]:
                         try:
                             getattr(self, action)(conn, addr, data)
