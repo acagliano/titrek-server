@@ -215,14 +215,17 @@ class TrekFilter:
        		return False                      
         packet_segments=bytes(data[1:len(data)-1]).split(b"\0")
         if not len(packet_segments)==len(self.packet_specs[packet_id]["segments"]):
-       		self.log("[Filter] Packet segment count invalid!")
-       		return True
+            self.log("[Filter][sanity] Packet segment count invalid!")
+            self.log(f"[Filter][sanity] Failed for {addr[0]}")
+            return True
         loop_iter=0
         for seg in self.packet_specs[packet_id]["segments"]:
             if seg==False:
                 continue
             response = getattr(self,seg)(packet_segments[loop_iter])
             if response:
+                self.log("[Filter][sanity] Segment analysis failed!")
+                self.log(f"[Filter][sanity] Failed for {addr[0]}")
                 return True
             loop_iter+=1
        	return False
