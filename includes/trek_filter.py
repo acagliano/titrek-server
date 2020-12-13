@@ -218,9 +218,9 @@ class TrekFilter:
        		return True
         loop_iter=0
         for seg in self.packet_specs[packet_id]["segments"]:
-       		if seg==False:
+		if seg==False:
                		continue
-            	response = getattr(self,seg)(packet_segments[loop_iter])
+		response = getattr(self,seg)(packet_segments[loop_iter])
             	if response:
                 	return True 
             	loop_iter+=1                       
