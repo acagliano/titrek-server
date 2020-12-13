@@ -213,9 +213,6 @@ class TrekFilter:
        		self.dlog(f"[Filter] Packet {packet_id} not in speclist. Skipping!")
        		return False                      
         packet_segments=bytes(data[1:len(data)-1]).split(b"\0")
-        self.log(f"{len(packet_segments)} v {len(self.packet_specs[packet_id]['segments'])}")
-        for p in packet_segments:
-            self.log(f"{p.decode()}")
         if not len(packet_segments)==len(self.packet_specs[packet_id]["segments"]):
        		self.log("[Filter] Packet segment count invalid!")
        		return True
@@ -230,7 +227,7 @@ class TrekFilter:
        	return False
                                         
     def special_chars(self, segment):
-        if any([a in bytes(segment, 'UTF-8') for a in TrekFilter.special_characters]):
+        if any([a in segment for a in TrekFilter.special_characters]):
             return True
         else:
            	return False                                                         
