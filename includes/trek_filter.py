@@ -213,7 +213,7 @@ class TrekFilter:
        		self.dlog(f"[Filter] Packet {packet_id} not in speclist. Skipping!")
        		return False                      
         packet_segments=bytes(data[1:]).split(b"\0")
-	self.log(f"{len(packet_segments)} v {len(self.packet_specs[packet_id]["segments"])}")					
+        self.log(f"{len(packet_segments)} v {len(self.packet_specs[packet_id]['segments'])}")
         if not len(packet_segments)==len(self.packet_specs[packet_id]["segments"]):
        		self.log("[Filter] Packet segment count invalid!")
        		return True
@@ -256,7 +256,7 @@ class TrekFilter:
     def inform_user(self, conn, addr, data):
         self.log(f'[Filter] Sending "Invalid" to user')
         msg = b"Packet dropped by server: Invalid"
-	conn.send([ControlCodes["MESSAGE"]]+list(msg))
+        conn.send(bytes([ControlCodes["MESSAGE"]]+list(msg)))
         return
         
     def blacklist_ip(self, conn, addr, data):
