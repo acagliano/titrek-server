@@ -254,7 +254,7 @@ class TrekFilter:
         
     def inform_user(self, conn, addr, data):
         self.log(f'[Filter] Sending "Invalid" to user')
-        msg="Packet dropped by server: Invalid"
+        msg="Packet dropped by server: Invalid".encode()
         conn.send([ControlCodes["MESSAGE"]]+list(bytes(msg+'\0', 'UTF-8')))
         return
         
