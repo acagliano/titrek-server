@@ -206,31 +206,31 @@ class TrekFilter:
             
     def sanity(self, addr, data, trusted):
         if not self.enable_sanity:
-            self.dlog("[Filter] Sanity checks are disabled, skipping!")                          
-            return False
+        	self.dlog("[Filter] Sanity checks are disabled, skipping!")                          
+       		return False
         packet_id=str(ord(data[0]))
         if not packet_id in self.packet_specs:
-            self.dlog(f"[Filter] Packet {packet_id} not in speclist. Skipping!")
-            return False                      
+       		self.dlog(f"[Filter] Packet {packet_id} not in speclist. Skipping!")
+       		return False                      
         packet_segments=bytes(data[1:]).split(b"\0")
         if not len(packet_segments)==len(self.packet_specs[packet_id]["segments"]):
-            self.log("[Filter] Packet segment count invalid!")
-            return True
+       		self.log("[Filter] Packet segment count invalid!")
+       		return True
         loop_iter=0
         for seg in self.packet_specs[packet_id]["segments"]:
-            if seg==False:
-                continue
-            response = getattr(self,seg)(packet_segments[loop_iter])
-            if response:
-                return True 
-            loop_iter+=1                       
-        return False
+       		if seg==False:
+               		continue
+            	response = getattr(self,seg)(packet_segments[loop_iter])
+            	if response:
+                	return True 
+            	loop_iter+=1                       
+       	return False
                                         
     def special_chars(self, segment):
         if any([a in bytes(segment, 'UTF-8') for a in TrekFilter.special_characters]):
-			return True
+		return True
         else
-            return False                                                         
+           	return False                                                         
         
     def threshhold(self, addr, data, trusted):
         ip, port = addr
