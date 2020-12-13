@@ -214,7 +214,8 @@ class TrekFilter:
        		return False                      
         packet_segments=bytes(data[1:len(data)]).split(b"\0")
         self.log(f"{len(packet_segments)} v {len(self.packet_specs[packet_id]['segments'])}")
-	self.log(f"{".".join(packet_segments)}")
+        for p in packet_segments:
+            self.log(f"{p.decode()}")
         if not len(packet_segments)==len(self.packet_specs[packet_id]["segments"]):
        		self.log("[Filter] Packet segment count invalid!")
        		return True
