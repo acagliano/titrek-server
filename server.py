@@ -133,7 +133,7 @@ class Server:
 		except:
 			self.log("convbin exists! skipping!")
 		try:
-			if not path.exists("bin/update-bins")
+			if not path.exists("bin/update-bins"):
 				exec_string="#!/bin/sh\n\ncd bin/convimg\ngit pull\nmake\n\ncd ../convbin\ngit pull\nmake\nexit 0"
 				with open("bin/update-bins", "w+") as f:
 					f.write(exec_string)
