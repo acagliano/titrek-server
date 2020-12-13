@@ -255,8 +255,13 @@ class TrekFilter:
         
     def inform_user(self, conn, addr, data):
         self.log(f'[Filter] Sending "Invalid" to user')
+<<<<<<< HEAD
         msg = b"Packet dropped by server: Invalid"
         conn.send(bytes([ControlCodes["MESSAGE"]]+list(msg)))
+=======
+        msg = b"Packet dropped by server: Invalid\0"
+	conn.send([ControlCodes["MESSAGE"]]+list(msg))
+>>>>>>> 532832bb8ffdbae96c318112f73816a2796b1938
         return
         
     def blacklist_ip(self, conn, addr, data):
