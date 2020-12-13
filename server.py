@@ -133,11 +133,12 @@ class Server:
 		except:
 			self.log("convbin exists! skipping!")
 		try:
-			exec_string="#!/bin/sh\n\ncd bin/convimg\ngit pull\nmake\n\ncd ../convbin\ngit pull\nmake\nexit 0"
-			with open("bin/update-bins", "w+") as f:
-				f.write(exec_string)
-				self.log("update script generated")
-			os.chmod("bin/update-bins", 0o774)
+			if not path.exists("bin/update-bins")
+				exec_string="#!/bin/sh\n\ncd bin/convimg\ngit pull\nmake\n\ncd ../convbin\ngit pull\nmake\nexit 0"
+				with open("bin/update-bins", "w+") as f:
+					f.write(exec_string)
+					self.log("update script generated")
+				os.chmod("bin/update-bins", 0o774)
 		except:
 			self.log("Error creating update script")
 		
