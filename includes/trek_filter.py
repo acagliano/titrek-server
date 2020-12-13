@@ -212,7 +212,7 @@ class TrekFilter:
         if not packet_id in self.packet_specs:
        		self.dlog(f"[Filter] Packet {packet_id} not in speclist. Skipping!")
        		return False                      
-        packet_segments=bytes(data[1:len(data)]).split(b"\0")
+        packet_segments=bytes(data[1:len(data)-1]).split(b"\0")
         self.log(f"{len(packet_segments)} v {len(self.packet_specs[packet_id]['segments'])}")
         for p in packet_segments:
             self.log(f"{p.decode()}")
