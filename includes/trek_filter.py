@@ -106,35 +106,32 @@ class TrekFilter:
         self.log("[Filter] Disabled!")
         
     def printinfo(self):
-        self.log(f"TrekFilter v{TrekFilter.version}")
-        if TrekFilter.status:
-            active="enabled"
-        else:
-            active="disabled"
-        self.log(f"Status: {active}")
-        self.log(f"Mode: {self.mode}")
-    
-    def printrules(self):
+        infostring=f"\n___TrekFilter Service Firewall v{TrekFilter.version}___"
+        active="enabled" if TrekFilter.status else "disabled"
+        infostring+=f"\nStatus {active}\nMode: {self.mode}"
         index=1
-        rule_string=f"TrekFilter active ruleset\n"
+        infostring+=f"\n\n_Active Ruleset_"
         delim=","
         for r in self.rules:
-            rule_string+=f'-{index} RUN CHECK {r["method"]} RESPOND WITH {delim.join(r["failaction"])}\n'
+            infostring+=f'\n-{index} RUN CHECK {r["method"]} RESPOND WITH {delim.join(r["failaction"])}'
             index+=1
+        infostring+="\n\n_Active Packet Specs_"
+        for s in self.packet_specs.keys():
+            infostring+=f"\nPacket: {s}, Specs: {str(self.packet_specs[s]['segments'])}"
         if self.mode=="normal":
-            rule_string+="Checking Packets: "
+            infostring+="\nChecking Packets: "
         else:
-            rule_string+="Excluding Packets: "
-        rule_string+=f'{self.packetlist}'
-        self.log(f"{rule_string}")
-        
-    def printoffenders(self):
-        self.log("Offenders:")
-        for o in self.offenders:
-            self.log(o)
-        self.log("Blacklist:")
+            infostring+="\nExcluding Packets: "
+        infostring+=f'{self.packetlist}'
+        infostring+="\n\n_Offenders_"
+        for o in self.offenders.keys():
+            infostring+=f"\nIP: {o}, Hits: {self.offenders[o]}"
+        infostring+="\n\n_Blacklist_"
         for b in self.blacklist:
-            self.log(b)
+            infostring+=f"\nIP: {b}"
+        
+        self.log(f"{infostring}")
+    
                                                  
     def save_blacklist(self):
         try:
