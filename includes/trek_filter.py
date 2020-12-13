@@ -208,7 +208,7 @@ class TrekFilter:
         if not self.enable_sanity:
         	self.dlog("[Filter] Sanity checks are disabled, skipping!")                          
        		return False
-        packet_id=str(ord(data[0]))
+        packet_id=str(ord(bytes(data[0])))
         if not packet_id in self.packet_specs:
        		self.dlog(f"[Filter] Packet {packet_id} not in speclist. Skipping!")
        		return False                      
