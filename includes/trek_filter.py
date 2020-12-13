@@ -228,7 +228,7 @@ class TrekFilter:
                                         
     def special_chars(self, segment):
         if any([a in bytes(segment, 'UTF-8') for a in TrekFilter.special_characters]):
-		return True
+            return True
         else
            	return False                                                         
         
