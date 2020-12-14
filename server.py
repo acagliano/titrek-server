@@ -147,9 +147,13 @@ class Server:
 	def init_logging(self, path=Config.log_file):
 		self.logger = logging.getLogger('titrek.server')
 		self.logger.setLevel(logging.DEBUG)
-		handler = TimedRotatingFileHandler(path, when="w6", interval=1, backupCount=5)
-		self.logger.addHandler(handler)
-		self.logger.addHandler(logging.StreamHandler())
+		formatter = logging.Formatter('%(levelname)s: %(asctime)s: %(message)s')
+		file_handler = TimedRotatingFileHandler(path, when="w6", interval=1, backupCount=5)
+		file_handler.setFormatter(formatter)
+		self.logger.addHandler(file_handler)
+		console_handler = logging.StreamHandler()
+		console_handler.setFormatter(formatter)
+		self.logger.addHandler(console_handler)
                                        	
 	def run(self):
 		try:
