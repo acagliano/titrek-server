@@ -149,6 +149,7 @@ class Server:
 		self.logger.setLevel(logging.DEBUG)
 		handler = TimedRotatingFileHandler(path, when="w6", interval=1, backupCount=5)
 		self.logger.addHandler(handler)
+		self.logger.addHandler(logging.StreamHandler())
                                        	
 	def run(self):
 		try:
