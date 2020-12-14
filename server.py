@@ -145,11 +145,11 @@ class Server:
 			self.log("Error creating update script")
    
    
-    def init_logging(self, path=Config.log_file):
-        self.logger = logging.getLogger('titrek.server')
-        logger.setLevel(logging.DEBUG)
-        handler = TimedRotatingFileHandler(path, when="w6", interval=1, backupCount=5)
-        logger.addHandler(handler)
+   	def init_logging(self, path=Config.log_file):
+       		self.logger = logging.getLogger('titrek.server')
+        	logger.setLevel(logging.DEBUG)
+        	handler = TimedRotatingFileHandler(path, when="w6", interval=1, backupCount=5)
+        	logger.addHandler(handler)
                                        
 		
 	def run(self):
@@ -1001,10 +1001,7 @@ outputs:
 		
 
 if __name__ == '__main__':
-	logging.basicConfig(format='%(levelname)s: %(asctime)s: %(message)s',level=logging.DEBUG,handlers=[
-		logging.StreamHandler(), # writes to stderr
-		handler=TimedRotatingFileHandler(Config.log_file, when="w6", interval=1, backupCount=5),
-	])
+	
 	server = Server()
 	server.run()
 
