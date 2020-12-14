@@ -171,7 +171,7 @@ class Server:
 				with open(Config.log_file, 'rb') as lf:
 					gf.write(lf.read())
 			sleep(2)
-            open(f'{Config.log_file}', 'w+').close()
+            		open(f'{Config.log_file}', 'w+').close()
 			self.log("Instance logfile flushed to archive.")
 		except:
 			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
