@@ -9,6 +9,7 @@
 
 import socket,threading,ctypes,hashlib,json,os,sys,time,math,ssl,traceback,subprocess,logging,gzip,re
 from datetime import datetime
+import logging.handlers
 
 sys.path.insert(1, 'includes')
 from trek_codes import *
@@ -18,6 +19,8 @@ from trek_vec3 import *
 from trek_filter import *
 from trek_modules import loadModule
 from trek_util import *
+
+         
 
 class Config:
 	port = None
@@ -32,7 +35,6 @@ class Config:
 	packet_size = 4096
 	gamedata = "data/"
 	filter_path = "filter/"
-	logger = logging.getLogger('titrek.server')
 	log_file = "logs/server.log"
 	log_archive = f"logs/{datetime.now().year}-{datetime.now().month}_server.log.gz"
 	invalid_characters = [bytes(a,'UTF-8') for a in ["/","\\","#","$","%","^","&","*","!","~","`","\"","|"]] + \
@@ -99,7 +101,7 @@ class Server:
 			except:
 				pass
 		try:
-			self.logger = Config.logger
+            init_logging()
 			self.loadbans()
 			self.load_whitelist()
 			self.init_binaries()
@@ -141,6 +143,14 @@ class Server:
 				os.chmod("bin/update-bins", 0o774)
 		except:
 			self.log("Error creating update script")
+   
+   
+    def init_logging(self, path=Config.log_file):
+        self.logger = logging.getLogger('titrek.server')
+        logger.setLevel(logging.DEBUG)
+        handler = TimedRotatingFileHandler(path, when="w6", interval=1, backupCount=5)
+        logger.addHandler(handler)
+                                       
 		
 	def run(self):
 		try:
@@ -161,20 +171,20 @@ class Server:
 			self.console()
 			self.stop()
 			self.sock.close()
-			self.flush_log_to_archive()
+		#	self.flush_log_to_archive()
 		except:
 			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
 
-	def flush_log_to_archive(self):
-		try:
-			with gzip.open(Config.log_archive, 'ab') as gf:
-				with open(Config.log_file, 'rb') as lf:
-					gf.write(lf.read())
-			sleep(2)
-			open(f'{Config.log_file}', 'w+').close()
-			self.log("Instance logfile flushed to archive.")
-		except:
-			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
+	#def flush_log_to_archive(self):
+	#	try:
+	#		with gzip.open(Config.log_archive, 'ab') as gf:
+	#			with open(Config.log_file, 'rb') as lf:
+	#				gf.write(lf.read())
+	#		sleep(2)
+     #       open(f'{Config.log_file}', 'w+').close()
+		#	self.log("Instance logfile flushed to archive.")
+	#	except:
+	#		self.elog(traceback.print_exc(limit=None, file=None, chain=True))
 			
 	def banlist(self):
 		print("[BANNED USERS]")
@@ -993,7 +1003,7 @@ outputs:
 if __name__ == '__main__':
 	logging.basicConfig(format='%(levelname)s: %(asctime)s: %(message)s',level=logging.DEBUG,handlers=[
 		logging.StreamHandler(), # writes to stderr
-		logging.FileHandler(Config.log_file),
+		handler=TimedRotatingFileHandler(Config.log_file, when="w6", interval=1, backupCount=5),
 	])
 	server = Server()
 	server.run()
