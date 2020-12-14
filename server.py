@@ -20,6 +20,16 @@ from trek_filter import *
 from trek_modules import loadModule
 from trek_util import *
 
+
+class GZipRotator:
+    def __call__(self, source, dest):
+        os.rename(source, dest)
+        with open(dest, 'rb') as f_in:
+		with gzip.open(f"{Config.log_file}.gz", 'wb') as f_out:
+        		f_out.writelines(f_in)
+	sleep(1)
+        os.remove(dest)
+
          
 
 class Config:
@@ -149,6 +159,7 @@ class Server:
 		self.logger.setLevel(logging.DEBUG)
 		formatter = logging.Formatter('%(levelname)s: %(asctime)s: %(message)s')
 		file_handler = TimedRotatingFileHandler(path, when="w6", interval=1, backupCount=5)
+		file_handler.rotator=GZipRotator()
 		file_handler.setFormatter(formatter)
 		self.logger.addHandler(file_handler)
 		console_handler = logging.StreamHandler()
