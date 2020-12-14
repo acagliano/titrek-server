@@ -143,15 +143,13 @@ class Server:
 				os.chmod("bin/update-bins", 0o774)
 		except:
 			self.log("Error creating update script")
-   
-   
-   	def init_logging(self, path=Config.log_file):
-       		self.logger = logging.getLogger('titrek.server')
-        	logger.setLevel(logging.DEBUG)
-        	handler = TimedRotatingFileHandler(path, when="w6", interval=1, backupCount=5)
-        	logger.addHandler(handler)
-                                       
-		
+			
+	def init_logging(self, path=Config.log_file):
+		self.logger = logging.getLogger('titrek.server')
+		logger.setLevel(logging.DEBUG)
+		handler = TimedRotatingFileHandler(path, when="w6", interval=1, backupCount=5)
+		logger.addHandler(handler)
+                                       	
 	def run(self):
 		try:
 			self.online = True
