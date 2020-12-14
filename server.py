@@ -146,9 +146,9 @@ class Server:
 			
 	def init_logging(self, path=Config.log_file):
 		self.logger = logging.getLogger('titrek.server')
-		logger.setLevel(logging.DEBUG)
+		self.logger.setLevel(logging.DEBUG)
 		handler = TimedRotatingFileHandler(path, when="w6", interval=1, backupCount=5)
-		logger.addHandler(handler)
+		self.logger.addHandler(handler)
                                        	
 	def run(self):
 		try:
