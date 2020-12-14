@@ -101,7 +101,7 @@ class Server:
 			except:
 				pass
 		try:
-            init_logging()
+            		init_logging()
 			self.loadbans()
 			self.load_whitelist()
 			self.init_binaries()
