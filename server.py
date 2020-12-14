@@ -9,7 +9,7 @@
 
 import socket,threading,ctypes,hashlib,json,os,sys,time,math,ssl,traceback,subprocess,logging,gzip,re
 from datetime import datetime
-import logging.handlers
+from logging.handlers import TimedRotatingFileHandler
 
 sys.path.insert(1, 'includes')
 from trek_codes import *
