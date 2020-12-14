@@ -26,9 +26,9 @@ class GZipRotator:
         os.rename(source, dest)
         with open(dest, 'rb') as f_in:
 		with gzip.open(f"{Config.log_file}.gz", 'wb') as f_out:
-        		f_out.writelines(f_in)
+			f_out.writelines(f_in)
 	sleep(1)
-        os.remove(dest)
+	os.remove(dest)
 
          
 
