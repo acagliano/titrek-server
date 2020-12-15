@@ -292,7 +292,7 @@ class Server:
 			command=f"curl -H \"Content-Type: application/json\" -X POST -d '{jstr}' {url}"
 			os.system(command)
 		except:
-			print(traceback.format_exc(limit=None, file=None, chain=True))
+			print(traceback.format_exc(limit=None, chain=True))
 	
 	def main_ssl(self):
 		while self.online:
@@ -309,7 +309,7 @@ class Server:
 					self.threads.append(thread)
 					thread.start()
 				except:
-					self.elog(traceback.format_exc(limit=None, file=None, chain=True))
+					self.elog(traceback.format_exc(limit=None, chain=True))
 				time.sleep(0.002)
 				self.writeinfo()
 				
@@ -530,7 +530,7 @@ class Server:
 			except KeyboardInterrupt:
 				break
 			except Exception as e:
-				self.elog(traceback.format_exc(limit=None, file=None, chain=True))
+				self.elog(traceback.format_exc(limit=None, chain=True))
 
 class Client:
 	count = 0
