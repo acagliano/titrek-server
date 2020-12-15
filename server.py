@@ -269,9 +269,8 @@ class Server:
 	
 	def elog(self,*args,**kwargs):
 		self.logger.log(logging.ERROR, *args, **kwargs)
-		print(**kwargs)
 		for e in args:
-			self.discord_out("[Server]",f"{e}",1)
+			self.discord_out("[Server]",f"{repr(e)}",1)
 		
 	def dlog(self,*args,**kwargs):
 		if Config.packet_debug:
