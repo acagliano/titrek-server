@@ -94,7 +94,7 @@ class Config:
 					Config.filter_path=paths["filter"]
 				self.setpaths()
 		except:
-			print(traceback.print_exc(limit=None, file=None, chain=True))
+			print(traceback.format_exc(limit=None, chain=True))
 
 
 class Server:
@@ -131,7 +131,7 @@ class Server:
 			self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 			self.sock.bind(('', self.port))                 # Now wait for client connection.
 		except:
-			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
+			self.elog(traceback.format_exc(limit=None, chain=True))
 
 	def init_binaries(self):
 		try:
@@ -191,7 +191,7 @@ class Server:
 			self.sock.close()
 		#	self.flush_log_to_archive()
 		except:
-			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
+			self.elog(traceback.format_exc(limit=None, chain=True))
 
 	#def flush_log_to_archive(self):
 	#	try:
@@ -224,7 +224,7 @@ class Server:
 		except IOError:
 			pass
 		except:
-			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
+			self.elog(traceback.format_exc(limit=None, chain=True))
 			
 	def whitelist_add(self,ip):
 		try:
@@ -235,7 +235,7 @@ class Server:
 			else:
 				self.log(f"{ip} already whitelisted.")
 		except:
-			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
+			self.elog(traceback.format_exc(limit=None, chain=True))
 	
 	def whitelist_remove(self,ip):
 		try:
@@ -243,7 +243,7 @@ class Server:
 			self.log(f"{ip} removed from whitelist.")
 			self.save_whitelist()
 		except:
-			self.elog(traceback.format_exc(limit=None, file=None, chain=True))
+			self.elog(traceback.format_exc(limit=None, chain=True))
 	
 	def save_whitelist(self):
 		try:
@@ -252,7 +252,7 @@ class Server:
 					f.write(str(w)+"\n")
 			self.log(f"Whitelist written successfully.")
 		except:
-			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
+			self.elog(traceback.format_exc(limit=None, chain=True))
 			
 	def loadbans(self):
 		try:
@@ -263,7 +263,7 @@ class Server:
 		except IOError:
 			pass
 		except:
-			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
+			self.elog(traceback.format_exc(limit=None, chain=True))
 
 	def log(self,*args,**kwargs):
 			self.logger.log(logging.INFO, *args, **kwargs)
@@ -329,7 +329,7 @@ class Server:
 				self.threads.append(thread)
 				thread.start()
 			except:
-				self.elog(traceback.print_exc(limit=None, file=None, chain=True))
+				self.elog(traceback.format_exc(limit=None, chain=True))
 			time.sleep(0.002)
 			self.writeinfo()
 
@@ -372,7 +372,7 @@ class Server:
 			self.online = False
 			self.writeinfo()
 		except:
-			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
+			self.elog(traceback.format_exc(limit=None, chain=True))
 
 	def kick(self,username):
 		for conn in self.clients.keys():
@@ -414,7 +414,7 @@ class Server:
 					f.write(str(w)+"\n")
 				self.log(f"User bans written successfully.")
 		except:
-			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
+			self.elog(traceback.format_exc(limit=None, chain=True))
 			
 	def purgeclient(self, conn):
 		del self.clients[conn]
@@ -586,7 +586,7 @@ class Client:
 			self.rot = Vec3()
 			self.load_modules()
 		except:
-			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
+			self.elog(traceback.format_exc(limit=None, chain=True))
 		
 	def load_modules(self):
 		for m in self.data["ships"][0]["modules"]:
@@ -603,7 +603,7 @@ class Client:
 			for k in j['module'][level].keys():				
 				m[k] = j['module'][level][k]
 		except:
-			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
+			self.elog(traceback.format_exc(limit=None, chain=True))
 
 
 
@@ -838,7 +838,7 @@ class Client:
 			except socket.error:
 				pass
 			except Exception as e:
-				self.elog(traceback.print_exc(limit=None, file=None, chain=True))
+				self.elog(traceback.format_exc(limit=None, chain=True))
 		self.broadcast(f"{self.user} disconnected")
 		server.purgeclient(self.conn)
 		
@@ -909,7 +909,7 @@ outputs:
 		except IOError:
 			self.elog("File IO Error [create_new_game]!")
 		except:
-			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
+			self.elog(traceback.format_exc(limit=None, chain=True))
 
 	def servinfo(self):
 		with open('servinfo.json', 'r+') as info_file:
@@ -1016,7 +1016,7 @@ outputs:
 					self.send([ControlCodes["LOGIN"],ResponseCodes['MISSING']])  # Error: user does not exist
 					return
 		except:
-			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
+			self.elog(traceback.format_exc(limit=None, chain=True))
 			
 	def version_check(self, data):
 		client_version = data[1:4]
