@@ -7,9 +7,10 @@
 # Adam "beckadamtheinventor" Beckingham
 #This is the server program for TI-Trek CE.
 
-import socket,threading,ctypes,hashlib,json,os,sys,time,math,ssl,traceback,subprocess,logging,gzip,re
+import socket,threading,ctypes,hashlib,json,os,sys,time,math,ssl,traceback,subprocess,logging,gzip,re,pycurl
 from datetime import datetime
 from logging.handlers import TimedRotatingFileHandler
+from urllib.parse import urlencode
 
 sys.path.insert(1, 'includes')
 from trek_codes import *
@@ -290,11 +291,14 @@ class Server:
 				url="https://discord.com/api/webhooks/788494210734358559/4Y5PH-P_rS-ZQ63-sHpfp2FmXY9rZm114BMMAJQsn6xsQHPOquaYC33tOXiVoZ4Ph6Io"
 			if msgtype==1:
 				url="https://discord.com/api/webhooks/788497355359518790/7c9oPZgG13_yLnywx3h6wZWY6qXMobNvCHB_6Qjb6ZNbXjw9aP993I8jGE5jXE7DK3Lz"
-			msg=repr(msg).replace('"','\"')
-			jstr="{\"content\":\"'\""+sender+": "+msg+"\"'\"}"
-			command=f"curl -H \"Content-Type: application/json\" -X POST -d '{jstr}' {url}"
-			print(command)
-			os.system(command)
+			c = pycurl.Curl()
+			c.setopt(c.URL, url)
+			c.setopt(c.HTTPHEADER, ['Content-Type: application/json'])
+			data = {"content": f"{msg}"}
+			pf = urlencode(data)
+			crl.setopt(crl.POSTFIELDS, pf)
+			crl.perform()
+			crl.close()
 		except:
 			print(traceback.format_exc(limit=None, chain=True))
 	
