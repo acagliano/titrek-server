@@ -20,6 +20,8 @@ from trek_filter import *
 from trek_modules import loadModule
 from trek_util import *
 
+class UserException(Exception):
+	pass
 
 class GZipRotator:
     def __call__(self, source, dest):
@@ -525,8 +527,7 @@ class Server:
 					else:
 						self.elog("Bruh! discord enable|disable. How many other choices did you expect?")
 				elif line[0]=="except":
-					self.log("User-triggered exception. Don't fear. Things are OK (probably).")
-					raise Exception("Were you trying to see something?")
+					raise UserException("Console-triggered exception. Don't panic!")
 			except KeyboardInterrupt:
 				break
 			except Exception as e:
