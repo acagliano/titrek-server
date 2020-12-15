@@ -693,8 +693,7 @@ class Client:
 					elif data[0]==ControlCodes["MESSAGE"]:
 						if len(data[1:]) > 1:
 							msg = ToUTF8(data[1:-1])
-							self.broadcast(self.user, f"{msg}")
-							Server.discord_out(self.user,msg,0)
+							self.broadcast(f"{msg}", self.user)
 							self.log(f"{self.user}: {msg}")    # send a message to the server
 					elif data[0]==ControlCodes["FRAMEDATA_REQUEST"]:
 						out = []
