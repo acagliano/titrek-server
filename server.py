@@ -459,7 +459,7 @@ class Server:
 						ostring+=" "
 					ostring=ostring[:-1]
 					self.log("[Server] "+ostring)
-					Server.discord_out("[Server]",ostring,0)
+					self.discord_out("[Server]",ostring,0)
 					self.broadcast(ostring)	# broadcast to all clients
 				elif line[0]=="stop":
 					self.log("Received stop command.")
