@@ -274,10 +274,11 @@ class Server:
 		if Config.packet_debug:
 			self.logger.log(logging.DEBUG, *args, **kwargs)
 		
-	def broadcast(self,msg):
+	def broadcast(self,msg,sender="[Server]"):
+		self.discord_out(sender,msg,0)
 		for conn in self.clients.keys():
 			client = self.clients[conn]
-			client.send([ControlCodes["MESSAGE"]]+list(bytes(msg+'\0', 'UTF-8')))
+			client.send([ControlCodes["MESSAGE"]]+list(bytes(sender+": "+msg+'\0', 'UTF-8')))
 	
 	def discord_out(self,sender,msg,msgtype):
 		if not Config.enable_discord_link:
@@ -461,7 +462,6 @@ class Server:
 						ostring+=" "
 					ostring=ostring[:-1]
 					self.log("[Server] "+ostring)
-					self.discord_out("[Server]",ostring,0)
 					self.broadcast(ostring)	# broadcast to all clients
 				elif line[0]=="stop":
 					self.log("Received stop command.")
@@ -694,7 +694,7 @@ class Client:
 					elif data[0]==ControlCodes["MESSAGE"]:
 						if len(data[1:]) > 1:
 							msg = ToUTF8(data[1:-1])
-							self.broadcast(f"{self.user}: {msg}")
+							self.broadcast(self.user, f"{msg}")
 							Server.discord_out(self.user,msg,0)
 							self.log(f"{self.user}: {msg}")    # send a message to the server
 					elif data[0]==ControlCodes["FRAMEDATA_REQUEST"]:
