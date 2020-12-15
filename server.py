@@ -515,6 +515,16 @@ class Server:
 						Config.packet_debug=False
 					else:
 						self.log(f'Debug status: {Config.packet_debug}')
+				elif line[0]=="discord":
+					if line[1]=="enable":
+						Config.enable_discord_link=True
+					if line[1]=="disable":
+						Config.enable_discord_link=False
+					else:
+						self.elog("Bruh! discord enable|disable. How many other choices did you expect?")
+				elif line[0]=="except":
+					self.log("User-triggered exception. Don't fear. Things are OK (probably)."
+					raise Exception("Were you trying to see something?")
 			except KeyboardInterrupt:
 				break
 			except Exception as e:
