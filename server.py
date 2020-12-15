@@ -294,7 +294,7 @@ class Server:
 			crl = pycurl.Curl()
 			crl.setopt(crl.URL, url)
 			crl.setopt(crl.HTTPHEADER, ['Content-Type: application/json'])
-			data = {"content": f"{repr(msg)}"}
+			data = {"content": msg}
 			pf = urlencode(data)
 			crl.setopt(crl.POSTFIELDS, pf)
 			crl.perform()
