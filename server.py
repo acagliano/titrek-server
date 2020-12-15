@@ -162,7 +162,7 @@ class Server:
 		self.logger = logging.getLogger('titrek.server')
 		self.logger.setLevel(logging.DEBUG)
 		formatter = logging.Formatter('%(levelname)s: %(asctime)s: %(message)s')
-		file_handler = TimedRotatingFileHandler(path, when="w6", interval=1, backupCount=5)
+		file_handler = TimedRotatingFileHandler(path, when="w2", interval=1, backupCount=5)
 		file_handler.rotator=GZipRotator()
 		file_handler.setFormatter(formatter)
 		self.logger.addHandler(file_handler)
