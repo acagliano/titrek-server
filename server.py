@@ -270,7 +270,6 @@ class Server:
 	def elog(self,*args,**kwargs):
 		self.logger.log(logging.ERROR, *args, **kwargs)
 		for e in args:
-			err_str=str(e).replace("'","\'").replace('"','\"')
 			self.discord_out("[Server]",f"{repr(err_str)}",1)
 		
 	def dlog(self,*args,**kwargs):
@@ -291,6 +290,7 @@ class Server:
 				url="https://discord.com/api/webhooks/788494210734358559/4Y5PH-P_rS-ZQ63-sHpfp2FmXY9rZm114BMMAJQsn6xsQHPOquaYC33tOXiVoZ4Ph6Io"
 			if msgtype==1:
 				url="https://discord.com/api/webhooks/788497355359518790/7c9oPZgG13_yLnywx3h6wZWY6qXMobNvCHB_6Qjb6ZNbXjw9aP993I8jGE5jXE7DK3Lz"
+			msg=msg.replace("'","\'").replace('"','\"')
 			jstr="{\"content\":\"'\""+sender+": "+msg+"\"'\"}"
 			command=f"curl -H \"Content-Type: application/json\" -X POST -d '{jstr}' {url}"
 			print(command)
