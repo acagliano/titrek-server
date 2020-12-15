@@ -291,9 +291,9 @@ class Server:
 				url="https://discord.com/api/webhooks/788494210734358559/4Y5PH-P_rS-ZQ63-sHpfp2FmXY9rZm114BMMAJQsn6xsQHPOquaYC33tOXiVoZ4Ph6Io"
 			if msgtype==1:
 				url="https://discord.com/api/webhooks/788497355359518790/7c9oPZgG13_yLnywx3h6wZWY6qXMobNvCHB_6Qjb6ZNbXjw9aP993I8jGE5jXE7DK3Lz"
-			c = pycurl.Curl()
-			c.setopt(c.URL, url)
-			c.setopt(c.HTTPHEADER, ['Content-Type: application/json'])
+			crl = pycurl.Curl()
+			crl.setopt(c.URL, url)
+			crl.setopt(c.HTTPHEADER, ['Content-Type: application/json'])
 			data = {"content": f"{msg}"}
 			pf = urlencode(data)
 			crl.setopt(crl.POSTFIELDS, pf)
