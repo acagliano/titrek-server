@@ -517,8 +517,10 @@ class Server:
 						self.log(f'Debug status: {Config.packet_debug}')
 				elif line[0]=="discord":
 					if line[1]=="enable":
+						self.log("Discord link enabled!")
 						Config.enable_discord_link=True
 					if line[1]=="disable":
+						self.log("Discord link disabled!")
 						Config.enable_discord_link=False
 					else:
 						self.elog("Bruh! discord enable|disable. How many other choices did you expect?")
