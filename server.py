@@ -270,6 +270,7 @@ class Server:
 	def elog(self,*args,**kwargs):
 		self.logger.log(logging.ERROR, *args, **kwargs)
 		for e in args:
+			print(e)
 			self.discord_out("[Server]",str(e),1)
 		
 	def dlog(self,*args,**kwargs):
