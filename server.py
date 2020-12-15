@@ -80,7 +80,7 @@ class Config:
 				Config.inactive_timeout = settings["idle-timeout"]
 				Config.min_client = settings["min-client"]
 				Config.packet_size=max(4096, settings["packet-size"])
-				Config.enable_discord_linker=settings["enable-discord-linker"]
+				Config.enable_discord_link=settings["enable-discord-link"]
 				if Config.use_ssl:
 					Config.ssl_path = paths["ssl-path"]
 					context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
@@ -280,6 +280,8 @@ class Server:
 			client.send([ControlCodes["MESSAGE"]]+list(bytes(msg+'\0', 'UTF-8')))
 	
 	def discord_out(self,sender,msg,msgtype):
+		if not Config.enable_discord_linker:
+			return
 		try:
 			if msgtype==0:
 				url='https://discord.com/api/webhooks/788494210734358559/4Y5PH-P_rS-ZQ63-sHpfp2FmXY9rZm114BMMAJQsn6xsQHPOquaYC33tOXiVoZ4Ph6Io'
