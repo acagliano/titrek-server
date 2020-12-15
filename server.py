@@ -523,7 +523,7 @@ class Server:
 					else:
 						self.elog("Bruh! discord enable|disable. How many other choices did you expect?")
 				elif line[0]=="except":
-					self.log("User-triggered exception. Don't fear. Things are OK (probably)."
+					self.log("User-triggered exception. Don't fear. Things are OK (probably).")
 					raise Exception("Were you trying to see something?")
 			except KeyboardInterrupt:
 				break
