@@ -80,6 +80,7 @@ class Config:
 				Config.inactive_timeout = settings["idle-timeout"]
 				Config.min_client = settings["min-client"]
 				Config.packet_size=max(4096, settings["packet-size"])
+				Config.enable_discord_linker=settings["enable-discord-linker"]
 				if Config.use_ssl:
 					Config.ssl_path = paths["ssl-path"]
 					context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
@@ -266,6 +267,8 @@ class Server:
 	
 	def elog(self,*args,**kwargs):
 		self.logger.log(logging.ERROR, *args, **kwargs)
+		for key, value in kwargs.items():
+			self.discord_out("[Server]",value,1)
 		
 	def dlog(self,*args,**kwargs):
 		if Config.packet_debug:
@@ -275,6 +278,17 @@ class Server:
 		for conn in self.clients.keys():
 			client = self.clients[conn]
 			client.send([ControlCodes["MESSAGE"]]+list(bytes(msg+'\0', 'UTF-8')))
+	
+	def discord_out(self,sender,msg,msgtype):
+		try:
+			if msgtype==0:
+				url='https://discord.com/api/webhooks/788494210734358559/4Y5PH-P_rS-ZQ63-sHpfp2FmXY9rZm114BMMAJQsn6xsQHPOquaYC33tOXiVoZ4Ph6Io'
+			if msgtype==1:
+				url='https://discord.com/api/webhooks/788497355359518790/7c9oPZgG13_yLnywx3h6wZWY6qXMobNvCHB_6Qjb6ZNbXjw9aP993I8jGE5jXE7DK3Lz'
+			command=f'curl -H "Content-Type: application/json" -X POST -d \'{"content":"\'"{sender}: {msg}"\'"}\' '+url
+			os.system(command)
+		except:
+			print(traceback.print_exc(limit=None, file=None, chain=True))
 	
 	def main_ssl(self):
 		while self.online:
@@ -443,6 +457,7 @@ class Server:
 						ostring+=" "
 					ostring=ostring[:-1]
 					self.log("[Server] "+ostring)
+					Server.discord_out("[Server]",ostring,0):
 					self.broadcast(ostring)	# broadcast to all clients
 				elif line[0]=="stop":
 					self.log("Received stop command.")
@@ -676,6 +691,7 @@ class Client:
 						if len(data[1:]) > 1:
 							msg = ToUTF8(data[1:-1])
 							self.broadcast(f"{self.user}: {msg}")
+							Server.discord_out(self.user,msg,0):
 							self.log(f"{self.user}: {msg}")    # send a message to the server
 					elif data[0]==ControlCodes["FRAMEDATA_REQUEST"]:
 						out = []
