@@ -8,7 +8,8 @@
     "packet-size":4096,
     "min-client":[0, 0, 98],
     "max-players":100,
-    "idle-timeout":600
+    "idle-timeout":600,
+    "enable-discord-link":true
   },
   "paths":{
     "ssl":"ssl/",
