@@ -288,7 +288,7 @@ class Server:
 			if msgtype==1:
 				url="https://discord.com/api/webhooks/788497355359518790/7c9oPZgG13_yLnywx3h6wZWY6qXMobNvCHB_6Qjb6ZNbXjw9aP993I8jGE5jXE7DK3Lz"
 			json = {"content":f"{sender}: {msg}"}
-            jstr = str(json)
+			jstr = str(json)
 			command=f"curl -H \"Content-Type: application/json\" -X POST -d '{jstr}' {url}"
 			print(command)
 			os.system(command)
