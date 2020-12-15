@@ -240,7 +240,7 @@ class Server:
 			self.log(f"{ip} removed from whitelist.")
 			self.save_whitelist()
 		except:
-			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
+			self.elog(traceback.format_exc(limit=None, file=None, chain=True))
 	
 	def save_whitelist(self):
 		try:
@@ -292,7 +292,7 @@ class Server:
 			command=f"curl -H \"Content-Type: application/json\" -X POST -d '{jstr}' {url}"
 			os.system(command)
 		except:
-			print(traceback.print_exc(limit=None, file=None, chain=True))
+			print(traceback.format_exc(limit=None, file=None, chain=True))
 	
 	def main_ssl(self):
 		while self.online:
@@ -309,7 +309,7 @@ class Server:
 					self.threads.append(thread)
 					thread.start()
 				except:
-					self.elog(traceback.print_exc(limit=None, file=None, chain=True))
+					self.elog(traceback.format_exc(limit=None, file=None, chain=True))
 				time.sleep(0.002)
 				self.writeinfo()
 				
@@ -530,7 +530,7 @@ class Server:
 			except KeyboardInterrupt:
 				break
 			except Exception as e:
-				self.elog(traceback.print_exc(limit=None, file=None, chain=True))
+				self.elog(traceback.format_exc(limit=None, file=None, chain=True))
 
 class Client:
 	count = 0
