@@ -277,13 +277,21 @@ class Server:
 		if Config.packet_debug:
 			self.logger.log(logging.DEBUG, *args, **kwargs)
 		
-	def broadcast(self,msg,sender="[Server]"):
+	def broadcast(self,msg,sender="server"):
 		self.discord_out(sender,msg,0)
 		for conn in self.clients.keys():
 			client = self.clients[conn]
 			client.send([ControlCodes["MESSAGE"]]+list(bytes(sender+": "+msg+'\0', 'UTF-8')))
 	
 	def discord_out(self,sender,msg,msgtype):
+		if sender=="server":
+			username="Server Message"
+			author=""
+			color="1127128"
+		else:
+			username="Chat Message"
+			author=sender
+			color="14177041"
 		if not Config.enable_discord_link:
 			return
 		try:
@@ -291,7 +299,9 @@ class Server:
 				url="https://discord.com/api/webhooks/788494210734358559/4Y5PH-P_rS-ZQ63-sHpfp2FmXY9rZm114BMMAJQsn6xsQHPOquaYC33tOXiVoZ4Ph6Io"
 			if msgtype==1:
 				url="https://discord.com/api/webhooks/788497355359518790/7c9oPZgG13_yLnywx3h6wZWY6qXMobNvCHB_6Qjb6ZNbXjw9aP993I8jGE5jXE7DK3Lz"
-			webhook = DiscordWebhook(url=url, content=f"{sender}: {msg}")
+			webhook = DiscordWebhook(url=url, username=f"{username}")
+			webhook.set_author(author)
+			webhook.set_content(content=f"{sender}: {msg}", color=f"{color}")
 			response = webhook.execute()
 		except:
 			print(traceback.format_exc(limit=None, chain=True))
@@ -525,7 +535,7 @@ class Server:
 						self.log("Discord link disabled!")
 						Config.enable_discord_link=False
 					else:
-						self.elog("Bruh! discord enable|disable. How many other choices did you expect?")
+						self.log("Bruh! discord enable|disable. How many other choices did you expect?")
 				elif line[0]=="except":
 					raise UserException("Console-triggered exception. Don't panic!")
 			except KeyboardInterrupt:
