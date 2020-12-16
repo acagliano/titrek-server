@@ -174,21 +174,20 @@ class TrekFilter:
                 resp_string = "Fail" if response else "Pass"
                 self.dlog(f"[Filter] Check: {r['check']}, Status: {resp_string}")
                 if response:
-			msg=f"IP {addr[0]} failed TrekFilter.{r['check']} for packet {data[0]}\nPerforming Actions: {delim.join(r['failaction'])}"
-			self.discord_out("TrekFilter",msg,2)
+			msg=f"IP {addr[0]} failed TrekFilter.{r['check']} for packet {data[0]}\nPerforming Actions: {delim.join(r['failaction'])}"			self.discord_out("TrekFilter",msg,2)
                     	self.dlog(f"[Filter] check: {r['check']}")
-                    for action in r["failaction"]:
-                        try:
-                            getattr(self, action)(conn, addr, data)
-                        except AttributeError:
-                            try:
-                                getattr(self,self.loadModule(f'{self.actions}{action}.py'))(conn, addr, data)
-                                pass
-                            except AttributeError:
-                                raise Exception(f'Method {action} not implemented')
-                                continue
-                    if not data:
-                        break
+			for action in r["failaction"]:
+				  try:
+				  	getattr(self, action)(conn, addr, data)
+				  except AttributeError:
+				  	try:
+				  		getattr(self,self.loadModule(f'{self.actions}{action}.py'))(conn, addr, data)
+				  		pass
+				  	except AttributeError:
+				  		raise Exception(f'Method {action} not implemented')
+				  		continue
+			if not data:
+				break
         except:
             self.log(traceback.print_exc(limit=None, file=None, chain=True))
         return
