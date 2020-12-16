@@ -30,7 +30,7 @@ class TrekFilter:
         self.dlog=dlog
         self.hitcount=hitcount
         self.mode=mode
-	self.discord_out=discord
+        self.discord_out=discord
         self.modules=f"{self.path}modules/"
         self.actions=f"{self.path}actions/"
         
