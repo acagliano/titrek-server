@@ -284,6 +284,8 @@ class Server:
 			client.send([ControlCodes["MESSAGE"]]+list(bytes(sender+": "+msg+'\0', 'UTF-8')))
 	
 	def discord_out(self,sender,msg,msgtype):
+		if not Config.enable_discord_link:
+			return
 		if sender=="server":
 			title="Server Message"
 			author=""
@@ -292,15 +294,13 @@ class Server:
 			title="Chat Message"
 			author=sender
 			color="14177041"
-		if not Config.enable_discord_link:
-			return
 		try:
 			if msgtype==0:
 				url="https://discord.com/api/webhooks/788494210734358559/4Y5PH-P_rS-ZQ63-sHpfp2FmXY9rZm114BMMAJQsn6xsQHPOquaYC33tOXiVoZ4Ph6Io"
 			if msgtype==1:
 				url="https://discord.com/api/webhooks/788497355359518790/7c9oPZgG13_yLnywx3h6wZWY6qXMobNvCHB_6Qjb6ZNbXjw9aP993I8jGE5jXE7DK3Lz"
-			webhook = DiscordWebhook(url=url, content=f"{sender}: {msg}")
-			embed = DiscordEmbed(title=f'{title}', color=f"{color}")
+			webhook = DiscordWebhook(url=url)
+			embed = DiscordEmbed(title=f'{title}', description=f"{msg}", color=f"{color}")
 			embed.set_author(name=f'{author}')
 			webhook.add_embed(embed)
 			response = webhook.execute()
