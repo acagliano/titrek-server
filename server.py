@@ -306,6 +306,7 @@ class Server:
 			print(traceback.format_exc(limit=None, chain=True))
 	
 	def main_ssl(self):
+		self.broadcast(f"Server Online!")
 		while self.online:
 			self.sock.listen(1)
 			with context.wrap_socket(self.sock, server_side=True) as ssock:
@@ -325,6 +326,7 @@ class Server:
 				self.writeinfo()
 				
 	def main_normal(self):
+		self.broadcast(f"Server Online!")
 		while self.online:
 			self.sock.listen(1)
 			conn, addr = self.sock.accept()
