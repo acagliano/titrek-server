@@ -287,11 +287,9 @@ class Server:
 		if not Config.enable_discord_link:
 			return
 		if sender=="server":
-			title="Server Message"
-			author=""
+			author="Server Message"
 			color="1127128"
 		else:
-			title="Chat Message"
 			author=sender
 			color="14177041"
 		try:
@@ -300,7 +298,7 @@ class Server:
 			if msgtype==1:
 				url="https://discord.com/api/webhooks/788497355359518790/7c9oPZgG13_yLnywx3h6wZWY6qXMobNvCHB_6Qjb6ZNbXjw9aP993I8jGE5jXE7DK3Lz"
 			webhook = DiscordWebhook(url=url)
-			embed = DiscordEmbed(title=f'{title}', description=f"{msg}", color=f"{color}")
+			embed = DiscordEmbed(description=f"{msg}", color=f"{color}")
 			embed.set_author(name=f'{author}')
 			webhook.add_embed(embed)
 			response = webhook.execute()
