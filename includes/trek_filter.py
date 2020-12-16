@@ -173,10 +173,10 @@ class TrekFilter:
                 
                 resp_string = "Fail" if response else "Pass"
                 self.dlog(f"[Filter] Check: {r['check']}, Status: {resp_string}")
-		msg=f"IP {addr[0]} failed TrekFilter.{r['check']} for packet {data[0]}\nPerforming Actions: {delim.join(r["failaction"])}"
-		self.discord_out("TrekFilter",msg,2)
                 if response:
-                    self.dlog(f"[Filter] check: {r['check']}")
+			msg=f"IP {addr[0]} failed TrekFilter.{r['check']} for packet {data[0]}\nPerforming Actions: {delim.join(r['failaction'])}"
+			self.discord_out("TrekFilter",msg,2)
+                    	self.dlog(f"[Filter] check: {r['check']}")
                     for action in r["failaction"]:
                         try:
                             getattr(self, action)(conn, addr, data)
