@@ -10,7 +10,7 @@
 import socket,threading,ctypes,hashlib,json,os,sys,time,math,ssl,traceback,subprocess,logging,gzip,re
 from datetime import datetime
 from logging.handlers import TimedRotatingFileHandler
-from discord_webhook import DiscordWebhook
+from discord_webhook import DiscordWebhook, DiscordEmbed
 
 sys.path.insert(1, 'includes')
 from trek_codes import *
@@ -285,11 +285,11 @@ class Server:
 	
 	def discord_out(self,sender,msg,msgtype):
 		if sender=="server":
-			username="Server Message"
+			title="Server Message"
 			author=""
 			color="1127128"
 		else:
-			username="Chat Message"
+			title="Chat Message"
 			author=sender
 			color="14177041"
 		if not Config.enable_discord_link:
@@ -299,9 +299,10 @@ class Server:
 				url="https://discord.com/api/webhooks/788494210734358559/4Y5PH-P_rS-ZQ63-sHpfp2FmXY9rZm114BMMAJQsn6xsQHPOquaYC33tOXiVoZ4Ph6Io"
 			if msgtype==1:
 				url="https://discord.com/api/webhooks/788497355359518790/7c9oPZgG13_yLnywx3h6wZWY6qXMobNvCHB_6Qjb6ZNbXjw9aP993I8jGE5jXE7DK3Lz"
-			webhook = DiscordWebhook(url=url, username=f"{username}")
-			webhook.set_author(author)
-			webhook.set_content(content=f"{sender}: {msg}", color=f"{color}")
+			webhook = DiscordWebhook(url=url, content=f"{sender}: {msg}")
+			embed = DiscordEmbed(title=f'{title}', color=f"{color}")
+			embed.set_author(name=f'{author}')
+			webhook.add_embed(embed)
 			response = webhook.execute()
 		except:
 			print(traceback.format_exc(limit=None, chain=True))
