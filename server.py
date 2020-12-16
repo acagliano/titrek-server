@@ -176,7 +176,7 @@ class Server:
 			self.writeinfo()
 			self.threads = [threading.Thread(target=self.autoSaveHandler)]
 			self.threads[0].start()
-			self.fw=TrekFilter(Config.filter_path, self.log, self.dlog, 5, Config.filter_mode)
+			self.fw=TrekFilter(Config.filter_path, self.log, self.dlog, 5, Config.filter_mode, self.discord_out)
 			if Config.enable_filter:
 				self.fw.start()
 			if Config.use_ssl:
@@ -286,18 +286,23 @@ class Server:
 	def discord_out(self,sender,msg,msgtype):
 		if not Config.enable_discord_link:
 			return
-		if sender=="server":
-			author="Server Message"
-			color="1127128"
-		else:
-			author=sender
-			color="14177041"
 		try:
 			if msgtype==0:
+				author = "Server Message" if sender="server" else sender
 				url="https://discord.com/api/webhooks/788494210734358559/4Y5PH-P_rS-ZQ63-sHpfp2FmXY9rZm114BMMAJQsn6xsQHPOquaYC33tOXiVoZ4Ph6Io"
+				webhook = DiscordWebhook(url=url, username=author, content=f"{msg}")
 			if msgtype==1:
+				author="Exception"
 				url="https://discord.com/api/webhooks/788497355359518790/7c9oPZgG13_yLnywx3h6wZWY6qXMobNvCHB_6Qjb6ZNbXjw9aP993I8jGE5jXE7DK3Lz"
-			webhook = DiscordWebhook(url=url, username=author, content=f"{msg}")
+				webhook = DiscordWebhook(url=url, username=author)
+				embed = DiscordEmbed(description=f"{msg}", color=16711680)
+				webhook.add_embed(embed)
+			if msgtype==2:
+				author="TrekFilter"
+				url="https://discord.com/api/webhooks/788828667085979668/rVc5BA2rymnduGMuTsqysy8lNv1kNYgul4oSxJCYhF-RKc05hj2hGifDjbct8GMTTTH2"
+				webhook = DiscordWebhook(url=url, username=author)
+				embed = DiscordEmbed(description=f"{msg}", color=131724)
+				webhook.add_embed(embed)
 			response = webhook.execute()
 		except:
 			print(traceback.format_exc(limit=None, chain=True))
