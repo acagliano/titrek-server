@@ -288,7 +288,7 @@ class Server:
 			return
 		try:
 			if msgtype==0:
-				author = "Server Message" if sender="server" else sender
+				author = "Server Message" if sender=="server" else sender
 				url="https://discord.com/api/webhooks/788494210734358559/4Y5PH-P_rS-ZQ63-sHpfp2FmXY9rZm114BMMAJQsn6xsQHPOquaYC33tOXiVoZ4Ph6Io"
 				webhook = DiscordWebhook(url=url, username=author, content=f"{msg}")
 			if msgtype==1:
