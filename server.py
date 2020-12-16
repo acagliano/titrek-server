@@ -645,12 +645,6 @@ class Client:
 				break
 			i+=bytes_sent
 			packet_length-=bytes_sent
-
-			
-	def sanitize(self,i):
-		if any([a in bytes(i, 'UTF-8') for a in Config.invalid_characters]):
-			self.maliciousDisconnect()
-			return
 			
 	def handle_connection(self):
 		self.conn.settimeout(Config.inactive_timeout)
@@ -935,8 +929,6 @@ outputs:
 		user,passw,email = [ToUTF8(a) for a in bytes(data[1:]).split(b"\0",maxsplit=2)]
 		emailregex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
 		print(user,passw,email)
-		self.sanitize(user)
-		self.sanitize(passw)
 		if not re.search(emailregex,email):
 			self.log(f"Invalid email for {user}")
 			self.send([ControlCodes["MESSAGE"]]+list(b'invalid email\0'))
@@ -986,8 +978,6 @@ outputs:
 
 	def log_in(self, data):
 		user,passw = [ToUTF8(a) for a in bytes(data[1:]).split(b"\0",maxsplit=1)]
-		self.sanitize(user)
-		self.sanitize(passw)
 		print(user,passw)
 		self.log(f"Logging in user: [{user}]")
 		if user in Config.banned_users:
