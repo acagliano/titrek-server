@@ -23,13 +23,14 @@ class TrekFilter:
     special_characters = [bytes(a,'UTF-8') for a in ["/","\\","#","$","%","^","&","*","!","~","`","\"","|"]] + \
 					[bytes([a]) for a in range(1,0x20)] + [bytes([a]) for a in range(0x7F,0xFF)]
     
-    def __init__(self,path,log,dlog,hitcount,mode):
+    def __init__(self,path,log,dlog,hitcount,mode,discord):
         # Filter settings
         self.path=path
         self.log=log
         self.dlog=dlog
         self.hitcount=hitcount
         self.mode=mode
+	self.discord_out=discord
         self.modules=f"{self.path}modules/"
         self.actions=f"{self.path}actions/"
         
@@ -172,6 +173,8 @@ class TrekFilter:
                 
                 resp_string = "Fail" if response else "Pass"
                 self.dlog(f"[Filter] Check: {r['check']}, Status: {resp_string}")
+		msg=f"IP {addr[0]} failed TrekFilter.{r['check']} for packet {data[0]}\nPerforming Actions: {delim.join(r["failaction"])}"
+		self.discord_out("TrekFilter",msg,2)
                 if response:
                     self.dlog(f"[Filter] check: {r['check']}")
                     for action in r["failaction"]:
