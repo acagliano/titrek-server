@@ -70,6 +70,7 @@ class Config:
 		try:
 			with open(f'config.json', 'r') as f:
 				Config.settings=json.load(f)
+				json.dumps(Config.settings)
 				Config.settings["packet-size"]=max(4096, Config.settings["packet-size"])
 				if Config.settings["ssl"]["enable"]:
 					ssl_path=Config.settings["ssl"]["path"]
