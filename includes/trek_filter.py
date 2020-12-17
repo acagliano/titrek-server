@@ -104,9 +104,9 @@ class TrekFilter:
 
 	
 	def log(self, loglvl, msg):
-		self.loggers[loglevel](f"[Filter] {msg}")
-		if loglvl==LOG_ERROR:
-			self.loggers[LOG_DISCORD]("",msg,1)
+        self.loggers[loglevel](f"[Filter] {msg}")
+        if loglvl==LOG_ERROR:
+            self.loggers[LOG_DISCORD]("",msg,1)
 
     def printinfo(self):
         infostring=f"\n___TrekFilter Service Firewall v{TrekFilter.version}___"
