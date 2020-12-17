@@ -260,7 +260,7 @@ class Server:
 			client.send([ControlCodes["MESSAGE"]]+list(bytes(sender+": "+msg+'\0', 'UTF-8')))
 	
 	def discord_out(self,sender,msg,msgtype):
-		if not Config.enable_discord_link:
+		if not Config.settings["enable-discord-link"]:
 			return
 		try:
 			if msgtype==0:
