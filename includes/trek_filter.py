@@ -194,8 +194,8 @@ class TrekFilter:
                             except AttributeError:
                                 raise Exception(f'Method {action} not implemented')
                                 continue
-		if not data:
-			break
+                if not data:
+                    break
         except:
             self.log(LOG_ERROR, traceback.print_exc(limit=None, file=None, chain=True))
         return
