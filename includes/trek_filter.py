@@ -100,11 +100,11 @@ class TrekFilter:
         self.log(LOG_NORMAL, "Starting...")
         TrekFilter.status=True
         self.log(LOG_NORMAL, "Enabled!")
-	
-	def log(self, loglvl, msg):
-        	self.loggers[loglevel](f"[Filter] {msg}")
-        	if loglvl==LOG_ERROR:
-			self.loggers[LOG_DISCORD]("",msg,1)
+        
+    def log(self, loglvl, msg):
+        self.loggers[loglvl](f"[Filter] {msg}")
+        if loglvl==LOG_ERROR:
+            self.loggers[LOG_DISCORD]("",msg,1)
 
     def printinfo(self):
         infostring=f"\n___TrekFilter Service Firewall v{TrekFilter.version}___"
@@ -151,8 +151,8 @@ class TrekFilter:
         try:
             if not TrekFilter.status:
                 return
-		if trusted and self.skip_trusted:
-			return
+            if trusted and self.skip_trusted:
+                return
             if self.mode=="normal":
                 if not data[0] in self.packetlist:
                     self.dlog(f"[Filter] Packet {data[0]} from {addr[0]} not in packet list. Skipping.")
