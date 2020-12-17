@@ -15,27 +15,40 @@
 import os,json,traceback,importlib
 from trek_codes import *
 
+LOG_NORMAL=0
+LOG_ERROR=1
+LOG_DEBUG=2
+LOG_DISCORD=3
+
 class TrekFilter:
     version="1.0b"
+    enable=False
     status=False
     offenders={}
     enable_sanity=True
     special_characters = [bytes(a,'UTF-8') for a in ["/","\\","#","$","%","^","&","*","!","~","`","\"","|"]] + \
 					[bytes([a]) for a in range(1,0x20)] + [bytes([a]) for a in range(0x7F,0xFF)]
     
-    def __init__(self,path,log,dlog,hitcount,mode,discord):
-        # Filter settings
-        self.path=path
-        self.log=log
-        self.dlog=dlog
-        self.hitcount=hitcount
-        self.mode=mode
-        self.discord_out=discord
+    def __init__(self,config,log):
+	# "enable":true, "path":"filter/", "security-level":"default"
+	
+        # Configure filter
+        if not config["enable"]:
+		return
+	TrekFilter.enable=True
+	self.path=config["path"]
+        self.loggers=log
+        self.security_level=config["security-level"]
+	if self.security_level=="default":
+		self.security_level="medium"
+	self.skip_trusted = False if self.security_level=="high" else True
+	self.mode = "normal" if self.security_level=="low" else "exclude"
+	self.log(LOG_NORMAL, f'[Filter] Security Level: {self.security_level}')
         self.modules=f"{self.path}modules/"
         self.actions=f"{self.path}actions/"
-
-        # Create directory structure
-        for directory in [
+	
+	# Create directories
+	for directory in [
             f"{self.path}",
             f"{self.modules}",
             f"{self.actions}"
@@ -44,17 +57,25 @@ class TrekFilter:
                 os.makedirs(directory)
             except:
                 pass
-        open(f'{self.path}/packet_whitelist.json', 'w+').close()
-        open(f'{self.path}/packet_excludelist.json', 'w+').close()
-
-    def start(self):
-        self.log("[Filter] Starting...")
-        try:
+	
+	# Load packetlist for proper mode
+	packet_list_file = f'{self.path}/packet_whitelist.json' if self.mode=="normal" else f'{self.path}/packet_excludelist.json'
+	try:
+		with open(packet_list_file, 'r') as f:
+			self.packetlist = json.load(f)
+	except:
+		self.packetlist=[]
+		self.log(LOG_NORMAL, "No packetlist file found.")
+		
+	# Load blacklist
+	try:
             with open(f'{self.path}blacklist.txt', 'r') as f:
                 self.blacklist = f.read().splitlines()
         except IOError:
             self.blacklist=[]
-        try:
+	
+	# Load Filter rules
+	try:
             with open(f'{self.path}filter_rules.json', 'r') as f:
                 self.rules = json.load(f)
         except IOError:
@@ -64,45 +85,28 @@ class TrekFilter:
                 {"check":"sanity","method":"sanity","failaction":["set_offender","inform_user","drop_packet"]},
                 {"check":"threshold","method":"threshhold","failaction":["drop_packet","blacklist_ip"]}
             ]
+	# Make sure rules file is created after init
             with open(f'{self.path}filter_rules.json', 'w+') as f:
                 json.dump(self.rules,f)
-        try:
+	
+	# Load packet specs
+	try:
             with open(f'{self.path}packet_specs.json', 'r') as f:
                 self.packet_specs = json.load(f)
         except IOError:
-            self.log("Packet specs file missing or invalid. Sanity checks disabled.")
+            self.log(LOG_NORMAL, "Packet specs file missing or invalid. Sanity checks disabled.")
             self.enable_sanity=False
-        try:
-            self.log(f'[Filter] {self.mode} mode')
-            if self.mode == "normal":
-                with open(f'{self.path}packet_whitelist.json', 'r') as f:
-                    try:
-                        self.packetlist=json.load(f)
-                    except:
-                        self.packetlist=[]
-                        self.log("Packet whitelist empty or invalid. Initializing empty list.")
-            elif self.mode == "exclude":
-                with open(f'{self.path}packet_excludelist.json', 'r') as f:
-                    try:
-                        self.packetlist=json.load(f)
-                    except:
-                        self.packetlist=[]
-                        self.log("Packet excludelist empty or invalid. Initializing empty list.")
-            else:
-                raise Exception("Invalid option for filter-mode in config.json. Valid options: normal|exclude.")
-        except IOError:
-            self.packetlist=[]
-            pass
-        except:
-            self.log(traceback.print_exc(limit=None, file=None, chain=True))
+	
+	self.log(LOG_NORMAL, "Starting...")
         TrekFilter.status=True
-        self.log("[Filter] Enabled!")
+        self.log(LOG_NORMAL, "Enabled!")
+		
 
-    def stop(self):
-        self.log("[Filter] Stopping...")
-        self.save_blacklist()
-        TrekFilter.status=False
-        self.log("[Filter] Disabled!")
+	
+	def log(self, loglvl, msg):	
+		self.loggers[loglevel](f"[Filter] {msg}")
+		if loglvl==LOG_ERROR:
+			self.loggers[LOG_DISCORD]("",msg,1)
 
     def printinfo(self):
         infostring=f"\n___TrekFilter Service Firewall v{TrekFilter.version}___"
@@ -149,15 +153,17 @@ class TrekFilter:
         try:
             if not TrekFilter.status:
                 return
+		if trusted and self.skip_trusted:
+			return
             if self.mode=="normal":
                 if not data[0] in self.packetlist:
                     self.dlog(f"[Filter] Packet {data[0]} from {addr[0]} not in packet list. Skipping.")
                     return
             elif self.mode=="exclude":
                 if data[0] in self.packetlist:
-                    self.dlog(f"[Filter] Packet {data[0]} from {addr[0]} in exclude list. Skipping.")
+                    self.log(LOG_DEBUG, f"Packet {data[0]} from {addr[0]} in exclude list. Skipping.")
                     return
-            self.dlog(f"[Filter] Checking packet {data[0]} from {addr[0]}")
+            self.dlog(LOG_DEBUG, f"Checking packet {data[0]} from {addr[0]}")
             for r in self.rules:
                 try:
                     response = getattr(self,r["method"])(addr, data, trusted)
@@ -168,12 +174,12 @@ class TrekFilter:
                     except AttributeError:
                         raise Exception(f'Method {r["method"]} not implemented')
                 resp_string = "Fail" if response else "Pass"
-                self.dlog(f"[Filter] Check: {r['check']}, Status: {resp_string}")
+                self.log(LOG_DEBUG, f"Check: {r['check']}, Status: {resp_string}")
                 if response:
                     delim=","
                     msg=f"IP {addr[0]} failed TrekFilter.{r['check']} for packet {data[0]}\nPerforming Actions: {delim.join(r['failaction'])}"
-                    self.discord_out("TrekFilter",msg,2)
-                    self.dlog(f"[Filter] check: {r['check']}")
+                    self.log(LOG_DISCORD, msg)
+                    self.log(LOG_DEBUG, f"Check: {r['check']}")
                     for action in r["failaction"]:
                         try:
                             getattr(self, action)(conn, addr, data)
@@ -187,36 +193,36 @@ class TrekFilter:
                 if not data:
                     break
         except:
-            self.log(traceback.print_exc(limit=None, file=None, chain=True))
+            self.log(LOG_ERROR, traceback.print_exc(limit=None, file=None, chain=True))
         return
       
     def packet_order(self, addr, data, trusted):
         if not trusted:        
             if not data[0]<9:
-                self.log(f'[Filter][order] Failed for {addr[0]}')
+                self.log(LOG_NORMAL, f'[order] Failed for {addr[0]}')
                 return True
         return False
         
     def blacklisted(self, addr, data, trusted):
         ip, port = addr
         if ip in self.blacklist:
-            self.log(f'[Filter][blacklist] Failed for {ip}')
+            self.log(LOG_NORMAL, f'[blacklist] Failed for {ip}')
             return True
         else:
             return False
             
     def sanity(self, addr, data, trusted):
         if not self.enable_sanity:
-        	self.dlog("[Filter] Sanity checks are disabled, skipping!")                          
+        	self.log(LOG_DEBUG, "Sanity checks are disabled, skipping!")                          
        		return False
         packet_id=str(data[0])
         if not packet_id in self.packet_specs:
-       		self.dlog(f"[Filter] Packet {packet_id} not in speclist. Skipping!")
+       		self.log(LOG_DEBUG, f"Packet {packet_id} not in speclist. Skipping!")
        		return False                      
         packet_segments=bytes(data[1:len(data)-1]).split(b"\0")
         if not len(packet_segments)==len(self.packet_specs[packet_id]["segments"]):
-            self.log("[Filter][sanity] Packet segment count invalid!")
-            self.log(f"[Filter][sanity] Failed for {addr[0]}")
+            self.log(LOG_NORMAL, "[sanity] Packet segment count invalid!")
+            self.log(LOG_NORMAL, f"[sanity] Failed for {addr[0]}")
             return True
         loop_iter=0
         for seg in self.packet_specs[packet_id]["segments"]:
@@ -224,8 +230,8 @@ class TrekFilter:
                 continue
             response = getattr(self,seg)(packet_segments[loop_iter])
             if response:
-                self.log("[Filter][sanity] Segment analysis failed!")
-                self.log(f"[Filter][sanity] Failed for {addr[0]}")
+                self.log(LOG_NORMAL, "[sanity] Segment analysis failed!")
+                self.log(LOG_NORMAL, f"[sanity] Failed for {addr[0]}")
                 return True
             loop_iter+=1
        	return False
@@ -240,24 +246,24 @@ class TrekFilter:
         ip, port = addr
         if ip in self.offenders.keys():
             if self.offenders[ip]>=self.hitcount:
-                self.log(f'[Filter][threshold] Failed for {ip}')
+                self.log(LOG_NORMAL, f'[threshold] Failed for {ip}')
                 return True
         return False
     
     def refuse_connection(self, conn, addr, data):
         ip, port = addr
         # append properly formatted fail2ban log
-        self.log(f'[Filter] Connection refused. Logging connection.')                       
+        self.log(LOG_NORMAL, 'Connection refused. Logging connection.')                       
         conn.close()
         return
         
     def drop_packet(self, conn, addr, data):
-        self.log(f'[Filter] Dropping packet')
+        self.log(LOG_NORMAL, 'Dropping packet')
         data.clear()
         return
         
     def inform_user(self, conn, addr, data):
-        self.log(f'[Filter] Sending "Invalid" to user')
+        self.log(LOG_NORMAL, 'Sending "Invalid" to user')
         msg = b"Packet dropped by server: Invalid\0"
         conn.send(bytes([ControlCodes["MESSAGE"]]+list(msg)))
         return
@@ -265,7 +271,7 @@ class TrekFilter:
     def blacklist_ip(self, conn, addr, data):
         ip, port = addr
         self.blacklist.append(ip)
-        self.log(f'[Filter] {ip} blacklisted')
+        self.log(LOG_NORMAL, f'{ip} blacklisted')
         self.refuse_connection(conn, addr, data)                               
         return
         
