@@ -297,7 +297,7 @@ class TrekFilter:
         ip, port = addr
         date_now=datetime.today().strftime('%Y-%m-%dT%H:%M:%S')
         with open("{self.path}trek-f2b.log", "a+") as f:
-            json = f'# failJSON: { "time": "{date_now}", "match": true , "host": "{ip}" }\n'
+           # json = f'# failJSON: { "time": "{date_now}", "match": true , "host": "{ip}" }\n'
             text = f'{date_now} Connect from blacklisted IP at {ip}\n'
             f.write(json)
             f.write(text)
