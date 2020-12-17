@@ -93,8 +93,8 @@ class Server:
 				pass
 		try:
 			self.init_logging(Config.settings["log"])
-            ShipModule.setlog(self.elog)
-            self.loadbans()
+            		ShipModule.setlog(self.elog)
+            		self.loadbans()
 			self.load_whitelist()
 			self.init_binaries()
 
