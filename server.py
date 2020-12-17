@@ -56,7 +56,7 @@ class ShipModule:
 			with open(f"{ShipModule.path}{fname}") as f:
 				j = json.load(f)
 		except:
-			self.log(traceback.format_exc(limit=None, chain=True))
+			ShipModule.log(traceback.format_exc(limit=None, chain=True))
 		return j
 	
 	def save(name, json):
@@ -107,7 +107,7 @@ class Server:
 				pass
 		try:
 			self.init_logging(Config.settings["log"])
-			ShipModule.setdefaults(f'{Config.settings["gamedata"]}modules/',self.elog)
+			ShipModule().setdefaults(f'{Config.settings["gamedata"]["path"]}modules/',self.elog)
 			self.loadbans()
 			self.load_whitelist()
 			self.init_binaries()
