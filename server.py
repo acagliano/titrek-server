@@ -93,7 +93,8 @@ class Server:
 				pass
 		try:
 			self.init_logging(Config.settings["log"])
-			self.loadbans()
+            ShipModule.setlog(self.elog)
+            self.loadbans()
 			self.load_whitelist()
 			self.init_binaries()
 
@@ -525,7 +526,7 @@ class Client:
 
 	def load_player(self):
 		try:
-			os.makedirs(f"{self.config["path"]}{self.user}")
+			os.makedirs(f"{self.config['path']}{self.user}")
 		except:
 			pass
 		try:
@@ -568,7 +569,7 @@ class Client:
 
 	def save_player(self):
 		try:
-			os.makedirs(f"{self.config["path"]}{self.user}")
+			os.makedirs(f"{self.config['path']}{self.user}")
 		except:
 			pass
 		for k in ['x','y','z']:
@@ -853,7 +854,7 @@ outputs:
 		except:
 			pass
 		try:
-			with open(f"{Config.["gamedata"]["path"]}modules/defaults.json","r") as f:
+			with open(f"{ShipModule.path}/defaults.json","r") as f:
 				j=json.load(f)
 				self.data["ships"] = j
 				
