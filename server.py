@@ -21,6 +21,8 @@ from trek_filter import *
 from trek_modules import loadModule
 from trek_util import *
 
+SUPPORTS_SSL=False
+
 class UserException(Exception):
 	pass
 
@@ -74,6 +76,8 @@ class Config:
 				Config.settings=json.load(f)
 				json.dumps(Config.settings)
 				Config.settings["packet-size"]=max(4096, Config.settings["packet-size"])
+				if not SUPPORTS_SSL:
+					Config.settings["ssl"]["enable"]=False
 				if Config.settings["ssl"]["enable"]:
 					ssl_path=Config.settings["ssl"]["path"]
 					Config.ssl = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
