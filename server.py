@@ -343,7 +343,7 @@ class Server:
 		try:
 			self.log("Shutting down.")
 			self.space.save()
-			if Config.save():
+			if Config().save():
 				 self.log("Successfully wrote config")
 			self.broadcast(f"server shutting down in 10s")
 			time.sleep(10)
