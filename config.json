@@ -7,6 +7,7 @@
     "max-players":100,
     "idle-timeout":600,
     "enable-discord-link":true,
+    "log":"logs/server.log",
     "ssl":{ "enable":true, "path":"ssl/" },
     "firewall":{ "enable":true, "path":"filter/", "security-level":"default" },
     "gamedata": { "path":"data/" },
