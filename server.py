@@ -51,7 +51,6 @@ class ShipModule:
 		ShipModule.path=path
 		
 	def load(name, level):
-		m['health'] = 100
 		fname=name+".json"
 		try:
 			with open(f"{ShipModule.path}{fname}") as f:
