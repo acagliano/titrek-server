@@ -25,6 +25,7 @@ class UserException(Exception):
 	pass
 
 class GZipRotator:
+<<<<<<< HEAD
     def __call__(self, source, dest):
         os.rename(source, dest)
         with open(dest, 'rb') as f_in:
@@ -32,6 +33,21 @@ class GZipRotator:
                 f_out.writelines(f_in)
         time.sleep(1)
         os.remove(dest)
+=======
+	log=Server.log
+	elog=Server.elog
+	def __call__(self, source, dest):
+		try:
+        		os.rename(source, dest)
+        		with open(dest, 'rb') as f_in:
+            			with gzip.open(f"{Config.log_archive}", 'wb') as f_out:
+					f_out.writelines(f_in)
+        		sleep(1)
+        		os.remove(dest)
+			GZipRotator.log("successfully rotated logfile!")
+		except:
+			GZipRotator.elog("failed to rotate logfile!")
+>>>>>>> bd03a16120efa90345534832f8f926237cd10308
 
          
 
