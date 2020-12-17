@@ -332,7 +332,6 @@ class Server:
 			self.log("Shutting down.")
 			self.space.save()
 			self.broadcast(f"server shutting down in 10s")
-			self.fw.stop()
 			time.sleep(10)
 			for client in self.clients.keys():
 				self.clients[client].disconnect()
