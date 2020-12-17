@@ -43,8 +43,10 @@ class GZipRotator:
 
 class ShipModule:
 	path=""
-	def setlog(elog):
-		self.log=elog
+	log=""
+	def setdefaults(path, log):
+		ShipModule.log=log
+		ShipModule.path=path
 		
 	def load(name, level):
 		m['health'] = 100
@@ -94,7 +96,7 @@ class Server:
 				pass
 		try:
 			self.init_logging(Config.settings["log"])
-			ShipModule.setlog(self.elog)
+			ShipModule.setdefaults(f'{Config.settings["gamedata"]}modules/',self.elog)
 			self.loadbans()
 			self.load_whitelist()
 			self.init_binaries()
