@@ -1,5 +1,4 @@
 {
-  "settings":{
     "port":51701,
     "debug":true,
     "packet-size":4096,
@@ -13,5 +12,4 @@
     "gamedata": { "path":"data/" },
     "player": { "path":"data/players/" },
     "space": { "path":"data/space/" }
-  }
 }
