@@ -87,9 +87,9 @@ class TrekFilter:
         except IOError:
             self.rules=[
                 {"check":"blacklist","method":"blacklisted","failaction":["drop_packet","refuse_connection","fail2ban"]},
+		{"check":"threshold","method":"threshhold","failaction":["drop_packet","blacklist_ip"]},
                 {"check":"order","method":"packet_order","failaction":["set_offender","drop_packet"]},
-                {"check":"sanity","method":"sanity","failaction":["set_offender","inform_user","drop_packet"]},
-                {"check":"threshold","method":"threshhold","failaction":["drop_packet","blacklist_ip"]}
+                {"check":"sanity","method":"sanity","failaction":["set_offender","inform_user","drop_packet"]}
             ]
 	# Make sure rules file is created after init
             with open(f'{self.path}filter_rules.json', 'w+') as f:
@@ -194,6 +194,8 @@ class TrekFilter:
                             except AttributeError:
                                 raise Exception(f'Method {action} not implemented')
                                 continue
+		if not data:
+			break
         except:
             self.log(LOG_ERROR, traceback.print_exc(limit=None, file=None, chain=True))
         return
