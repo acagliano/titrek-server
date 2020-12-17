@@ -297,7 +297,7 @@ class TrekFilter:
         ip, port = addr
         try:
             date_now=datetime.today().strftime('%Y-%m-%dT%H:%M:%S')
-            with open("{self.path}trek-f2b.log", "a+") as f:
+            with open(f"{self.path}trek-f2b.log", "a+") as f:
                 text = f'{date_now} Connect from blacklisted IP at {ip}\n'
                 f.write(text)
         except:
