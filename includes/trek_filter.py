@@ -194,8 +194,8 @@ class TrekFilter:
         return
       
     def packet_order(self, addr, data, trusted):
-	if not data:
-		return
+        if not data:
+            return
         if not trusted:        
             if not data[0]<9:
                 self.log(LOG_NORMAL, f'[order] Failed for {addr[0]}')
@@ -211,8 +211,8 @@ class TrekFilter:
             return False
             
     def sanity(self, addr, data, trusted):
-	if not data:
-		return		     
+        if not data:
+            return		     
         if not self.enable_sanity:
         	self.log(LOG_DEBUG, "Sanity checks are disabled, skipping!")                          
        		return False
