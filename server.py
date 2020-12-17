@@ -159,7 +159,7 @@ class Server:
 			self.fw=TrekFilter(Config.settings["firewall"], [self.log, self.elog, self.dlog, self.discord_out])
 			self.main_thread = threading.Thread(target=self.main)
 			self.main_thread.start()
-			self.log(f"Server running on port {Config.port}")
+			self.log(f"Server running on port {Config.settings["port"]}")
 			self.dlog(f"Log archive set to {Config.log_archive}")
 			self.console()
 			self.stop()
