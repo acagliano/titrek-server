@@ -33,7 +33,7 @@ class TrekFilter:
         self.discord_out=discord
         self.modules=f"{self.path}modules/"
         self.actions=f"{self.path}actions/"
-        
+
         # Create directory structure
         for directory in [
             f"{self.path}",
@@ -46,7 +46,7 @@ class TrekFilter:
                 pass
         open(f'{self.path}/packet_whitelist.json', 'w+').close()
         open(f'{self.path}/packet_excludelist.json', 'w+').close()
-        
+
     def start(self):
         self.log("[Filter] Starting...")
         try:
@@ -97,15 +97,13 @@ class TrekFilter:
             self.log(traceback.print_exc(limit=None, file=None, chain=True))
         TrekFilter.status=True
         self.log("[Filter] Enabled!")
-            
-            
-        
+
     def stop(self):
         self.log("[Filter] Stopping...")
         self.save_blacklist()
         TrekFilter.status=False
         self.log("[Filter] Disabled!")
-        
+
     def printinfo(self):
         infostring=f"\n___TrekFilter Service Firewall v{TrekFilter.version}___"
         active="enabled" if TrekFilter.status else "disabled"
@@ -130,10 +128,9 @@ class TrekFilter:
         infostring+="\n\n_Blacklist_"
         for b in self.blacklist:
             infostring+=f"\nIP: {b}"
-        
         self.log(f"{infostring}")
-    
-                                                 
+
+
     def save_blacklist(self):
         try:
             with open(f'{self.path}blacklist.txt', 'w+') as f:
@@ -141,13 +138,13 @@ class TrekFilter:
                     f.write(str(b)+"\n")
         except:
             self.log(traceback.print_exc(limit=None, file=None, chain=True))
-            
+
     def loadModule(self, fname):
         spec = importlib.util.spec_from_file_location("*", fname)
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
         return module.main
-    
+
     def filter(self,conn,addr,data,trusted=False):
         try:
             if not TrekFilter.status:
@@ -170,11 +167,10 @@ class TrekFilter:
                         pass
                     except AttributeError:
                         raise Exception(f'Method {r["method"]} not implemented')
-                
                 resp_string = "Fail" if response else "Pass"
                 self.dlog(f"[Filter] Check: {r['check']}, Status: {resp_string}")
                 if response:
-			delim=","
+                    delim=","
                     msg=f"IP {addr[0]} failed TrekFilter.{r['check']} for packet {data[0]}\nPerforming Actions: {delim.join(r['failaction'])}"
                     self.discord_out("TrekFilter",msg,2)
                     self.dlog(f"[Filter] check: {r['check']}")
