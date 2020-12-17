@@ -499,7 +499,7 @@ class Server:
 					if line[1]=="enable":
 						self.log("Discord link enabled!")
 						Config.settings["enable-discord-link"]=True
-					if line[1]=="disable":
+					elif line[1]=="disable":
 						self.log("Discord link disabled!")
 						Config.settings["enable-discord-link"]=False
 					else:
