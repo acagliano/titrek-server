@@ -29,8 +29,8 @@ class GZipRotator:
 	elog=Server.elog
 	def __call__(self, source, dest):
 		try:
-        		os.rename(source, dest)
-        		with open(dest, 'rb') as f_in:
+			os.rename(source, dest)
+			with open(dest, 'rb') as f_in:
 				with gzip.open(f"{Config.log_archive}", 'wb') as f_out:
 					f_out.writelines(f_in)
 			sleep(1)
