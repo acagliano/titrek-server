@@ -74,7 +74,6 @@ class Config:
 		try:
 			with open(f'config.json', 'r') as f:
 				Config.settings=json.load(f)
-				json.dumps(Config.settings)
 				Config.settings["packet-size"]=max(4096, Config.settings["packet-size"])
 				if not SUPPORTS_SSL:
 					Config.settings["ssl"]["enable"]=False
@@ -84,6 +83,15 @@ class Config:
 					Config.ssl.load_cert_chain(f'{ssl_path}/fullchain.pem', f'{ssl_path}/privkey.pem')
 		except:
 			print(traceback.format_exc(limit=None, chain=True))
+	
+	def save(self):
+		try:
+			with open(f"config.json", "w") as f:
+				json.dump(Config.settings, f)
+			return True
+		except:
+			return False
+	
 
 
 class Server:
@@ -335,6 +343,8 @@ class Server:
 		try:
 			self.log("Shutting down.")
 			self.space.save()
+			if Config.save():
+				 self.log("Successfully wrote config")
 			self.broadcast(f"server shutting down in 10s")
 			time.sleep(10)
 			for client in self.clients.keys():
@@ -460,11 +470,8 @@ class Server:
 				elif line[0]=="fw":
 					if line[1]=="info":
 						self.fw.printinfo()
-					elif line[1]=="reload":
-						self.fw.stop()
-						self.fw.start()
 					else:
-						self.log("Valid arguments: fw info|reload")
+						self.log("Valid arguments: fw info")
 				elif line[0]=="whitelist":
 					self.print_whitelist()
 				elif line[0]=="backup":
@@ -488,16 +495,16 @@ class Server:
 					elif line[1]=="off":
 						Config.packet_debug=False
 					else:
-						self.log(f'Debug status: {Config.packet_debug}')
+						self.log(f'Debug status: {Config.settings["debug"]}')
 				elif line[0]=="discord":
 					if line[1]=="enable":
 						self.log("Discord link enabled!")
-						Config.enable_discord_link=True
+						Config.settings["enable-discord-link"]=True
 					if line[1]=="disable":
 						self.log("Discord link disabled!")
-						Config.enable_discord_link=False
+						Config.settings["enable-discord-link"]=False
 					else:
-						self.log("Bruh! discord enable|disable. How many other choices did you expect?")
+						self.log("discord enable|disable")
 				elif line[0]=="except":
 					raise UserException("Console-triggered exception. Don't panic!")
 			except KeyboardInterrupt:
