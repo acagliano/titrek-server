@@ -153,9 +153,7 @@ class Server:
 			self.writeinfo()
 			self.threads = [threading.Thread(target=self.autoSaveHandler)]
 			self.threads[0].start()
-			self.fw=TrekFilter(Config.settings["firewall"])
-			if TrekFilter.enable:
-				self.fw.start()
+			self.fw=TrekFilter(Config.settings["firewall"], [self.log, self.elog, self.dlog, self.discord_out])
 			self.main_thread = threading.Thread(target=self.main)
 			self.main_thread.start()
 			self.log(f"Server running on port {Config.port}")
