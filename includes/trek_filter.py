@@ -176,7 +176,7 @@ class TrekFilter:
                 if response:
                     delim=","
                     msg=f"IP {addr[0]} failed TrekFilter.{r['check']} for packet {data[0]}\nPerforming Actions: {delim.join(r['failaction'])}"
-                    self.log(LOG_DISCORD, msg)
+                    self.log(LOG_DISCORD, "TrekFilter", msg, 2)
                     self.log(LOG_DEBUG, f"Check: {r['check']}")
                     for action in r["failaction"]:
                         try:
