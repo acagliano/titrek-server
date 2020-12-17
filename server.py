@@ -46,11 +46,11 @@ class GZipRotator:
 class ShipModule:
 	path=""
 	log=""
-	def setdefaults(path, log):
+	def setdefaults(self, path, log):
 		ShipModule.log=log
 		ShipModule.path=path
 		
-	def load(name, level):
+	def load(self, name, level):
 		fname=name+".json"
 		try:
 			with open(f"{ShipModule.path}{fname}") as f:
@@ -59,7 +59,7 @@ class ShipModule:
 			ShipModule.log(traceback.format_exc(limit=None, chain=True))
 		return j
 	
-	def save(name, json):
+	def save(self, name, json):
 		return True
          
 
@@ -570,7 +570,7 @@ class Client:
 	def load_modules(self):
 		try:
 			for m in self.data["ships"][0]["modules"]:
-				json=ShipModule.load(m['file'], m['level'])
+				json=ShipModule().load(m['file'], m['level'])
 				for k in json.keys():
 					m[k] = json[k]
 		except:
