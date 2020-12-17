@@ -35,8 +35,8 @@ class TrekFilter:
         # Configure filter
         if not config["enable"]:
             return
-	self.log(LOG_NORMAL, "Starting TrekFilter")
-	TrekFilter.enable=True
+        self.log(LOG_NORMAL, "Starting TrekFilter")
+        TrekFilter.enable=True
         self.path=config["path"]
         self.loggers=log
         self.security_level=config["security-level"]
