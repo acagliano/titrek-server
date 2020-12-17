@@ -280,6 +280,7 @@ class TrekFilter:
     def blacklist_ip(self, conn, addr, data):
         ip, port = addr
         self.blacklist.append(ip)
+	self.save_blacklist()
         self.log(LOG_NORMAL, f'{ip} blacklisted')
         self.refuse_connection(conn, addr, data)                               
         return
