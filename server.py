@@ -249,7 +249,7 @@ class Server:
 			self.discord_out("Server",e,1)
 		
 	def dlog(self,*args,**kwargs):
-		if Config.packet_debug:
+		if Config.settings["packet-debug"]:
 			self.logger.log(logging.DEBUG, *args, **kwargs)
 		
 	def broadcast(self,msg,sender="Server"):
