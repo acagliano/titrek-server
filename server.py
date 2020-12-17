@@ -41,66 +41,40 @@ class GZipRotator:
 			webhook.add_embed(embed)
 			response = webhook.execute()
 
+class ShipModule:
+	path=""
+	def setlog(elog):
+		self.log=elog
+		
+	def load(name, level):
+		m['health'] = 100
+		fname=name+".json"
+		try:
+			with open(f"{ShipModule.path}{fname}") as f:
+				j = json.load(f)
+		except:
+			self.log(traceback.format_exc(limit=None, chain=True))
+		return j
+	
+	def save(name, json):
+		return True
          
 
 class Config:
-	port = None
-	banned_ips = []
-	banned_users = []
-	whitelist = []
-	packet_debug = False
-	use_ssl = False
-	enable_filter = False
-	ssl_path = ""
-	inactive_timeout = 600
-	packet_size = 4096
-	gamedata = "data/"
-	filter_path = "filter/"
-	log_file = "logs/server.log"
+	settings={}
+	ssl=False
 	log_archive = f"logs/{datetime.now().year}-{datetime.now().month}_server.log.gz"
-	invalid_characters = [bytes(a,'UTF-8') for a in ["/","\\","#","$","%","^","&","*","!","~","`","\"","|"]] + \
-					[bytes([a]) for a in range(1,0x20)] + [bytes([a]) for a in range(0x7F,0xFF)]
 	textbody_controlcodes = [ControlCodes["REGISTER"],ControlCodes["LOGIN"],ControlCodes["PING"],ControlCodes["MESSAGE"],\
-						ControlCodes["DEBUG"],ControlCodes["SERVINFO"]]
-	players = ""
-	space = ""
-	modules = ""
-	missions = ""
-	#downloads = ""
-	min_client = ""
-	
-	def setpaths(self):
-		Config.players = f"{Config.gamedata}players/"
-		Config.space = f"{Config.gamedata}space/"
-		Config.modules = f"{Config.gamedata}modules/"
-		Config.missions = f"{Config.gamedata}missions/"
-		#Config.downloads = f"{Config.gamedata}downloads/"
-	
+						ControlCodes["DEBUG"],ControlCodes["SERVINFO"]]	
 	def loadconfig(self):
 		try:
 			with open(f'config.json', 'r') as f:
-				config = json.load(f)
-				settings=config["settings"]
-				paths=config["paths"]
-				Config.port = int(settings["port"])
-				Config.packet_debug = settings["debug"]
-				Config.use_ssl = settings["enable-ssl"]
-				Config.enable_filter = settings["enable-filter"]
-				Config.filter_mode = settings["filter-mode"]
-				Config.max_players = settings["max-players"]
-				Config.inactive_timeout = settings["idle-timeout"]
-				Config.min_client = settings["min-client"]
-				Config.packet_size=max(4096, settings["packet-size"])
-				Config.enable_discord_link=settings["enable-discord-link"]
-				if Config.use_ssl:
-					Config.ssl_path = paths["ssl-path"]
-					context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-					context.load_cert_chain(f'{Config.ssl_path}/fullchain.pem', f'{Config.ssl_path}/privkey.pem')
-				if paths["gamedata"]:
-					Config.gamedata = paths["gamedata"]
-				if Config.enable_filter:
-					Config.filter_path=paths["filter"]
-				self.setpaths()
+				Config.settings=json.load(f)
+				Config.settings["packet-size"]=max(4096, Config.settings["packet-size"])
+				if Config.settings["ssl"]["enable"]:
+					ssl_path=Config.settings["ssl"]["path"]
+					Config.ssl = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+					Config.ssl.load_cert_chain(f'{ssl_path}/fullchain.pem', f'{ssl_path}/privkey.pem')
 		except:
 			print(traceback.format_exc(limit=None, chain=True))
 
@@ -108,14 +82,9 @@ class Config:
 class Server:
 	def __init__(self):
 		Config().loadconfig()
+		self.ssl=Config.ssl
 		for directory in [
 			"logs",
-			f"{Config.gamedata}",
-			f"{Config.players}",
-			f"{Config.space}",
-			f"{Config.modules}",
-			f"{Config.missions}",
-			#f"{Config.downloads_path}",
 			"cache",
 			"bans"]:
 			try:
@@ -123,7 +92,7 @@ class Server:
 			except:
 				pass
 		try:
-			self.init_logging()
+			self.init_logging(Config.settings["log"])
 			self.loadbans()
 			self.load_whitelist()
 			self.init_binaries()
@@ -166,7 +135,7 @@ class Server:
 		except:
 			self.log("Error creating update script")
 			
-	def init_logging(self, path=Config.log_file):
+	def init_logging(self, path):
 		self.logger = logging.getLogger('titrek.server')
 		self.logger.setLevel(logging.DEBUG)
 		formatter = logging.Formatter('%(levelname)s: %(asctime)s: %(message)s')
@@ -184,13 +153,10 @@ class Server:
 			self.writeinfo()
 			self.threads = [threading.Thread(target=self.autoSaveHandler)]
 			self.threads[0].start()
-			self.fw=TrekFilter(Config.filter_path, self.log, self.dlog, 5, Config.filter_mode, self.discord_out)
-			if Config.enable_filter:
+			self.fw=TrekFilter(Config.settings["firewall"])
+			if TrekFilter.enable:
 				self.fw.start()
-			if Config.use_ssl:
-				self.main_thread = threading.Thread(target=self.main_ssl)
-			else:
-				self.main_thread = threading.Thread(target=self.main_normal)
+			self.main_thread = threading.Thread(target=self.main)
 			self.main_thread.start()
 			self.log(f"Server running on port {Config.port}")
 			self.dlog(f"Log archive set to {Config.log_archive}")
@@ -315,31 +281,12 @@ class Server:
 		except:
 			print(traceback.format_exc(limit=None, chain=True))
 	
-	def main_ssl(self):
+	def main(self):
 		self.broadcast(f"Server Online!")
+		ssock = Config.ssl.wrap_socket(self.sock, server_side=True) if Config.ssl else self.sock
 		while self.online:
-			self.sock.listen(1)
-			with context.wrap_socket(self.sock, server_side=True) as ssock:
-				conn, addr = ssock.accept()
-				if addr[0] in Config.banned_ips:
-					self.log(f"Connection from {addr} rejected.")
-					conn.close()
-					continue
-				self.clients[conn] = client = Client(conn,addr,self)
-				try:
-					thread = threading.Thread(target=client.handle_connection)
-					self.threads.append(thread)
-					thread.start()
-				except:
-					self.elog(traceback.format_exc(limit=None, chain=True))
-				time.sleep(0.002)
-				self.writeinfo()
-				
-	def main_normal(self):
-		self.broadcast(f"Server Online!")
-		while self.online:
-			self.sock.listen(1)
-			conn, addr = self.sock.accept()
+			self.ssock.listen(1)
+			conn, addr = ssock.accept()
 			if addr[0] in Config.banned_ips:
 				self.log(f"Connection from {addr} rejected.")
 				conn.close()
@@ -349,10 +296,10 @@ class Server:
 				thread = threading.Thread(target=client.handle_connection)
 				self.threads.append(thread)
 				thread.start()
+				self.writeinfo()
 			except:
 				self.elog(traceback.format_exc(limit=None, chain=True))
 			time.sleep(0.002)
-			self.writeinfo()
 
 	def writeinfo(self):
 		versionbuild = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode(sys.stdout.encoding).strip()
@@ -557,9 +504,10 @@ class Server:
 class Client:
 	count = 0
 	
-	def __init__(self, conn, addr, server):
+	def __init__(self, conn, addr, server, config=Config.settings["player"]):
 		self.conn = conn
 		self.addr = addr
+		self.config = config
 		self.ip,self.port = self.addr
 		self.closed = False
 		self.logged_in = False
@@ -579,7 +527,7 @@ class Client:
 
 	def load_player(self):
 		try:
-			os.makedirs(f"{Config.players}{self.user}")
+			os.makedirs(f"{self.config["path"]}{self.user}")
 		except:
 			pass
 		try:
@@ -610,19 +558,11 @@ class Client:
 			self.elog(traceback.format_exc(limit=None, chain=True))
 		
 	def load_modules(self):
-		for m in self.data["ships"][0]["modules"]:
-			self._load_module(m)
-		self._load_module(self.data["ships"][0]['hull'])
-
-	def _load_module(self,m):
-		m['health'] = 100
-		fname=m['file']+f".json"
-		level=m['level']-1
 		try:
-			with open(f"{Config.modules}{fname}") as f:
-				j = json.load(f)
-			for k in j['module'][level].keys():				
-				m[k] = j['module'][level][k]
+			for m in self.data["ships"][0]["modules"]:
+				json=ShipModule.load(m['file'], m['level'])
+				for k in json.keys():
+					m[k] = json[k]
 		except:
 			self.elog(traceback.format_exc(limit=None, chain=True))
 
@@ -630,7 +570,7 @@ class Client:
 
 	def save_player(self):
 		try:
-			os.makedirs(f"{Config.players}{self.user}")
+			os.makedirs(f"{self.config["path"]}{self.user}")
 		except:
 			pass
 		for k in ['x','y','z']:
@@ -644,12 +584,12 @@ class Client:
 		return self.user+" @"+str(self.addr)
 
 	def send(self,data):
-		if Config.packet_debug:
+		if Config.settings["debug"]:
 			self.log(data)
 		packet_length = len(data)
 		i = 0
 		while packet_length:
-			bytes_sent = self.conn.send(bytes(data[i:min(packet_length, Config.packet_size)]))
+			bytes_sent = self.conn.send(bytes(data[i:min(packet_length, Config.settings["packet-size"])]))
 			if not bytes_sent:
 				raise Exception("packet transmission error")
 				break
@@ -657,10 +597,10 @@ class Client:
 			packet_length-=bytes_sent
 			
 	def handle_connection(self):
-		self.conn.settimeout(Config.inactive_timeout)
+		self.conn.settimeout(Config.settings["idle-timeout"])
 		while self.server.online and not self.closed:
 			try:
-				data = list(self.conn.recv(Config.packet_size))
+				data = list(self.conn.recv(Config.settings["packet-size"]))
 			except socket.timeout:
 				self.log(f"Inactive timeout for user {self.user}. Disconnecting.")
 				if self.logged_in:
@@ -676,7 +616,7 @@ class Client:
 			self.fw.filter(self.conn, self.addr, data, self.logged_in)
 			if not len(data):
 				continue
-			if Config.packet_debug:
+			if Config.settings["debug"]:
 				packet_string = "".join([s.ljust(5," ") for s in [chr(c) if c in range(0x20,0x80) else "0x0"+hex(c)[2] if c<0x10 else hex(c) for c in data]])
 				self.dlog(f"recieved packet: {packet_string}")
 			try:
@@ -915,7 +855,7 @@ outputs:
 		except:
 			pass
 		try:
-			with open(f"{Config.modules}defaults.json","r") as f:
+			with open(f"{Config.["gamedata"]["path"]}modules/defaults.json","r") as f:
 				j=json.load(f)
 				self.data["ships"] = j
 				
@@ -1033,11 +973,11 @@ outputs:
 		client_version = data[1:4]
 		gfx_version = data[4:6] # not used yet
 		for i in range(3):
-			if client_version[i] < Config.min_client[i]:
+			if client_version[i] < Config.settings["min-client"][i]:
 				self.send([ControlCodes["VERSION_CHECK"],VersionCheckCodes['VERSION_ERROR']])
 				self.disconnect()
 				return
-			if client_version[i] > Config.min_client[i]:
+			if client_version[i] > Config.settings["min-client"][i]:
 				self.send([ControlCodes["VERSION_CHECK"],VersionCheckCodes['VERSION_OK']])
 				self.log(f"{self.user}: client ok")
 				return
