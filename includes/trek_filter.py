@@ -28,10 +28,10 @@ class TrekFilter:
     enable_sanity=True
     special_characters = [bytes(a,'UTF-8') for a in ["/","\\","#","$","%","^","&","*","!","~","`","\"","|"]] + \
 					[bytes([a]) for a in range(1,0x20)] + [bytes([a]) for a in range(0x7F,0xFF)]
-    
+
     def __init__(self,config,log):
 	# "enable":true, "path":"filter/", "security-level":"default"
-	
+
         # Configure filter
         if not config["enable"]:
             return
@@ -40,13 +40,13 @@ class TrekFilter:
         self.loggers=log
         self.log(LOG_NORMAL, "Starting TrekFilter")
         self.security_level=config["security-level"]
-	self.hitcount=5
+        self.hitcount=5
         if self.security_level=="default":
             self.security_level="medium"
-	if self.security_level=="low":
-		self.hitcount=10
-	if self.security_level=="high":
-		self.hitcount=3
+        if self.security_level=="low":
+            self.hitcount=10
+        if self.security_level=="high":
+            self.hitcount=3
         self.skip_trusted = False if self.security_level=="high" else True
         self.mode = "normal" if self.security_level=="low" else "exclude"
         self.log(LOG_NORMAL, f'Security Level: {self.security_level}')
