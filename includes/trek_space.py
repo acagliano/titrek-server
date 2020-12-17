@@ -3,8 +3,9 @@ import os,json,traceback
 
 class Space:
 	path=""
-	def __init__(self,log):
+	def __init__(self, path, log):
 		try:
+			Space.path=path
 			self.log=log
 			self.space=[]
 			count = 0
