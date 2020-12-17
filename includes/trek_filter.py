@@ -34,21 +34,21 @@ class TrekFilter:
 	
         # Configure filter
         if not config["enable"]:
-		return
-	TrekFilter.enable=True
-	self.path=config["path"]
+            return
+        TrekFilter.enable=True
+        self.path=config["path"]
         self.loggers=log
         self.security_level=config["security-level"]
-	if self.security_level=="default":
-		self.security_level="medium"
-	self.skip_trusted = False if self.security_level=="high" else True
-	self.mode = "normal" if self.security_level=="low" else "exclude"
-	self.log(LOG_NORMAL, f'[Filter] Security Level: {self.security_level}')
+        if self.security_level=="default":
+            self.security_level="medium"
+        self.skip_trusted = False if self.security_level=="high" else True
+        self.mode = "normal" if self.security_level=="low" else "exclude"
+        self.log(LOG_NORMAL, f'[Filter] Security Level: {self.security_level}')
         self.modules=f"{self.path}modules/"
         self.actions=f"{self.path}actions/"
 	
 	# Create directories
-	for directory in [
+        for directory in [
             f"{self.path}",
             f"{self.modules}",
             f"{self.actions}"
@@ -59,23 +59,23 @@ class TrekFilter:
                 pass
 	
 	# Load packetlist for proper mode
-	packet_list_file = f'{self.path}/packet_whitelist.json' if self.mode=="normal" else f'{self.path}/packet_excludelist.json'
-	try:
-		with open(packet_list_file, 'r') as f:
-			self.packetlist = json.load(f)
-	except:
-		self.packetlist=[]
-		self.log(LOG_NORMAL, "No packetlist file found.")
+        packet_list_file = f'{self.path}/packet_whitelist.json' if self.mode=="normal" else f'{self.path}/packet_excludelist.json'
+        try:
+            with open(packet_list_file, 'r') as f:
+                self.packetlist = json.load(f)
+        except:
+            self.packetlist=[]
+            self.log(LOG_NORMAL, "No packetlist file found.")
 		
 	# Load blacklist
-	try:
+        try:
             with open(f'{self.path}blacklist.txt', 'r') as f:
                 self.blacklist = f.read().splitlines()
         except IOError:
             self.blacklist=[]
 	
 	# Load Filter rules
-	try:
+        try:
             with open(f'{self.path}filter_rules.json', 'r') as f:
                 self.rules = json.load(f)
         except IOError:
@@ -90,14 +90,14 @@ class TrekFilter:
                 json.dump(self.rules,f)
 	
 	# Load packet specs
-	try:
+        try:
             with open(f'{self.path}packet_specs.json', 'r') as f:
                 self.packet_specs = json.load(f)
         except IOError:
             self.log(LOG_NORMAL, "Packet specs file missing or invalid. Sanity checks disabled.")
             self.enable_sanity=False
 	
-	self.log(LOG_NORMAL, "Starting...")
+        self.log(LOG_NORMAL, "Starting...")
         TrekFilter.status=True
         self.log(LOG_NORMAL, "Enabled!")
 		
