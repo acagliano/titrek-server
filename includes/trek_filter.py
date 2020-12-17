@@ -35,6 +35,7 @@ class TrekFilter:
         # Configure filter
         if not config["enable"]:
             return
+	self.log(LOG_NORMAL, "Starting TrekFilter")
         TrekFilter.enable=True
         self.path=config["path"]
         self.loggers=log
@@ -43,7 +44,7 @@ class TrekFilter:
             self.security_level="medium"
         self.skip_trusted = False if self.security_level=="high" else True
         self.mode = "normal" if self.security_level=="low" else "exclude"
-        self.log(LOG_NORMAL, f'[Filter] Security Level: {self.security_level}')
+        self.log(LOG_NORMAL, f'Security Level: {self.security_level}')
         self.modules=f"{self.path}modules/"
         self.actions=f"{self.path}actions/"
 	
@@ -65,7 +66,7 @@ class TrekFilter:
                 self.packetlist = json.load(f)
         except:
             self.packetlist=[]
-            self.log(LOG_NORMAL, "No packetlist file found.")
+            self.log(LOG_NORMAL, "No packetlist file found. Initializing empty list.")
 		
 	# Load blacklist
         try:
@@ -97,7 +98,6 @@ class TrekFilter:
             self.log(LOG_NORMAL, "Packet specs file missing or invalid. Sanity checks disabled.")
             self.enable_sanity=False
 	
-        self.log(LOG_NORMAL, "Starting...")
         TrekFilter.status=True
         self.log(LOG_NORMAL, "Enabled!")
         
@@ -155,13 +155,13 @@ class TrekFilter:
                 return
             if self.mode=="normal":
                 if not data[0] in self.packetlist:
-                    self.dlog(f"[Filter] Packet {data[0]} from {addr[0]} not in packet list. Skipping.")
+                    self.log(LOG_DEBUG, f"Packet {data[0]} from {addr[0]} not in packet list. Skipping.")
                     return
             elif self.mode=="exclude":
                 if data[0] in self.packetlist:
                     self.log(LOG_DEBUG, f"Packet {data[0]} from {addr[0]} in exclude list. Skipping.")
                     return
-            self.dlog(LOG_DEBUG, f"Checking packet {data[0]} from {addr[0]}")
+            self.log(LOG_DEBUG, f"Checking packet {data[0]} from {addr[0]}")
             for r in self.rules:
                 try:
                     response = getattr(self,r["method"])(addr, data, trusted)
