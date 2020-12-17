@@ -28,9 +28,9 @@ class GZipRotator:
     def __call__(self, source, dest):
         os.rename(source, dest)
         with open(dest, 'rb') as f_in:
-            with gzip.open(f"{Config.log_archive}", 'wb') as f_out:
+            with gzip.open(f"{Config.log_archive}", 'ab+') as f_out:
                 f_out.writelines(f_in)
-        sleep(1)
+        time.sleep(1)
         os.remove(dest)
 
          
@@ -162,7 +162,7 @@ class Server:
 		self.logger = logging.getLogger('titrek.server')
 		self.logger.setLevel(logging.DEBUG)
 		formatter = logging.Formatter('%(levelname)s: %(asctime)s: %(message)s')
-		file_handler = TimedRotatingFileHandler(path, when="w2", interval=1, backupCount=5)
+		file_handler = TimedRotatingFileHandler(path, when="midnight", interval=1, backupCount=5)
 		file_handler.rotator=GZipRotator()
 		file_handler.setFormatter(formatter)
 		self.logger.addHandler(file_handler)
@@ -271,13 +271,13 @@ class Server:
 	def elog(self,*args,**kwargs):
 		self.logger.log(logging.ERROR, *args, **kwargs)
 		for e in args:
-			self.discord_out("[Server]",e,1)
+			self.discord_out("Server",e,1)
 		
 	def dlog(self,*args,**kwargs):
 		if Config.packet_debug:
 			self.logger.log(logging.DEBUG, *args, **kwargs)
 		
-	def broadcast(self,msg,sender="server"):
+	def broadcast(self,msg,sender="Server"):
 		self.discord_out(sender,msg,0)
 		for conn in self.clients.keys():
 			client = self.clients[conn]
@@ -288,7 +288,7 @@ class Server:
 			return
 		try:
 			if msgtype==0:
-				author = "Server Message" if sender=="server" else sender
+				author = "Server Message" if sender=="Server" else sender
 				url="https://discord.com/api/webhooks/788494210734358559/4Y5PH-P_rS-ZQ63-sHpfp2FmXY9rZm114BMMAJQsn6xsQHPOquaYC33tOXiVoZ4Ph6Io"
 				webhook = DiscordWebhook(url=url, username=author, content=f"{msg}")
 			if msgtype==1:
