@@ -104,7 +104,8 @@ class TrekFilter:
     def log(self, loglvl, msg):
         self.loggers[loglvl](f"[Filter] {msg}")
         if loglvl==LOG_ERROR:
-            self.loggers[LOG_DISCORD]("",msg,1)
+	# self.log(LOG_DISCORD, "TrekFilter", msg, 2)
+            self.loggers[LOG_DISCORD]("", msg, 1)
 
     def printinfo(self):
         infostring=f"\n___TrekFilter Service Firewall v{TrekFilter.version}___"
@@ -176,7 +177,7 @@ class TrekFilter:
                 if response:
                     delim=","
                     msg=f"IP {addr[0]} failed TrekFilter.{r['check']} for packet {data[0]}\nPerforming Actions: {delim.join(r['failaction'])}"
-                    self.log(LOG_DISCORD, "TrekFilter", msg, 2)
+                    self.loggers[LOG_DISCORD]("TrekFilter", msg, 2)
                     self.log(LOG_DEBUG, f"Check: {r['check']}")
                     for action in r["failaction"]:
                         try:
