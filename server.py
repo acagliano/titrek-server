@@ -311,8 +311,8 @@ class Server:
 			servinfo={"server":{
 				"version": version,
 				"numclients":len(self.clients),
-				"minversion":delim.join([str(item) for item in Config.min_client]),
-				"max_clients":Config.max_players,
+				"minversion":delim.join([str(item) for item in Config.settings["min-client"]),
+				"max_clients":Config.settings["max-players"],
 				"online":self.online}}
 			json.dump(servinfo, f)
 			
