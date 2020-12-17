@@ -31,10 +31,10 @@ class GZipRotator:
 		try:
         		os.rename(source, dest)
         		with open(dest, 'rb') as f_in:
-            			with gzip.open(f"{Config.log_archive}", 'wb') as f_out:
+				with gzip.open(f"{Config.log_archive}", 'wb') as f_out:
 					f_out.writelines(f_in)
-        		sleep(1)
-        		os.remove(dest)
+			sleep(1)
+			os.remove(dest)
 			GZipRotator.log("successfully rotated logfile!")
 		except:
 			GZipRotator.elog("failed to rotate logfile!")
