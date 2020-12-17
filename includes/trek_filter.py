@@ -100,13 +100,11 @@ class TrekFilter:
         self.log(LOG_NORMAL, "Starting...")
         TrekFilter.status=True
         self.log(LOG_NORMAL, "Enabled!")
-		
-
 	
 	def log(self, loglvl, msg):
-        self.loggers[loglevel](f"[Filter] {msg}")
-        if loglvl==LOG_ERROR:
-            self.loggers[LOG_DISCORD]("",msg,1)
+        	self.loggers[loglevel](f"[Filter] {msg}")
+        	if loglvl==LOG_ERROR:
+			self.loggers[LOG_DISCORD]("",msg,1)
 
     def printinfo(self):
         infostring=f"\n___TrekFilter Service Firewall v{TrekFilter.version}___"
