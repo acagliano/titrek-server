@@ -298,7 +298,6 @@ class TrekFilter:
         date_now=datetime.today().strftime('%Y-%m-%dT%H:%M:%S')
         with open("{self.path}trek-f2b.log", "a+") as f:
             text = f'{date_now} Connect from blacklisted IP at {ip}\n'
-            f.write(json)
             f.write(text)
     
   
