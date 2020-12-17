@@ -291,7 +291,7 @@ class Server:
 				self.log(f"Connection from {addr} rejected.")
 				conn.close()
 				continue
-			self.clients[conn] = client = Client(conn,addr,self)
+			self.clients[conn] = client = Client(conn,addr,self,Config.settings["player"])
 			try:
 				thread = threading.Thread(target=client.handle_connection)
 				self.threads.append(thread)
@@ -504,7 +504,7 @@ class Server:
 class Client:
 	count = 0
 	
-	def __init__(self, conn, addr, server, config=Config.settings["player"]):
+	def __init__(self, conn, addr, server, config):
 		self.conn = conn
 		self.addr = addr
 		self.config = config
