@@ -116,7 +116,7 @@ class TrekFilter:
     def printinfo(self):
         infostring=f"\n___TrekFilter Service Firewall v{TrekFilter.version}___"
         active="enabled" if TrekFilter.status else "disabled"
-        infostring+=f"\nStatus {active}\nSecurity Level: {self.security_level}"
+        infostring+=f"\nStatus: {active}\nSecurity Level: {self.security_level}"
         index=1
         infostring+=f"\n\n_Active Ruleset_"
         delim=","
