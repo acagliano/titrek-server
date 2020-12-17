@@ -9,7 +9,7 @@
     "enable-discord-link":true,
     "log":"logs/server.log",
     "ssl":{ "enable":true, "path":"ssl/" },
-    "firewall":{ "enable":true, "path":"filter/", "security-level":"default", "hitcount":5 },
+    "firewall":{ "enable":true, "path":"filter/", "security-level":"default" },
     "gamedata": { "path":"data/" },
     "player": { "path":"data/players/" },
     "space": { "path":"data/space/" }
