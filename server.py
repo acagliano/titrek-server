@@ -897,10 +897,10 @@ outputs:
 			return
 		self.log(f"Registering user: [{user}]")
 		passw_md5 = hashlib.md5(bytes(passw,'UTF-8')).hexdigest()  # Generate md5 hash of password
-		for root,dirs,files in os.walk(f'{Config.players}'): #search in players directory
+		for root,dirs,files in os.walk(f'{Config.settings["player"]["path"]}'): #search in players directory
 			for d in dirs: #only search directories
 				try:
-					with open(f'{Config.players}{d}/account.json', 'r') as f:
+					with open(f'{Config.settings["player"]["path"]}{d}/account.json', 'r') as f:
 						account = json.load(f)
 				except IOError:
 					continue
@@ -917,7 +917,7 @@ outputs:
 		except:
 			self.elog("Directory already exists or error creating")
 			pass
-		with open(f'{Config.players}{user}/account.json','w') as f:
+		with open(f'{Config.settings["player"]["path"]}{user}/account.json','w') as f:
 			json.dump({
 				'displayname':user,
 				'passw_md5':passw_md5,
@@ -931,7 +931,7 @@ outputs:
 		self.broadcast(f"{user} registered")
 		self.send([ControlCodes["REGISTER"],ResponseCodes['SUCCESS']])       # Register successful
 		self.trustworthy = True
-		self.playerdir = f"{Config.players}{self.user}/"
+		self.playerdir = f"{Config.settings["player"]["path"]}{self.user}/"
 		self.playerfile = f"{self.playerdir}player.json"
 		self.shipfile = f"{self.playerdir}ships.json"
 		self.create_new_game()
@@ -947,11 +947,11 @@ outputs:
 			return
 		passw_md5 = hashlib.md5(bytes(passw,'UTF-8')).hexdigest()  # Generate md5 hash of password
 		try:
-			for root, dirs, files in os.walk(f'{Config.players}'):  # search in players directory
+			for root, dirs, files in os.walk(f'{Config.settings["player"]["path"]}'):  # search in players directory
 				if user in dirs:
 					try:
-						self.dlog(f"Opening {Config.players}{user}/account.json")
-						with open(f"{Config.players}{user}/account.json", 'r') as f:
+						self.dlog(f"Opening {Config.settings["player"]["path"]}{user}/account.json")
+						with open(f"{Config.settings["player"]["path"]}{user}/account.json", 'r') as f:
 							account = json.load(f)
 							if account['passw_md5'] == passw_md5:
 								self.user = user
@@ -959,7 +959,7 @@ outputs:
 								self.log(f"[{user}] has successfully logged in!")
 								self.broadcast(f"{user} logged in")
 								self.send([ControlCodes["LOGIN"],ResponseCodes['SUCCESS']])   # Log in successful
-								self.playerdir = f"{Config.players}{self.user}/"
+								self.playerdir = f"{Config.settings["player"]["path"]}{self.user}/"
 								self.playerfile = f"{self.playerdir}player.json"
 								self.shipfile = f"{self.playerdir}ships.json"
 								self.load_player()
