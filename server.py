@@ -286,7 +286,7 @@ class Server:
 		self.broadcast(f"Server Online!")
 		ssock = Config.ssl.wrap_socket(self.sock, server_side=True) if Config.ssl else self.sock
 		while self.online:
-			self.ssock.listen(1)
+			ssock.listen(1)
 			conn, addr = ssock.accept()
 			if addr[0] in Config.banned_ips:
 				self.log(f"Connection from {addr} rejected.")
