@@ -131,7 +131,7 @@ class TrekFilter:
         infostring+="\n\n_Blacklist_"
         for b in self.blacklist:
             infostring+=f"\nIP: {b}"
-        self.log(f"{infostring}")
+        self.log(LOG_NORMAL, f"{infostring}")
 
 
     def save_blacklist(self):
@@ -140,7 +140,7 @@ class TrekFilter:
                 for b in self.blacklist:
                     f.write(str(b)+"\n")
         except:
-            self.log(traceback.print_exc(limit=None, file=None, chain=True))
+            self.log(LOG_ERROR, traceback.print_exc(limit=None, file=None, chain=True))
 
     def loadModule(self, fname):
         spec = importlib.util.spec_from_file_location("*", fname)
