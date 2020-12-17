@@ -38,7 +38,7 @@ class TrekFilter:
         TrekFilter.enable=True
         self.path=config["path"]
         self.loggers=log
-	self.log(LOG_NORMAL, "Starting TrekFilter")
+        self.log(LOG_NORMAL, "Starting TrekFilter")
         self.security_level=config["security-level"]
         if self.security_level=="default":
             self.security_level="medium"
