@@ -295,9 +295,12 @@ class TrekFilter:
     
     def fail2ban(self, conn, addr, data):
         ip, port = addr
-        date_now=datetime.today().strftime('%Y-%m-%dT%H:%M:%S')
-        with open("{self.path}trek-f2b.log", "a+") as f:
-            text = f'{date_now} Connect from blacklisted IP at {ip}\n'
-            f.write(text)
+        try:
+            date_now=datetime.today().strftime('%Y-%m-%dT%H:%M:%S')
+            with open("{self.path}trek-f2b.log", "a+") as f:
+                text = f'{date_now} Connect from blacklisted IP at {ip}\n'
+                f.write(text)
+        except:
+            self.log(LOG_ERROR, traceback.print_exc(limit=None, file=None, chain=True))
     
   
