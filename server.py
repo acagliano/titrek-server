@@ -931,7 +931,7 @@ outputs:
 		self.broadcast(f"{user} registered")
 		self.send([ControlCodes["REGISTER"],ResponseCodes['SUCCESS']])       # Register successful
 		self.trustworthy = True
-		self.playerdir = f"{Config.settings["player"]["path"]}{self.user}/"
+		self.playerdir = f"{Config.settings['player']['path']}{self.user}/"
 		self.playerfile = f"{self.playerdir}player.json"
 		self.shipfile = f"{self.playerdir}ships.json"
 		self.create_new_game()
@@ -950,8 +950,8 @@ outputs:
 			for root, dirs, files in os.walk(f'{Config.settings["player"]["path"]}'):  # search in players directory
 				if user in dirs:
 					try:
-						self.dlog(f"Opening {Config.settings["player"]["path"]}{user}/account.json")
-						with open(f"{Config.settings["player"]["path"]}{user}/account.json", 'r') as f:
+						self.dlog(f"Opening {Config.settings['player']['path']}{user}/account.json")
+						with open(f"{Config.settings['player']['path']}{user}/account.json", 'r') as f:
 							account = json.load(f)
 							if account['passw_md5'] == passw_md5:
 								self.user = user
@@ -959,7 +959,7 @@ outputs:
 								self.log(f"[{user}] has successfully logged in!")
 								self.broadcast(f"{user} logged in")
 								self.send([ControlCodes["LOGIN"],ResponseCodes['SUCCESS']])   # Log in successful
-								self.playerdir = f"{Config.settings["player"]["path"]}{self.user}/"
+								self.playerdir = f"{Config.settings['player']['path']}{self.user}/"
 								self.playerfile = f"{self.playerdir}player.json"
 								self.shipfile = f"{self.playerdir}ships.json"
 								self.load_player()
