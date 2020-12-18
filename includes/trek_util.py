@@ -1,3 +1,35 @@
+import os
+import os.path
+
+class Binaries:
+	def __init__(self, loggers, path, repo_link, binary):
+		self.log=loggers[0]
+		self.elog=loggers[2]
+		try:
+			parent, new = os.path.split(path)
+			self.path=path
+			try:
+				os.makedirs(path)
+				os.system(f"cd {parent} && git clone {repo_link}")
+				os.system(f"cd {path} && git submodule update --init --recursive && make")
+				if path.exists(f"{path}bin/{binary}"):
+					self.log(f"{repo_link} fetched and built")
+					self.bin=f"{path}bin/{binary}"
+			except:
+				self.update(path)
+				
+	def update(self, path):
+		try:
+			os.system(f"cd {path} && git pull && make")
+			if path.exists(f"{path}bin/{binary}"):
+				self.log(f"{path} successfully updated")
+				self.bin=f"{path}bin/{binary}"
+		except:
+			self.elog(traceback.format_exc(limit=None, chain=True))
+	
+	def run(self):
+		return os.popen(self.bin)
+
 
 def ToUTF8(dt):
 	if b"\0" in dt:
