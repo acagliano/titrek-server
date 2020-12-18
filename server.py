@@ -26,23 +26,6 @@ SUPPORTS_SSL=False
 class UserException(Exception):
 	pass
 
-class GZipRotator:
-	def __call__(self, source, dest):
-		try:
-			os.rename(source, dest)
-			with open(dest, 'rb') as f_in:
-				with gzip.open(f"{Config.log_archive}", 'wb') as f_out:
-					f_out.writelines(f_in)
-			sleep(1)
-			os.remove(dest)
-		except:
-			print("failed to rotate logfile!")
-			url="https://discord.com/api/webhooks/788497355359518790/7c9oPZgG13_yLnywx3h6wZWY6qXMobNvCHB_6Qjb6ZNbXjw9aP993I8jGE5jXE7DK3Lz"
-			webhook = DiscordWebhook(url=url, username="Exception")
-			embed = DiscordEmbed(description="Failed to rotate logfile", color=16711680)
-			webhook.add_embed(embed)
-			response = webhook.execute()
-
 class ShipModule:
 	path=""
 	log=""
@@ -91,7 +74,23 @@ class Config:
 		except:
 			return False
 	
-
+class GZipRotator:
+	def __call__(self, source, dest):
+		try:
+			os.rename(source, dest)
+			with open(dest, 'rb') as f_in:
+				with gzip.open(f"{Config.log_archive}", 'wb') as f_out:
+					f_out.writelines(f_in)
+			sleep(1)
+			os.remove(dest)
+		except:
+			print("failed to rotate logfile!")
+			url="https://discord.com/api/webhooks/788497355359518790/7c9oPZgG13_yLnywx3h6wZWY6qXMobNvCHB_6Qjb6ZNbXjw9aP993I8jGE5jXE7DK3Lz"
+			webhook = DiscordWebhook(url=url, username="Exception")
+			embed = DiscordEmbed(description="Failed to rotate logfile", color=16711680)
+			webhook.add_embed(embed)
+			response = webhook.execute()
+			
 
 class Server:
 	def __init__(self):
