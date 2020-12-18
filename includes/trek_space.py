@@ -7,9 +7,9 @@ class Space:
 		try:
 			Space.config=config
 			try:
-                os.makedirs(Space.config["path"])
-            except:
-                pass
+                		os.makedirs(Space.config["path"])
+            		except:
+                		pass
 			self.log=log
 			self.space=[]
 			count = 0
