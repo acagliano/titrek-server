@@ -84,10 +84,11 @@ class GZipRotator:
 			sleep(1)
 			os.remove(dest)
 		except:
-			print("failed to rotate logfile!")
+			msg=traceback.format_exc(limit=None, chain=True)
+			print(msg)
 			url="https://discord.com/api/webhooks/788497355359518790/7c9oPZgG13_yLnywx3h6wZWY6qXMobNvCHB_6Qjb6ZNbXjw9aP993I8jGE5jXE7DK3Lz"
 			webhook = DiscordWebhook(url=url, username="Exception")
-			embed = DiscordEmbed(description="Failed to rotate logfile", color=16711680)
+			embed = DiscordEmbed(description=f"{msg}", color=16711680)
 			webhook.add_embed(embed)
 			response = webhook.execute()
 			
