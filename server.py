@@ -13,6 +13,7 @@ from logging.handlers import TimedRotatingFileHandler
 from discord_webhook import DiscordWebhook, DiscordEmbed
 
 sys.path.insert(1, 'includes')
+sys.path.insert(1, 'packets')
 from trek_codes import *
 from trek_generate import *
 from trek_space import *
