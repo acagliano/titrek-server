@@ -115,7 +115,7 @@ class Server:
 			self.init_binaries()
 
 			self.generator = Generator()
-			self.space = Space(Config.settings["space"]["path"], self.log)
+			self.space = Space(Config.settings["space"], self.log)
 		
 			self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)         # Create a socket object
 			self.sock.settimeout(None)
