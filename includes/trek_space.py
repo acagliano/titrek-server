@@ -2,15 +2,19 @@
 import os,json,traceback
 
 class Space:
-	path=""
-	def __init__(self, path, log):
+	config={}
+	def __init__(self, config, log):
 		try:
-			Space.path=path
+			Space.config=config
+			try:
+                		os.makedirs(Space.config["path"])
+            		except:
+                		pass
 			self.log=log
 			self.space=[]
 			count = 0
-			log(f"Loading map from {Space.path}")
-			for fname in self.walk(f"{Space.path}"):
+			log(f"Loading map from {Space.config["path"]}")
+			for fname in self.walk(f"{Space.config["path"]}"):
 				try:
 					with open(fname) as f:
 						self.space.extend(json.loads(f.read()))
@@ -32,7 +36,7 @@ class Space:
 				yield path+"/"+fname
 
 	def save(self):
-		dname=Space.path
+		dname=Space.config["path"]
 		try:
 			os.makedirs(f"{dname}")
 		except:
