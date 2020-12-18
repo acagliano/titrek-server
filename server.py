@@ -58,6 +58,7 @@ class Config:
 			with open(f'config.json', 'r') as f:
 				Config.settings=json.load(f)
 				Config.settings["packet-size"]=max(4096, Config.settings["packet-size"])
+				Config.settings["gamedata"]="data/"
 				if not SUPPORTS_SSL:
 					Config.settings["ssl"]["enable"]=False
 				if Config.settings["ssl"]["enable"]:
