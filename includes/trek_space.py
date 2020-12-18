@@ -13,8 +13,8 @@ class Space:
 			self.log=log
 			self.space=[]
 			count = 0
-			log(f"Loading map from {Space.config["path"]}")
-			for fname in self.walk(f"{Space.config["path"]}"):
+			log(f"Loading map from {Space.config['path']}")
+			for fname in self.walk(f"{Space.config['path']}"):
 				try:
 					with open(fname) as f:
 						self.space.extend(json.loads(f.read()))
