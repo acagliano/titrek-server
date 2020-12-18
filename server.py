@@ -97,6 +97,7 @@ class GZipRotator:
 
 class Server:
 	def __init__(self):
+		self.logfile="logs/server.log"
 		Config().loadconfig()
 		self.ssl=Config.ssl
 		for directory in [
@@ -108,7 +109,9 @@ class Server:
 			except:
 				pass
 		try:
-			self.init_logging(Config.settings["log"])
+			self.init_logging(self.logfile)
+			self.loggers=[self.log, self.elog, self.dlog, self.discord_out]
+			self.config=Config(self.loggers)
 			ShipModule().setdefaults(f'{Config.settings["gamedata"]}modules/',self.elog)
 			self.loadbans()
 			self.load_whitelist()
