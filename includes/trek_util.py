@@ -4,7 +4,7 @@ import os.path
 class Binaries:
 	def __init__(self, loggers, path, repo_link, binary):
 		self.log=loggers[0]
-		self.elog=loggers[2]
+		self.elog=loggers[1]
 		try:
 			parent, new = os.path.split(path)
 			self.path=path
