@@ -10,7 +10,6 @@ class GZipRotator:
 			with open(dest, 'rb') as f_in:
 				with gzip.open(f"{log_archive}", 'wb') as f_out:
 					f_out.writelines(f_in)
-			sleep(1)
 			os.remove(dest)
 		except:
 			msg=traceback.format_exc(limit=None, chain=True)
