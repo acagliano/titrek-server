@@ -6,8 +6,9 @@ class Config:
 	settings={}
 	textbody_controlcodes = [ControlCodes["REGISTER"],ControlCodes["LOGIN"],ControlCodes["PING"],ControlCodes["MESSAGE"],\
 						ControlCodes["DEBUG"],ControlCodes["SERVINFO"]]	
-	def init(self, loggers):
+	def init(self, log):
 		try:
+			self.logger=log
 			with open(f'config.json', 'r') as f:
 				Config.settings=json.load(f)
 				Config.settings["packet-size"]=max(4096, Config.settings["packet-size"])
