@@ -20,19 +20,8 @@ class RunServer:
 		# initialize loggers
 		self.logger=TrekLogging(("logs/server.log", "logs/error.log"))
 		# attempt to import/install any non-system libraries
-		for l in EXT_LIBS_USED:
-			try:
-				self.log(f"Importing module {l}")
-				importlib.import_module(l)
-			except ImportError:
-				self.log("Module not found. Installing...")
-				try:
-					subprocess.check_call([sys.executable, "-m", "pip", "install", l])
-					importlib.import_module(l)
-					self.log("Module installed and imported.")
-				except CalledProcessError:
-					self.elog("Module install failed. Fatal error.")
-					sys.exit(1)
+		
+		# move imports of addon modules to TrekImporter. We'll invoke installations as needed
 					
 		# attempt to import custom class "modules" the server needs
 		for file in os.walk("includes")[2]:
