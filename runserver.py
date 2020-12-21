@@ -19,7 +19,6 @@ class RunServer:
 		
 		# initialize loggers
 		self.logger=TrekLogging(("logs/server.log", "logs/error.log"))
-		self.config=Config()
 		# attempt to import/install any non-system libraries
 		for l in EXT_LIBS_USED:
 			try:
