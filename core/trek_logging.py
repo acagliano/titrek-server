@@ -29,6 +29,7 @@ class TrekLogging:
 		mainfile,errorfile=files
 		main_logger=self.init_log("main", mainfile, True, "midnight")
 		error_logger=self.init_log("error", errorfile, False)
+		return [main_logger, error_logger]
 		
 	def init_log(logtype, file, rotate=False, when=0)
 		logger=logging.getLogger(f'titrek.{logtype}')
