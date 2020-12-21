@@ -18,9 +18,7 @@ class RunServer:
 	def __init__(self):
 		
 		# initialize loggers
-		self.loggers=TrekLogging(("logs/server.log", "logs/error.log"))
-		self.log=self.loggers[0]
-		self.elog=self.loggers[1]
+		self.logger=TrekLogging(("logs/server.log", "logs/error.log"))
 		self.config=Config()
 		# attempt to import/install any non-system libraries
 		for l in EXT_LIBS_USED:
@@ -53,7 +51,7 @@ class RunServer:
 	
 				
 	def start(self):
-		self.config=Config(self.loggers)
+		self.config=Config(self.logger)
 		self.server.run(self.config)
 		
 		
