@@ -2,6 +2,7 @@ import gzip,os,sys,traceback,logging
 from datetime import datetime
 from logging.handlers import TimedRotatingFileHandler
 
+
 class GZipRotator:
 	def __call__(self, source, dest):
 		try:
@@ -25,18 +26,33 @@ class TrekLogging:
 	formatter = logging.Formatter('%(levelname)s: %(asctime)s: %(message)s')
 	console_handler = logging.StreamHandler()
 	discord_handler=[]
-	def __init__(files):
-		mainfile,errorfile=files
-		main_logger=self.init_log("main", mainfile, True, "midnight")
-		error_logger=self.init_log("error", errorfile, False)
-		return [main_logger, error_logger]
+	def __init__(log_default, log_error):
+		try:
+			log = logging.getLogger(LOG_NAME)
+			log_formatter = logging.Formatter(formatter)
 		
-	def init_log(logtype, file, rotate=False, when=0)
-		logger=logging.getLogger(f'titrek.{logtype}')
-		logger.setLevel(logging.DEBUG)
-		file_handler= TimedRotatingFileHandler(file, when=when, interval=1, backupCount=5) if rotate else FileHandler(file)
-		file_handler.rotator=GZipRotator()
-		file_handler.setFormatter(TrekLogging.formatter)
-		logger.addHandler(file_handler)
-		logger.addHandler(console_handler)
-		return logger
+			# set handler for default messages (debug/info)
+			file_handler_default = logging.TimedRotatingFileHandler(log_default, when="midnight", interval=1, backupCount=5)
+			file_handler_default.setFormatter(log_formatter)
+			file_handler_default.setLevel(logging.DEBUG)
+			log.addHandler(file_handler_default)
+		
+			# set handler for error messages
+			file_handler_error = logging.FileHandler(log_error)
+			file_handler_error.setFormatter(log_formatter)
+			file_handler_error.setLevel(logging.ERROR)
+			log.addHandler(file_handler_error)
+		
+			# set handler for stream to console
+			console_handler = logging.StreamHandler()
+			console_handler.setFormatter(log_formatter)
+			log.addHandler(console_handler)
+		
+			# the discord logging will go here, once we figure out what module to use
+		
+			# set defaults
+			log.setLevel(logging.DEBUG)
+			self.log=log
+			
+		except:
+			print(traceback.format_exc(limit=None, chain=True))
