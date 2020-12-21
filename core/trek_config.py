@@ -1,4 +1,5 @@
 import ssl,traceback,logging
+import trek_import
 
 SUPPORTS_SSL=False
 
