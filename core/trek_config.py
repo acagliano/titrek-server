@@ -7,8 +7,6 @@ class Config:
 	textbody_controlcodes = [ControlCodes["REGISTER"],ControlCodes["LOGIN"],ControlCodes["PING"],ControlCodes["MESSAGE"],\
 						ControlCodes["DEBUG"],ControlCodes["SERVINFO"]]	
 	def init(self, loggers):
-		self.log=loggers[0]
-		self.elog=loggers[1]
 		try:
 			with open(f'config.json', 'r') as f:
 				Config.settings=json.load(f)
