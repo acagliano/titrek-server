@@ -53,7 +53,8 @@ class RunServer:
 	
 				
 	def start(self):
-		self.server.run()
+		self.config=Config(self.loggers)
+		self.server.run(self.config)
 		
 		
 	def reload(self):
@@ -64,7 +65,7 @@ class RunServer:
 			self.old=self.server
 			self.server=Server()
 			for client in self.old.clients.keys():
-				self.instance.clients[client]=self.old.clients[client]
+				self.server.clients[client]=self.old.clients[client]
 			del self.old
     			self.start()
 		except:
