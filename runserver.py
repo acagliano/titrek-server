@@ -36,10 +36,7 @@ class RunServer:
 					subprocess.check_call([sys.executable, "-m", "pip", "install", lib])
 					importlib.import_module(lib)
 				except:
-					if reqd:
-						sys.exit("Error loading core server component. Aborting!")
-					else:
-						pass
+					pass
 				
 	def start(self):
 		self.server.run(self.config)
