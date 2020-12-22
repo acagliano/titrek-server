@@ -2,6 +2,7 @@ class Server:
 	def __init__(self, config):
 		self.instance_num=RunServer.count
 		self.server_root=f"servers/server.{self.instance_num}/"
+		self.setup_loggers()
 		self.config=config
 		self.ssl=self.config.ssl
 		for directory in [
@@ -14,26 +15,26 @@ class Server:
 			except:
 				pass
 		try:
-			self.init_logging(self.logfile)
-			self.loggers=[self.log, self.elog, self.dlog, self.discord_out]
-			self.config=Config(self.loggers)
-			ShipModule().setdefaults(f'{Config.settings["gamedata"]}modules/',self.elog)
 			self.loadbans()
 			self.load_whitelist()
 			self.init_binaries()
 
 			self.generator = Generator()
-			self.space = Space(Config.settings["space"], self.log)
+			self.space = Space(f"{self.server_root}space, self.logger)
 		
 			self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)         # Create a socket object
 			self.sock.settimeout(None)
-			self.port = Config.settings["port"]                # Reserve a port for your service.
+			self.port = Config.settings["port"]+self.instance_num        # Reserve a port for your service. Default + instance num
 			self.clients = {}
 			self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 			self.sock.bind(('', self.port))                 # Now wait for client connection.
 		except:
 			self.elog(traceback.format_exc(limit=None, chain=True))
 
+						 
+	def setup_loggers(self):
+		self.logger=TrekLogging(f"{self.server_root}logs")
+						 
 	def init_binaries(self):
 		try:
 			os.makedirs("bin/convimg")
@@ -58,18 +59,6 @@ class Server:
 				os.chmod("bin/update-bins", 0o774)
 		except:
 			self.log("Error creating update script")
-			
-	def init_logging(self, path):
-		self.logger = logging.getLogger('titrek.server')
-		self.logger.setLevel(logging.DEBUG)
-		formatter = logging.Formatter('%(levelname)s: %(asctime)s: %(message)s')
-		file_handler = TimedRotatingFileHandler(path, when="midnight", interval=1, backupCount=5)
-		file_handler.rotator=GZipRotator()
-		file_handler.setFormatter(formatter)
-		self.logger.addHandler(file_handler)
-		console_handler = logging.StreamHandler()
-		console_handler.setFormatter(formatter)
-		self.logger.addHandler(console_handler)
                                        	
 	def run(self):
 		try:
