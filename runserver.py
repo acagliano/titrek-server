@@ -14,7 +14,7 @@ class RunServer:
 		
 	def setup_loggers(self):
 		self.logger=TrekLogging(("logs/server.log", "logs/error.log"))
-		# import plugins
+		
 		
 	def import_from_dir(self, path, reqd=True):
 		for file in os.walk(path)[2]:
@@ -40,12 +40,8 @@ class RunServer:
 						sys.exit("Error loading core server component. Aborting!")
 					else:
 						pass
-		
-		
-	
 				
 	def start(self):
-		self.config=Config(self.logger)
 		self.server.run(self.config)
 		
        
@@ -53,5 +49,5 @@ class RunServer:
 if __name__ == '__main__':
 	
 	server = RunServer()
-	# server.add_loggers()
+	server.setup_loggers()
 	server.start()
