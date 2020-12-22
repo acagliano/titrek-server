@@ -1,9 +1,15 @@
+import os,traceback,json,logging
+import trek_filter
+import trek_client
+import trek_config
+
+
 class Server:
-	def __init__(self, config):
+	def __init__(self):
 		self.instance_num=RunServer.count
 		self.server_root=f"servers/server.{self.instance_num}/"
 		self.setup_loggers()
-		self.config=config
+		self.config=Config()
 		self.ssl=self.config.ssl
 		for directory in [
 			self.server_root,
