@@ -12,9 +12,6 @@ class RunServer:
 		self.import_helpers()			# Import (or install/import) helpers for server
 		self.import_from_dir("plugins", False)	# Import plugins
 		
-	def setup_loggers(self):
-		self.logger=TrekLogging(("logs/server.log", "logs/error.log"))
-		
 	def start_server(self):
 		self.server=Server()
 		self.server.run(self.config)
@@ -64,5 +61,4 @@ class RunServer:
 if __name__ == '__main__':
 	
 	server = RunServer()
-	server.setup_loggers()
 	server.start()
