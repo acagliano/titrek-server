@@ -20,7 +20,11 @@ class Config:
 				if self.settings["enable-discord-link"]:
 						# do stuff that we have yet to figure out
 					else:
-						self.logger.log(logging.ERROR, "Error initializing DiscordHandler()"
+						self.logger.log(logging.ERROR, "Error initializing DiscordHandler()")
+				if self.settings["firewall"]["enable"]:
+					self.firewall=TrekFilter()
+					self.firewall.set_logger(log)
+					self.firewall.config(self.settings["firewall"])
 				self.logger.log(logging.INFO, "Server config loaded!")
 		except:
 			self.logger.log(logging.ERROR, traceback.format_exc(limit=None, chain=True))
