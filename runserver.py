@@ -1,5 +1,4 @@
-import os, subprocess, traceback
-import importlib
+import os, subprocess, traceback, importlib
 # may want to set up logging in here
 # this will be the new server.py (but new name).
 # RunServer defines a dynamic loader class that is capable of importing/reloading modules and launching server instances
@@ -11,6 +10,17 @@ for lib in os.walk("core")[2]:
 		importlib.import_module(f"core.{m}")
 	except ImportError:
 		sys.exit("Error loading core server component. Aborting!")
+		
+for lib in EXT_LIBS_USED:
+	try:
+		importlib.import_module(lib)
+	except ImportError:
+		try:
+			subprocess.check_call([sys.executable, "-m", "pip", "install", lib])
+			importlib.import_module(lib)
+		except:
+			pass
+			# we will test for this actually not working later on
 			
 
 
