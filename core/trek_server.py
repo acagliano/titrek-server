@@ -33,7 +33,7 @@ class Server:
 
 						 
 	def setup_loggers(self):
-		self.logger=TrekLogging(f"{self.server_root}logs")
+		self.logger=TrekLogging(f"{self.server_root}logs/")
 						 
 	def init_binaries(self):
 		try:
