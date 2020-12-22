@@ -10,7 +10,7 @@ class RunServer:
 		
 		self.import_from_dir("core")		# Import core components of server
 		self.import_helpers()			# Import (or install/import) helpers for server
-		self.import_from_dir("plugins", False, False)	# Import plugins
+		self.import_from_dir("plugins", False)	# Import plugins
 		
 	def setup_loggers(self):
 		self.logger=TrekLogging(("logs/server.log", "logs/error.log"))
