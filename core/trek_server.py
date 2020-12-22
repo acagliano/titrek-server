@@ -1,12 +1,14 @@
 class Server:
-	def __init__(self):
-		self.logfile="logs/server.log"
-		Config().loadconfig()
-		self.ssl=Config.ssl
+	def __init__(self, config):
+		self.instance_num=RunServer.count
+		self.server_root=f"servers/server.{self.instance_num}/"
+		self.config=config
+		self.ssl=self.config.ssl
 		for directory in [
-			"logs",
-			"cache",
-			"bans"]:
+			self.server_root,
+			f"{self.server_root}logs",
+			f"{self.server_root}cache",
+			f"{self.server_root}bans"]:
 			try:
 				os.makedirs(directory)
 			except:
