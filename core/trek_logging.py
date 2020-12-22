@@ -26,19 +26,22 @@ class TrekLogging:
 	formatter = logging.Formatter('%(levelname)s: %(asctime)s: %(message)s')
 	console_handler = logging.StreamHandler()
 	discord_handler=[]
-	def __init__(log_default, log_error):
+	def __init__(logpath):
 		try:
-			log = logging.getLogger(LOG_NAME)
+			server_log = f"{logpath}server.log"
+			error_log = f"{logpath}error.log"
+			log_name= os.path.basename(os.path.normpath(logpath))
+			log = logging.getLogger(f"titrek.{log_name}")
 			log_formatter = logging.Formatter(formatter)
 		
 			# set handler for default messages (debug/info)
-			file_handler_default = logging.TimedRotatingFileHandler(log_default, when="midnight", interval=1, backupCount=5)
+			file_handler_default = logging.TimedRotatingFileHandler(server_log, when="midnight", interval=1, backupCount=5)
 			file_handler_default.setFormatter(log_formatter)
 			file_handler_default.setLevel(logging.DEBUG)
 			log.addHandler(file_handler_default)
 		
 			# set handler for error messages
-			file_handler_error = logging.FileHandler(log_error)
+			file_handler_error = logging.FileHandler(error_log)
 			file_handler_error.setFormatter(log_formatter)
 			file_handler_error.setLevel(logging.ERROR)
 			log.addHandler(file_handler_error)
