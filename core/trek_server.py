@@ -5,8 +5,8 @@ import trek_config
 
 
 class Server:
-	def __init__(self):
-		self.instance_num=RunServer.count
+	def __init__(self, serv_num):
+		self.instance_num=serv_num
 		self.server_root=f"servers/server.{self.instance_num}/"
 		self.setup_loggers()
 		self.config=Config()
