@@ -1,17 +1,5 @@
-import ssl,traceback,logging
-import trek_import
-
+import ssl
 SUPPORTS_SSL=False
-
-class DiscordMain(Handler):
-	def emit(self, record):
-		log_entry = self.format(record)
-		# send out post request using module of choice
-
-class DiscordError(Handler):
-	def emit(self, record):
-		log_entry = self.format(record)
-		# send out post request using module of choice
 
 class Config:
 	textbody_controlcodes = [ControlCodes["REGISTER"],ControlCodes["LOGIN"],ControlCodes["PING"],ControlCodes["MESSAGE"],\
@@ -30,17 +18,7 @@ class Config:
 					self.ssl = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
 					self.ssl.load_cert_chain(f'{ssl_path}/fullchain.pem', f'{ssl_path}/privkey.pem')
 				if self.settings["enable-discord-link"]:
-					if TrekImporter.__call__("discord"):
-						formatter = logging.Formatter('%(levelname)s: %(asctime)s: %(message)s')
-						discord_main=DiscordMain()
-						discord_main.setFormatter(formatter)
-						discord_main.setLevel(logging.INFO)
-						self.logger.addHandler(discord_main)
-						
-						discord_error=DiscordError()
-						discord_error.setFormatter(formatter)
-						discord_error.setLevel(logging.ERROR)
-						self.logger.addHandler(discord_error)
+						# do stuff that we have yet to figure out
 					else:
 						self.logger.log(logging.ERROR, "Error initializing DiscordHandler()"
 				self.logger.log(logging.INFO, "Server config loaded!")
