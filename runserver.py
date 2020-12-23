@@ -10,21 +10,24 @@ class RunServer:
 		return
 		
 	def start_server(self):
-		self.server=Server()
-		self.server.run(self.config)
+		self.server[RunServer.count]=Server()
+		self.server[RunServer.count].run()
+		RunServer.count+=1
 		
 	def stop_server(self, number):
+		self.server[number].stop()
+		RunServer.count-=1
 		# implement when multi-instance is a thing
 		
 	def console_emit(self, number):
 		# function where you can attach to the server number of the server you want to look in on
 		
-	def reload_server(self):
-		clients=self.server.clients
+	def reload_server(self, number):
+		clients=self.server[number].clients
 		importlib.reload("core.trek_server")
-		self.server=Server()
-		self.server.clients=clients
-		self.server.run(self.config)
+		self.server[number]=Server()
+		self.server[number].clients=clients
+		self.server[number].run()
 		
 		
        
