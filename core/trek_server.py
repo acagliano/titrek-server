@@ -25,15 +25,15 @@ class Server:
 				pass
 		try:
 			self.setup_loggers()
-			self.config=trek_config.Config()
-			if self.config.ssl:
-				self.ssl=self.config.ssl
-			self.loadbans()
-			self.load_whitelist()
-			self.init_binaries()
+			self.config=trek_config.Config(self.logger)
+			self.ssl=self.config.ssl
+#			self.loadbans()
+#			self.load_whitelist()
+#			self.init_binaries()
+			self.fw=self.config.firewall
 
 			self.generator = trek_generate.Generator()
-			self.space = trek_space.Space(f"{self.server_root}space/", self.logger)
+			self.space = trek_space.Space(self.server_root, self.logger, self.config.settings["space"])
 			self.modules=trek_modules.TrekModules("data/modules/")
 		
 			self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)         # Create a socket object
@@ -80,7 +80,6 @@ class Server:
 			self.writeinfo()
 			self.threads = [threading.Thread(target=self.autoSaveHandler)]
 			self.threads[0].start()
-			self.fw=TrekFilter(self.config.settings["firewall"], self.logger)
 			self.main_thread = threading.Thread(target=self.main)
 			self.main_thread.start()
 			self.log(f"Server running on port {self.config.settings['port']}")
@@ -234,8 +233,8 @@ class Server:
 			servinfo={"server":{
 				"version": version,
 				"numclients":len(self.clients),
-				"minversion":delim.join([str(item) for item in Config.settings["min-client"]]),
-				"max_clients":Config.settings["max-players"],
+				"minversion":delim.join([str(item) for item in self.config.settings["min-client"]]),
+				"max_clients":self.config.settings["max-players"],
 				"online":self.online}}
 			json.dump(servinfo, f)
 			

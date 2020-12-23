@@ -3,7 +3,7 @@ import core.utils.trek_filter
 SUPPORTS_SSL=False
 
 class Config:
-	def init(self, log):
+	def __init__(self, log):
 		try:
 			self.ssl=False
 			self.firewall=False
@@ -11,7 +11,7 @@ class Config:
 			with open(f'config.json', 'r') as f:
 				self.settings=json.load(f)
 				self.settings["packet-size"]=max(4096, self.settings["packet-size"])
-				Config.settings["gamedata"]="data/"
+				self.settings["gamedata"]="data/"
 				if not SUPPORTS_SSL:
 					self.settings["ssl"]["enable"]=False
 				if self.settings["ssl"]["enable"]:

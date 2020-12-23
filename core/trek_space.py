@@ -2,19 +2,28 @@
 import os,json,traceback
 
 class Space:
-	config={}
-	def __init__(self, config, log):
+	def __init__(self, root_dir, log, config):
 		try:
-			Space.config=config
+			self.config=config
+			self.log=log
+			self.src=self.config["path"]
+			self.save_dir=f'{root_dir}{self.config["path"]}'
+
+			# Can we rewrite such that
+			# If map data is found in
+			# self.save_dir, that is loaded
+			# Else, it generates new from self.src?
+			# unless self.src is no longer needed
+
 			try:
-				os.makedirs(Space.config["path"])
+				os.makedirs(self.config["path"])
 			except:
 				pass
 			self.log=log
 			self.space=[]
 			count = 0
-			log(f"Loading map from {Space.config['path']}")
-			for fname in self.walk(f"{Space.config['path']}"):
+			log(f"Loading map from {self.config['path']}")
+			for fname in self.walk(f"{self.config['path']}"):
 				try:
 					with open(fname) as f:
 						self.space.extend(json.loads(f.read()))
@@ -36,7 +45,7 @@ class Space:
 				yield path+"/"+fname
 
 	def save(self):
-		dname=Space.config["path"]
+		dname=self.config["path"]
 		try:
 			os.makedirs(f"{dname}")
 		except:
