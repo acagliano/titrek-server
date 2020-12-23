@@ -231,58 +231,51 @@ class TrekFilter:
 		if any([a in segment for a in TrekFilter.special_characters]):
 			return True
 		else:
-			return False                                                         
-        
-    def threshhold(self, addr, data, trusted):
-        ip, port = addr
-        if ip in self.offenders.keys():
-            if self.offenders[ip]>=self.hitcount:
-                self.log(LOG_NORMAL, f'[threshold] Failed for {ip}')
-                return True
-        return False
-    
-    def refuse_connection(self, conn, addr, data):
-        ip, port = addr
-        # append properly formatted fail2ban log
-        self.log(LOG_NORMAL, 'Connection refused. Logging connection.')                       
-        conn.close()
-        return
-        
-    def drop_packet(self, conn, addr, data):
-        self.log(LOG_NORMAL, 'Dropping packet')
-        data.clear()
-        return
-        
-    def inform_user(self, conn, addr, data):
-        self.log(LOG_NORMAL, 'Sending "Invalid" to user')
-        msg = b"Packet dropped by server: Invalid\0"
-        conn.send(bytes([ControlCodes["MESSAGE"]]+list(msg)))
-        return
-        
-    def blacklist_ip(self, conn, addr, data):
-        ip, port = addr
-        self.blacklist.append(ip)
-        self.save_blacklist()
-        self.log(LOG_NORMAL, f'{ip} blacklisted')
-        self.refuse_connection(conn, addr, data)                               
-        return
-        
-    def set_offender(self, conn, addr, data):
-        ip, port = addr
-        if ip in self.offenders.keys():
-            self.offenders[ip]+=1
-        else:
-            self.offenders.update({f'{ip}':1})
-        return
-    
-    def fail2ban(self, conn, addr, data):
-        ip, port = addr
-        try:
-            date_now=datetime.today().strftime('%Y-%m-%dT%H:%M:%S')
-            with open(f"{self.path}trek-f2b.log", "a+") as f:
-                text = f'{date_now} Connect from blacklisted IP at {ip}\n'
-                f.write(text)
-        except:
-            self.log(LOG_ERROR, traceback.print_exc(limit=None, file=None, chain=True))
+			return False
+					
+	def threshhold(self, addr, data, trusted):
+		ip, port = addr
+		if ip in self.offenders.keys():
+			if self.offenders[ip]>=self.hitcount:
+				return True
+		return False
+						
+	def refuse_connection(self, conn, addr, data):
+		conn.close()
+		return
+						
+	def drop_packet(self, conn, addr, data):
+		data.clear()
+		return
+	
+	def inform_user(self, conn, addr, data):
+		msg = b"Packet dropped by server: Invalid\0"
+		conn.send(bytes([ControlCodes["MESSAGE"]]+list(msg)))
+		return
+					
+	def blacklist_ip(self, conn, addr, data):
+		ip, port = addr
+		self.blacklist.append(ip)
+		self.save_blacklist()
+		self.refuse_connection(conn, addr, data)
+		return
+						
+	def set_offender(self, conn, addr, data):
+		ip, port = addr
+		if ip in self.offenders.keys():
+			self.offenders[ip]+=1
+		else:
+			self.offenders.update({f'{ip}':1})
+		return
+						
+	def fail2ban(self, conn, addr, data):
+		ip, port = addr
+		try:
+			date_now=datetime.today().strftime('%Y-%m-%dT%H:%M:%S')
+			with open(f"{self.path}trek-f2b.log", "a+") as f:
+				text = f'{date_now} Connect from blacklisted IP at {ip}\n'
+				f.write(text)
+		except:
+			self.logging.log(logging.ERROR, traceback.print_exc(limit=None, file=None, chain=True))
     
   
