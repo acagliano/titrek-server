@@ -1,23 +1,30 @@
 import os,traceback,json,logging
 
+import trek_server
+import utils.trek_logging
+import utils.trek_filter
+import utils.trek_modules
+
 class Client:
-	count = 0
-	
 	def __init__(self, conn, addr, server, config):
 		self.conn = conn
 		self.addr = addr
 		self.config = config
 		self.ip,self.port = self.addr
-		self.closed = False
+		self.connected = True
 		self.logged_in = False
+		self.server = server
+		self.player_root=f"{self.server.server_root}{self.config['path']}
+		try:
+			os.makedirs(self.player_root)
+		except:
+			pass
 		self.user = ''
 		self.data = {"player":{},"ships":{}}
 		self.sprite_ids = {}
 		self.sprite_data = []
-		Client.count += 1
-		self.server = server
-		self.log=server.log
 		self.fw=server.fw
+		self.log=server.log
 		self.elog = server.elog
 		self.dlog = server.dlog
 		self.broadcast = server.broadcast
@@ -26,24 +33,23 @@ class Client:
 
 	def load_player(self):
 		try:
-			os.makedirs(f"{self.config['path']}{self.user}")
+			os.makedirs(f"{self.player_root}{self.user}")
 		except:
 			pass
 		try:
 			with open(self.playerfile) as f:
-				j = json.load(f)
+				self.data["player"] = json.load(f)
 		except IOError:
-			self.log("player data not found - initializing")
-			j = {"x":0,"y":0,"z":0,"vx":0,"vy":0,"vz":0,"speed":0,"acceleration":0}
+			self.dlog("player data not found - initializing")
+			self.data["player"] = {"x":0,"y":0,"z":0,"vx":0,"vy":0,"vz":0,"speed":0,"acceleration":0}
 		except:
 			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
-		self.data["player"] = j
+		
 		for key in ["x","y","z","vx","vy","vz","speed","acceleration"]:
-			if key not in j.keys(): j[key]=0
+			if key not in self.data["player"].keys(): self.data["player"][key]=0
 		try:
 			with open(self.shipfile) as f:
-				j = json.load(f)
-				self.data["ships"] = j
+				self.data["ships"] = json.load(f)
 		except IOError:
 			print("No ships save found - initializing")
 			self.create_new_game()
