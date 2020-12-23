@@ -1,10 +1,8 @@
 import ssl,traceback,os,logging,json
-import trek_filter
+import core.utils.trek_filter
 SUPPORTS_SSL=False
 
 class Config:
-	textbody_controlcodes = [ControlCodes["REGISTER"],ControlCodes["LOGIN"],ControlCodes["PING"],ControlCodes["MESSAGE"],\
-						ControlCodes["DEBUG"],ControlCodes["SERVINFO"]]	
 	def init(self, log):
 		try:
 			self.logger=log
@@ -19,9 +17,10 @@ class Config:
 					self.ssl = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
 					self.ssl.load_cert_chain(f'{ssl_path}/fullchain.pem', f'{ssl_path}/privkey.pem')
 				if self.settings["enable-discord-link"]:
-						# do stuff that we have yet to figure out
-					else:
-						self.logger.log(logging.ERROR, "Error initializing DiscordHandler()")
+					# do stuff that we have yet to figure out
+					self.discord=True
+				else:
+					self.logger.log(logging.ERROR, "Error initializing DiscordHandler()")
 				if self.settings["firewall"]["enable"]:
 					self.firewall=TrekFilter()
 					self.firewall.set_logger(log)

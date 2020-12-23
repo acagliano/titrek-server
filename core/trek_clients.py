@@ -1,9 +1,9 @@
 import os,traceback,json,logging
 
-import trek_server
-import utils.trek_logging
-import utils.trek_filter
-import utils.trek_modules
+import core.trek_server
+import core.utils.trek_logging
+import core.utils.trek_filter
+import core.utils.trek_modules
 
 class Client:
 	def __init__(self, conn, addr, server, config):
@@ -14,7 +14,7 @@ class Client:
 		self.connected = True
 		self.logged_in = False
 		self.server = server
-		self.player_root=f"{self.server.server_root}{self.config['path']}
+		self.player_root=f"{self.server.server_root}{self.config['path']}"
 		try:
 			os.makedirs(self.player_root)
 		except:

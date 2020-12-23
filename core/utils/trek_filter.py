@@ -14,7 +14,7 @@
 
 import os,json,traceback,importlib,logging
 from datetime import datetime
-from ...trek_codes import *
+from core.trek_codes import *
 
 logging.FILTER=45
 
@@ -197,8 +197,8 @@ class TrekFilter:
 		if trusted:
 			return True
 		if not data[0]<9:
-               		return False
-        	return True
+			return False
+		return True
 						
 	def blacklisted(self, addr, data, trusted):
 		ip, port = addr

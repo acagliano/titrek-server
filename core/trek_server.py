@@ -1,7 +1,7 @@
 import socket,threading,ctypes,hashlib,json,os,sys,time,math,ssl,traceback,subprocess,logging,gzip,re
-import utils.trek_filter
-import utils.trek_config
-import trek_client
+import core.utils.trek_filter
+import core.utils.trek_config
+import core.trek_clients
 
 
 class Server:
@@ -26,7 +26,7 @@ class Server:
 			self.init_binaries()
 
 			self.generator = Generator()
-			self.space = Space(f"{self.server_root}space, self.logger)
+			self.space = Space(f"{self.server_root}space/", self.logger)
 		
 			self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)         # Create a socket object
 			self.sock.settimeout(None)

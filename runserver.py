@@ -21,6 +21,7 @@ class RunServer:
 		
 	def console_emit(self, number):
 		# function where you can attach to the server number of the server you want to look in on
+        	return
 		
 	def reload_server(self, number):
 		clients=self.server[number].clients
