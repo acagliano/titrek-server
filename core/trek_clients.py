@@ -1,5 +1,6 @@
 import os,traceback,json,logging
 
+import core.trek_codes
 import core.trek_server
 import core.utils.trek_logging
 import core.utils.trek_filter
@@ -23,6 +24,7 @@ class Client:
 		self.data = {"player":{},"ships":{}}
 		self.sprite_ids = {}
 		self.sprite_data = []
+		self.modules=server.modules
 		self.fw=server.fw
 		self.log=server.log
 		self.elog = server.elog
