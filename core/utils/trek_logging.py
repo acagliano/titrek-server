@@ -26,7 +26,7 @@ class TrekLogging:
 	formatter = logging.Formatter('%(levelname)s: %(asctime)s: %(message)s')
 	console_handler = logging.StreamHandler()
 	discord_handler=[]
-	def __init__(logpath):
+	def __init__(self, logpath):
 		try:
 			server_log = f"{logpath}server.log"
 			error_log = f"{logpath}error.log"

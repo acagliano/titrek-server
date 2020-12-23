@@ -1,16 +1,14 @@
 import os, subprocess, traceback, importlib
-import core.trek_server
-# may want to set up logging in here
-# this will be the new server.py (but new name).
-# RunServer defines a dynamic loader class that is capable of importing/reloading modules and launching server instances
+from core import trek_server
 
 class RunServer:
 	count=0
 	def __init__(self):
+		self.server=[]
 		return
 		
 	def start_server(self):
-		self.server[RunServer.count]=Server()
+		self.server[RunServer.count]=trek_server.Server(RunServer.count)
 		self.server[RunServer.count].run()
 		RunServer.count+=1
 		

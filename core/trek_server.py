@@ -1,17 +1,23 @@
 import socket,threading,ctypes,hashlib,json,os,sys,time,math,ssl,traceback,subprocess,logging,gzip,re
-import core.utils.trek_filter
-import core.utils.trek_modules
-import core.utils.trek_config
-import core.trek_clients
+
+from core.utils import trek_logging
+from core.utils import trek_filter
+from core.utils import trek_modules
+from core.utils import trek_config
+from core.math import trek_generate
+
+from core import trek_clients
+from core import trek_space
 
 
 class Server:
-	def __init__(self):
+	def __init__(self, serv_num):
 		self.instance_num=serv_num
 		self.server_root=f"servers/server.{self.instance_num}/"
 		self.setup_loggers()
-		self.config=Config()
-		self.ssl=self.config.ssl
+		self.config=trek_config.Config()
+		if self.config.ssl:
+			self.ssl=self.config.ssl
 		for directory in [
 			self.server_root,
 			f"{self.server_root}logs",
@@ -26,13 +32,13 @@ class Server:
 			self.load_whitelist()
 			self.init_binaries()
 
-			self.generator = Generator()
-			self.space = Space(f"{self.server_root}space/", self.logger)
-			self.modules=TrekModules("data/modules/")
+			self.generator = trek_generate.Generator()
+			self.space = trek_space.Space(f"{self.server_root}space/", self.logger)
+			self.modules=trek_modules.TrekModules("data/modules/")
 		
 			self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)         # Create a socket object
 			self.sock.settimeout(None)
-			self.port = Config.settings["port"]+self.instance_num        # Reserve a port for your service. Default + instance num
+			self.port = self.config.settings["port"]      # Reserve a port for your service. Default + instance num
 			self.clients = {}
 			self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 			self.sock.bind(('', self.port))                 # Now wait for client connection.
@@ -41,7 +47,7 @@ class Server:
 
 						 
 	def setup_loggers(self):
-		self.logger=TrekLogging(f"{self.server_root}logs/")
+		self.logger=trek_logging.TrekLogging(f"{self.server_root}logs/")
 						 
 	def init_binaries(self):
 		try:
@@ -74,11 +80,10 @@ class Server:
 			self.writeinfo()
 			self.threads = [threading.Thread(target=self.autoSaveHandler)]
 			self.threads[0].start()
-			self.fw=TrekFilter(Config.settings["firewall"], [self.log, self.elog, self.dlog, self.discord_out])
+			self.fw=TrekFilter(self.config.settings["firewall"], self.logger)
 			self.main_thread = threading.Thread(target=self.main)
 			self.main_thread.start()
-			self.log(f"Server running on port {Config.settings['port']}")
-			self.dlog(f"Log archive set to {Config.log_archive}")
+			self.log(f"Server running on port {self.config.settings['port']}")
 			self.console()
 			self.stop()
 			self.sock.close()
@@ -97,112 +102,112 @@ class Server:
 	#	except:
 	#		self.elog(traceback.print_exc(limit=None, file=None, chain=True))
 			
-	def banlist(self):
-		print("[BANNED USERS]")
-		for b in Config.banned_users:
-			print(b)
-		print("[BANNED IPS]")
-		for b in Config.banned_ips:
-			print(b)
-
-	def print_whitelist(self):
-		print("[WHITELISTED IPS]")
-		for w in Config.whitelist:
-			print(w)
-	
-	def load_whitelist(self):
-		try:
-			with open("whitelist.txt","r") as f:
-				Config.whitelist = f.read().splitlines()
-		except IOError:
-			pass
-		except:
-			self.elog(traceback.format_exc(limit=None, chain=True))
-			
-	def whitelist_add(self,ip):
-		try:
-			if not ip in Config.whitelist:
-				Config.whitelist.append(ip)
-				self.log(f"{ip} added to whitelist.")
-				self.save_whitelist()
-			else:
-				self.log(f"{ip} already whitelisted.")
-		except:
-			self.elog(traceback.format_exc(limit=None, chain=True))
-	
-	def whitelist_remove(self,ip):
-		try:
-			Config.whitelist.remove(ip)
-			self.log(f"{ip} removed from whitelist.")
-			self.save_whitelist()
-		except:
-			self.elog(traceback.format_exc(limit=None, chain=True))
-	
-	def save_whitelist(self):
-		try:
-			with open("whitelist.txt","w+") as f:
-				for w in Config.whitelist:
-					f.write(str(w)+"\n")
-			self.log(f"Whitelist written successfully.")
-		except:
-			self.elog(traceback.format_exc(limit=None, chain=True))
-			
-	def loadbans(self):
-		try:
-			with open("bans/userban.txt","r") as f:
-				Config.banned_users = f.read().splitlines()
-			with open("bans/ipban.txt","r") as f:
-				Config.banned_ips = f.read().splitlines()
-		except IOError:
-			pass
-		except:
-			self.elog(traceback.format_exc(limit=None, chain=True))
+#	def banlist(self):
+#		print("[BANNED USERS]")
+#		for b in Config.banned_users:
+#			print(b)
+#		print("[BANNED IPS]")
+#		for b in Config.banned_ips:
+#			print(b)
+#
+#	def print_whitelist(self):
+#		print("[WHITELISTED IPS]")
+#		for w in Config.whitelist:
+#			print(w)
+#	
+#	def load_whitelist(self):
+#		try:
+#			with open("whitelist.txt","r") as f:
+#				Config.whitelist = f.read().splitlines()
+#		except IOError:
+#			pass
+#		except:
+#			self.elog(traceback.format_exc(limit=None, chain=True))
+#			
+#	def whitelist_add(self,ip):
+#		try:
+#			if not ip in Config.whitelist:
+#				Config.whitelist.append(ip)
+#				self.log(f"{ip} added to whitelist.")
+#				self.save_whitelist()
+#			else:
+#				self.log(f"{ip} already whitelisted.")
+#		except:
+#			self.elog(traceback.format_exc(limit=None, chain=True))
+#	
+#	def whitelist_remove(self,ip):
+#		try:
+#			Config.whitelist.remove(ip)
+#			self.log(f"{ip} removed from whitelist.")
+#			self.save_whitelist()
+#		except:
+#			self.elog(traceback.format_exc(limit=None, chain=True))
+#	
+#	def save_whitelist(self):
+#		try:
+#			with open("whitelist.txt","w+") as f:
+#				for w in Config.whitelist:
+#					f.write(str(w)+"\n")
+#			self.log(f"Whitelist written successfully.")
+#		except:
+#			self.elog(traceback.format_exc(limit=None, chain=True))
+#			
+#	def loadbans(self):
+#		try:
+#			with open("bans/userban.txt","r") as f:
+#				Config.banned_users = f.read().splitlines()
+#			with open("bans/ipban.txt","r") as f:
+#				Config.banned_ips = f.read().splitlines()
+#		except IOError:
+#			pass
+#		except:
+#			self.elog(traceback.format_exc(limit=None, chain=True))
 
 	def log(self,*args,**kwargs):
-			self.logger.log(logging.INFO, *args, **kwargs)
+		self.logger.log(logging.INFO, *args, **kwargs)
 	
 	def elog(self,*args,**kwargs):
 		self.logger.log(logging.ERROR, *args, **kwargs)
-		for e in args:
-			self.discord_out("Server",e,1)
+#		for e in args:
+#			self.discord_out("Server",e,1)
 		
 	def dlog(self,*args,**kwargs):
 		if Config.settings["debug"]:
 			self.logger.log(logging.DEBUG, *args, **kwargs)
 		
 	def broadcast(self,msg,sender="Server"):
-		self.discord_out(sender,msg,0)
+#		self.discord_out(sender,msg,0)
 		for conn in self.clients.keys():
 			client = self.clients[conn]
 			client.send([ControlCodes["MESSAGE"]]+list(bytes(sender+": "+msg+'\0', 'UTF-8')))
 	
-	def discord_out(self,sender,msg,msgtype):
-		if not Config.settings["enable-discord-link"]:
-			return
-		try:
-			if msgtype==0:
-				author = "Server Message" if sender=="Server" else sender
-				url="https://discord.com/api/webhooks/788494210734358559/4Y5PH-P_rS-ZQ63-sHpfp2FmXY9rZm114BMMAJQsn6xsQHPOquaYC33tOXiVoZ4Ph6Io"
-				webhook = DiscordWebhook(url=url, username=author, content=f"{msg}")
-			if msgtype==1:
-				author="Exception"
-				url="https://discord.com/api/webhooks/788497355359518790/7c9oPZgG13_yLnywx3h6wZWY6qXMobNvCHB_6Qjb6ZNbXjw9aP993I8jGE5jXE7DK3Lz"
-				webhook = DiscordWebhook(url=url, username=author)
-				embed = DiscordEmbed(description=f"{msg}", color=16711680)
-				webhook.add_embed(embed)
-			if msgtype==2:
-				author="TrekFilter"
-				url="https://discord.com/api/webhooks/788828667085979668/rVc5BA2rymnduGMuTsqysy8lNv1kNYgul4oSxJCYhF-RKc05hj2hGifDjbct8GMTTTH2"
-				webhook = DiscordWebhook(url=url, username=author)
-				embed = DiscordEmbed(description=f"{msg}", color=131724)
-				webhook.add_embed(embed)
-			response = webhook.execute()
-		except:
-			print(traceback.format_exc(limit=None, chain=True))
+#	def discord_out(self,sender,msg,msgtype):
+#		if not self.config.settings["enable-discord-link"]:
+#			return
+#		try:
+#			if msgtype==0:
+#				author = "Server Message" if sender=="Server" else sender
+#				url="https://discord.com/api/webhooks/788494210734358559/4Y5PH-P_rS-ZQ63-sHpfp2FmXY9rZm114BMMAJQsn6xsQHPOquaYC33tOXiVoZ4Ph6Io"
+#				webhook = DiscordWebhook(url=url, username=author, content=f"{msg}")
+#			if msgtype==1:
+#				author="Exception"
+#				url="https://discord.com/api/webhooks/788497355359518790/7c9oPZgG13_yLnywx3h6wZWY6qXMobNvCHB_6Qjb6ZNbXjw9aP993I8jGE5jXE7DK3Lz"
+#				webhook = DiscordWebhook(url=url, username=author)
+#				embed = DiscordEmbed(description=f"{msg}", color=16711680)
+#				webhook.add_embed(embed)
+#			if msgtype==2:
+#				author="TrekFilter"
+#				url="https://discord.com/api/webhooks/788828667085979668/rVc5BA2rymnduGMuTsqysy8lNv1kNYgul4oSxJCYhF-RKc05hj2hGifDjbct8GMTTTH2"
+#				webhook = DiscordWebhook(url=url, username=author)
+#				embed = DiscordEmbed(description=f"{msg}", color=131724)
+#				webhook.add_embed(embed)
+#			response = webhook.execute()
+#		except:
+#			print(traceback.format_exc(limit=None, chain=True))
 	
 	def main(self):
 		self.broadcast(f"Server Online!")
-		ssock = Config.ssl.wrap_socket(self.sock, server_side=True) if Config.ssl else self.sock
+		ssock = self.ssl.wrap_socket(self.sock, server_side=True) if self.ssl else self.sock
 		while self.online:
 			ssock.listen(1)
 			conn, addr = ssock.accept()

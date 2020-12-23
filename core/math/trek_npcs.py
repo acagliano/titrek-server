@@ -1,5 +1,5 @@
 
 import math
-from trek_vec3 import Vec3
+from core.math.trek_vec3 import Vec3
 
 
