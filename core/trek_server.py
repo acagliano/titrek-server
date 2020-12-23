@@ -1,7 +1,7 @@
 import os,traceback,json,logging
-import trek_filter
+import utils.trek_filter
+import utils.trek_config
 import trek_client
-import trek_config
 
 
 class Server:
