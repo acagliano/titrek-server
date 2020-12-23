@@ -14,10 +14,6 @@ class Server:
 	def __init__(self, serv_num):
 		self.instance_num=serv_num
 		self.server_root=f"servers/server.{self.instance_num}/"
-		self.setup_loggers()
-		self.config=trek_config.Config()
-		if self.config.ssl:
-			self.ssl=self.config.ssl
 		for directory in [
 			self.server_root,
 			f"{self.server_root}logs",
@@ -28,6 +24,10 @@ class Server:
 			except:
 				pass
 		try:
+			self.setup_loggers()
+			self.config=trek_config.Config()
+			if self.config.ssl:
+				self.ssl=self.config.ssl
 			self.loadbans()
 			self.load_whitelist()
 			self.init_binaries()

@@ -32,30 +32,31 @@ class TrekLogging:
 			error_log = f"{logpath}error.log"
 			log_name= os.path.basename(os.path.normpath(logpath))
 			log = logging.getLogger(f"titrek.{log_name}")
-			log_formatter = logging.Formatter(formatter)
 		
 			# set handler for default messages (debug/info)
-			file_handler_default = logging.TimedRotatingFileHandler(server_log, when="midnight", interval=1, backupCount=5)
-			file_handler_default.setFormatter(log_formatter)
+			file_handler_default = TimedRotatingFileHandler(server_log, when="midnight", interval=1, backupCount=5)
+			file_handler_default.setFormatter(TrekLogging.formatter)
 			file_handler_default.setLevel(logging.DEBUG)
 			log.addHandler(file_handler_default)
 		
 			# set handler for error messages
 			file_handler_error = logging.FileHandler(error_log)
-			file_handler_error.setFormatter(log_formatter)
+			file_handler_error.setFormatter(TrekLogging.formatter)
 			file_handler_error.setLevel(logging.ERROR)
 			log.addHandler(file_handler_error)
 		
 			# set handler for stream to console
 			console_handler = logging.StreamHandler()
-			console_handler.setFormatter(log_formatter)
+			console_handler.setFormatter(TrekLogging.formatter)
 			log.addHandler(console_handler)
 		
 			# the discord logging will go here, once we figure out what module to use
 		
 			# set defaults
 			log.setLevel(logging.DEBUG)
-			self.log=log
-			
+			self.logger=log			
 		except:
 			print(traceback.format_exc(limit=None, chain=True))
+
+	def log(self, lvl, msg):
+		self.logger.log(lvl, msg)

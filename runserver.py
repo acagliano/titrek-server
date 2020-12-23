@@ -4,7 +4,7 @@ from core import trek_server
 class RunServer:
 	count=0
 	def __init__(self):
-		self.server=[]
+		self.server={}
 		return
 		
 	def start_server(self):
