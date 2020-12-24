@@ -1,1 +1,0 @@
-Beta self-updating functionality added

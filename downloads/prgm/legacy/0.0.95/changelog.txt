@@ -1,7 +1,0 @@
-- Server Select list added
-- Ability to store up to 9 additional servers added
-- Client now tells bridge when to connect to server and when to disconnect
-- Gameflags split off into netflags for networking info
-- Server connect sequence internally revamped
-- Log and Message lines appear on the bottom of the interface
-- New setting option for log display time

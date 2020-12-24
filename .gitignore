@@ -3,7 +3,7 @@
 /bans
 /filter
 /ssl
-/data/downloads
+/downloads
 /data/promos.json
 */__pycache__
 /.idea

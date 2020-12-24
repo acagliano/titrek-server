@@ -1,8 +1,0 @@
-- "Serial Connected" text added to main screen
-- Load Ship functionality added
-- Winning sprite from contest added to assets
-- Settings display and customization added
-- Automatic client timeout for network inactivity added
-	(fix for inability to exit if server disconnects)
-- "Bad GFX Version" shows on main screen if
-	your graphics version is incompatible
