@@ -47,6 +47,3 @@ class TrekCommands:
 			ostring+=f"[{cmd['helper']}], "
 			ostring+=f"[{cmd['description']}]\n"
 		self.logger.log(logging.INFO, ostring)
-
-	def stop(self):
-		self.server.stop()
