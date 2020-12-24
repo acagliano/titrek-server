@@ -1,20 +1,29 @@
 
 import os,json,traceback
+import logging
 
 class Space:
-	config={}
-	def __init__(self, config, log):
+	def __init__(self, root_dir, log, config):
 		try:
-			Space.config=config
+			self.config=config
+			self.logger=log
+			self.src=self.config["path"]
+			self.save_dir=f'{root_dir}{self.config["path"]}'
+
+			# Can we rewrite such that
+			# If map data is found in
+			# self.save_dir, that is loaded
+			# Else, it generates new from self.src?
+			# unless self.src is no longer needed
+
 			try:
-				os.makedirs(Space.config["path"])
+				os.makedirs(self.config["path"])
 			except:
 				pass
-			self.log=log
 			self.space=[]
 			count = 0
-			log(f"Loading map from {Space.config['path']}")
-			for fname in self.walk(f"{Space.config['path']}"):
+			self.logger.log(logging.INFO, f"Loading map from {self.config['path']}")
+			for fname in self.walk(f"{self.config['path']}"):
 				try:
 					with open(fname) as f:
 						self.space.extend(json.loads(f.read()))
@@ -22,11 +31,11 @@ class Space:
 				except:
 					self.log(f"Warning: could not load file {fname}")
 					continue
-			log("Finished loading map")
+			self.logger.log(logging.INFO, "Finished loading map")
 			final = len(self.space)
-			log(f"{count} objects iterated; {final} objects loaded")
+			self.logger.log(logging.INFO, f"{count} objects iterated; {final} objects loaded")
 		except:
-			print(traceback.print_exc(limit=None, file=None, chain=True))
+			self.logger.log(logging.ERROR, traceback.print_exc(limit=None, file=None, chain=True))
 
 	def walk(self,path):
 		for root,dirs,files in os.walk(path):
@@ -36,7 +45,7 @@ class Space:
 				yield path+"/"+fname
 
 	def save(self):
-		dname=Space.config["path"]
+		dname=self.config["path"]
 		try:
 			os.makedirs(f"{dname}")
 		except:
@@ -48,7 +57,7 @@ class Space:
 					json.dump(self.space[I:min(I+L,len(self.space))],f)
 				num+=1
 		except:
-			print(traceback.print_exc(limit=None, file=None, chain=True))
+			self.logger.log(logging.ERROR, traceback.print_exc(limit=None, file=None, chain=True))
 
 	def append(self,obj):
 		self.space.append(obj)

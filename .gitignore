@@ -1,10 +1,9 @@
-/space
 /backups
 /cache
-/logs
 /missions
-/players
-/terrain
-/bans
-/__pycache__
+*/__pycache__
 /.idea
+*.pyc
+*.pyo
+/servers
+server.*

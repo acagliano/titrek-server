@@ -3,8 +3,6 @@ import os.path
 
 class Binaries:
 	def __init__(self, loggers, path, repo_link, binary):
-		self.log=loggers[0]
-		self.elog=loggers[1]
 		try:
 			parent, new = os.path.split(path)
 			self.path=path
@@ -17,6 +15,8 @@ class Binaries:
 					self.bin=f"{path}bin/{binary}"
 			except:
 				self.update(path)
+		except:
+			sys.exit("Error loading needed binaries")			
 				
 	def update(self, path):
 		try:

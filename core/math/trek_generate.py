@@ -1,8 +1,8 @@
 
-from trek_npcs import *
-from trek_vec3 import *
-from trek_codes import *
-from trek_constants import *
+from core.math.trek_npcs import *
+from core.math.trek_vec3 import *
+from core.trek_codes import *
+from core.math.trek_constants import *
 import os,json,math,random,time,traceback
 
 
