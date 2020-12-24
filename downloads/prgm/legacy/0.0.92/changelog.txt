@@ -1,0 +1,5 @@
+- About screen added
+- Version string is now created from version byte array, not prestored
+- Program autoupdate added (untested)
+- Gfx autoupdate added (untested)
+- Load ship and module initialization implemented

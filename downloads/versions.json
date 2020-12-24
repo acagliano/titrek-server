@@ -1,0 +1,8 @@
+{
+	"clients":[
+	{
+		"version":"0.0.90",
+		"gfx-force-update":true,
+		"gfx-version":"1.0"
+	}]
+}

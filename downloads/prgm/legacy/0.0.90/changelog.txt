@@ -1,0 +1,4 @@
+USB functionality added
+Game assets extract to appvar now, not BSS
+ntwk_Login(), ntwk_Register(), ntwk_Disconnect() added
+Experimental release - testing bugs in usb libs mainly

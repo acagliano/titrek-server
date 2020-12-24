@@ -1,0 +1,5 @@
+- Main Screen revamped
+- Nicer looking menu; Version on splash screen
+- Network indicator is now an icon
+- GFX alert shows up on main screen if incompatible
+- Custom GFX supported via 'header-string: "\xff\xff"' in convimg.yaml

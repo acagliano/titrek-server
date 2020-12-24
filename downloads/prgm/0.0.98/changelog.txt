@@ -1,0 +1,4 @@
+- Power warning/ok status icons on Mains and Tactical display
+- Multi-line log/chat widget added to bottom of screen
+- Ability to send chat messages to server
+- 'Cracked screen' particle added when ship integrity low

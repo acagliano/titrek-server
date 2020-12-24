@@ -1,0 +1,286 @@
+2020-08-31 18:43:58,187:DEBUG:certbot.main:certbot version: 0.31.0
+2020-08-31 18:43:58,188:DEBUG:certbot.main:Arguments: ['--config-dir', '/home/trek/server/ssl', '--logs-dir', '/home/trek/server/logs', '--work-dir', '/home/trek/server/ssl']
+2020-08-31 18:43:58,191:DEBUG:certbot.main:Discovered plugins: PluginsRegistry(PluginEntryPoint#manual,PluginEntryPoint#null,PluginEntryPoint#standalone,PluginEntryPoint#webroot)
+2020-08-31 18:43:58,212:DEBUG:certbot.log:Root logging level set at 20
+2020-08-31 18:43:58,213:INFO:certbot.log:Saving debug log to /home/trek/server/logs/letsencrypt.log
+2020-08-31 18:43:58,215:DEBUG:certbot.plugins.selection:Requested authenticator None and installer None
+2020-08-31 18:43:59,842:DEBUG:certbot.plugins.selection:Multiple candidate plugins: * standalone
+Description: Spin up a temporary webserver
+Interfaces: IAuthenticator, IPlugin
+Entry point: standalone = certbot.plugins.standalone:Authenticator
+Initialized: <certbot.plugins.standalone.Authenticator object at 0xb5569f70>
+Prep: True
+
+* webroot
+Description: Place files in webroot directory
+Interfaces: IAuthenticator, IPlugin
+Entry point: webroot = certbot.plugins.webroot:Authenticator
+Initialized: <certbot.plugins.webroot.Authenticator object at 0xb5569e70>
+Prep: True
+2020-08-31 18:44:12,011:DEBUG:certbot.plugins.selection:Selected authenticator <certbot.plugins.standalone.Authenticator object at 0xb5569f70> and installer None
+2020-08-31 18:44:12,012:INFO:certbot.plugins.selection:Plugins selected: Authenticator standalone, Installer None
+2020-08-31 18:44:27,111:DEBUG:acme.client:Sending GET request to https://acme-v02.api.letsencrypt.org/directory.
+2020-08-31 18:44:27,115:DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): acme-v02.api.letsencrypt.org:443
+2020-08-31 18:44:27,360:DEBUG:urllib3.connectionpool:https://acme-v02.api.letsencrypt.org:443 "GET /directory HTTP/1.1" 200 658
+2020-08-31 18:44:27,361:DEBUG:acme.client:Received response:
+HTTP 200
+Server: nginx
+Date: Mon, 31 Aug 2020 17:44:27 GMT
+Content-Type: application/json
+Content-Length: 658
+Connection: keep-alive
+Cache-Control: public, max-age=0, no-cache
+X-Frame-Options: DENY
+Strict-Transport-Security: max-age=604800
+
+{
+  "keyChange": "https://acme-v02.api.letsencrypt.org/acme/key-change",
+  "meta": {
+    "caaIdentities": [
+      "letsencrypt.org"
+    ],
+    "termsOfService": "https://letsencrypt.org/documents/LE-SA-v1.2-November-15-2017.pdf",
+    "website": "https://letsencrypt.org"
+  },
+  "newAccount": "https://acme-v02.api.letsencrypt.org/acme/new-acct",
+  "newNonce": "https://acme-v02.api.letsencrypt.org/acme/new-nonce",
+  "newOrder": "https://acme-v02.api.letsencrypt.org/acme/new-order",
+  "revokeCert": "https://acme-v02.api.letsencrypt.org/acme/revoke-cert",
+  "vkGCj0CBrFM": "https://community.letsencrypt.org/t/adding-random-entries-to-the-directory/33417"
+}
+2020-08-31 18:44:30,629:DEBUG:acme.client:Requesting fresh nonce
+2020-08-31 18:44:30,630:DEBUG:acme.client:Sending HEAD request to https://acme-v02.api.letsencrypt.org/acme/new-nonce.
+2020-08-31 18:44:30,694:DEBUG:urllib3.connectionpool:https://acme-v02.api.letsencrypt.org:443 "HEAD /acme/new-nonce HTTP/1.1" 200 0
+2020-08-31 18:44:30,696:DEBUG:acme.client:Received response:
+HTTP 200
+Server: nginx
+Date: Mon, 31 Aug 2020 17:44:30 GMT
+Connection: keep-alive
+Cache-Control: public, max-age=0, no-cache
+Link: <https://acme-v02.api.letsencrypt.org/directory>;rel="index"
+Replay-Nonce: 0001Bq2Hchtd9EShT-0BRjZjgu_tsrndEaN3M_OGqt8e3js
+X-Frame-Options: DENY
+Strict-Transport-Security: max-age=604800
+
+
+2020-08-31 18:44:30,697:DEBUG:acme.client:Storing nonce: 0001Bq2Hchtd9EShT-0BRjZjgu_tsrndEaN3M_OGqt8e3js
+2020-08-31 18:44:30,698:DEBUG:acme.client:JWS payload:
+b'{\n  "contact": [\n    "mailto:acagliano97@gmail.com"\n  ],\n  "termsOfServiceAgreed": true,\n  "resource": "new-reg"\n}'
+2020-08-31 18:44:30,728:DEBUG:acme.client:Sending POST request to https://acme-v02.api.letsencrypt.org/acme/new-acct:
+{
+  "protected": "eyJhbGciOiAiUlMyNTYiLCAiandrIjogeyJuIjogImtac1ZqUVZKeHZabzBCTktrNThkbWRlZ3FTbzNJaHdTdlBlTlRsZzMzWkUyYXF0MkZaR2p3RkdleTBhSjB6MW1lQlAyT252a0dMNDVjYy1ZVE05NHh1QU5QR2NuVEpyYkh4SFJDVEJtZ0MxUTJTNWxWWk55X3VMRmJrcWdhNnVhRjVCZnVuRGdwTUtHcGp6Yk5GdVNlWkhjakZzb01SUjJNWlZkM0t6Tm9RbWFpVUVGNDhXbEJIVTRUNjRYTHdBNmpndFE4QjBMMDdWOGRxM1VtZ1JsSThVMkp4OUNnckU0bi1IMkNfUVI5Y2x2QjRWWEdMZFlod1dNRU1ieElJbVdxZmx3ZHY2bkV1WlphOWJfNTJlaGd1ZFhBLVBNU1lOV3lMNHlHcl9ObXNYWU91bWszcmxlQk1vQ29zVHprYUhRVF9GNm00WHZpX2xTZFh4WGpaV3d5dyIsICJlIjogIkFRQUIiLCAia3R5IjogIlJTQSJ9LCAibm9uY2UiOiAiMDAwMUJxMkhjaHRkOUVTaFQtMEJSalpqZ3VfdHNybmRFYU4zTV9PR3F0OGUzanMiLCAidXJsIjogImh0dHBzOi8vYWNtZS12MDIuYXBpLmxldHNlbmNyeXB0Lm9yZy9hY21lL25ldy1hY2N0In0",
+  "signature": "APufzPNHoueGhe9q8-Xb9QlUM5FZodCo0s5rbN2UbV2IMRZy-CoFRA-yJk1j_AdMfsrJzIWtznM1P9saguKjpMLIw4OPzzIX_tmwojM5W1Y1EtLexNt8agi2fLDQaT8I0hstoDOsKeI0k2QTPunsTHEo0XaYIZfMAfQnU4ujk_luzcx6qrYDUQUPO1L08aW2B86GGrZG5qdHwwllmRlSfBpdJ5DTAmFf6Gra_0JJFYsrkFHlvkvS8ySwXA5ywGPau4N5NAOPIEl0Y2eFLvAECqU41M4e2KJbetBpYvXljKJBBztB6oP_ypiExXquHO-pqSyrrXyKzjCUBkUYnQks-g",
+  "payload": "ewogICJjb250YWN0IjogWwogICAgIm1haWx0bzphY2FnbGlhbm85N0BnbWFpbC5jb20iCiAgXSwKICAidGVybXNPZlNlcnZpY2VBZ3JlZWQiOiB0cnVlLAogICJyZXNvdXJjZSI6ICJuZXctcmVnIgp9"
+}
+2020-08-31 18:44:30,917:DEBUG:urllib3.connectionpool:https://acme-v02.api.letsencrypt.org:443 "POST /acme/new-acct HTTP/1.1" 201 564
+2020-08-31 18:44:30,920:DEBUG:acme.client:Received response:
+HTTP 201
+Server: nginx
+Date: Mon, 31 Aug 2020 17:44:30 GMT
+Content-Type: application/json
+Content-Length: 564
+Connection: keep-alive
+Boulder-Requester: 95419090
+Cache-Control: public, max-age=0, no-cache
+Link: <https://acme-v02.api.letsencrypt.org/directory>;rel="index", <https://letsencrypt.org/documents/LE-SA-v1.2-November-15-2017.pdf>;rel="terms-of-service"
+Location: https://acme-v02.api.letsencrypt.org/acme/acct/95419090
+Replay-Nonce: 0002tqOpUyXr6VfRy6sVmoZnsoMPev-lIlSwWwnXGQltRCU
+X-Frame-Options: DENY
+Strict-Transport-Security: max-age=604800
+
+{
+  "key": {
+    "kty": "RSA",
+    "n": "kZsVjQVJxvZo0BNKk58dmdegqSo3IhwSvPeNTlg33ZE2aqt2FZGjwFGey0aJ0z1meBP2OnvkGL45cc-YTM94xuANPGcnTJrbHxHRCTBmgC1Q2S5lVZNy_uLFbkqga6uaF5BfunDgpMKGpjzbNFuSeZHcjFsoMRR2MZVd3KzNoQmaiUEF48WlBHU4T64XLwA6jgtQ8B0L07V8dq3UmgRlI8U2Jx9CgrE4n-H2C_QR9clvB4VXGLdYhwWMEMbxIImWqflwdv6nEuZZa9b_52ehgudXA-PMSYNWyL4yGr_NmsXYOumk3rleBMoCosTzkaHQT_F6m4Xvi_lSdXxXjZWwyw",
+    "e": "AQAB"
+  },
+  "contact": [
+    "mailto:acagliano97@gmail.com"
+  ],
+  "initialIp": "173.68.80.174",
+  "createdAt": "2020-08-31T17:44:30.810557329Z",
+  "status": "valid"
+}
+2020-08-31 18:44:30,921:DEBUG:acme.client:Storing nonce: 0002tqOpUyXr6VfRy6sVmoZnsoMPev-lIlSwWwnXGQltRCU
+2020-08-31 18:44:30,930:DEBUG:certbot.reporter:Reporting to user: Your account credentials have been saved in your Certbot configuration directory at /home/trek/server/ssl. You should make a secure backup of this folder now. This configuration directory will also contain certificates and private keys obtained by Certbot so making regular backups of this folder is ideal.
+2020-08-31 18:44:34,011:DEBUG:certbot.main:Picked account: <Account(RegistrationResource(body=Registration(key=JWKRSA(key=<ComparableRSAKey(<cryptography.hazmat.backends.openssl.rsa._RSAPublicKey object at 0xb545f2b0>)>), contact=('mailto:acagliano97@gmail.com',), agreement=None, status='valid', terms_of_service_agreed=None, only_return_existing=None, external_account_binding=None), uri='https://acme-v02.api.letsencrypt.org/acme/acct/95419090', new_authzr_uri=None, terms_of_service='https://letsencrypt.org/documents/LE-SA-v1.2-November-15-2017.pdf'), e48d2987ef5cdcc4d6b1fc5daacec26c, Meta(creation_dt=datetime.datetime(2020, 8, 31, 17, 44, 30, tzinfo=<UTC>), creation_host='titrek'))>
+2020-08-31 18:44:34,014:DEBUG:certbot.display.ops:No installer, picking names manually
+2020-08-31 18:44:42,853:INFO:certbot.main:Obtaining a new certificate
+2020-08-31 18:44:44,708:DEBUG:certbot.crypto_util:Generating key (2048 bits): /home/trek/server/ssl/keys/0000_key-certbot.pem
+2020-08-31 18:44:44,719:DEBUG:certbot.crypto_util:Creating CSR: /home/trek/server/ssl/csr/0000_csr-certbot.pem
+2020-08-31 18:44:44,721:DEBUG:acme.client:JWS payload:
+b'{\n  "identifiers": [\n    {\n      "type": "dns",\n      "value": "play.titrek.us"\n    }\n  ]\n}'
+2020-08-31 18:44:44,729:DEBUG:acme.client:Sending POST request to https://acme-v02.api.letsencrypt.org/acme/new-order:
+{
+  "protected": "eyJhbGciOiAiUlMyNTYiLCAia2lkIjogImh0dHBzOi8vYWNtZS12MDIuYXBpLmxldHNlbmNyeXB0Lm9yZy9hY21lL2FjY3QvOTU0MTkwOTAiLCAibm9uY2UiOiAiMDAwMnRxT3BVeVhyNlZmUnk2c1Ztb1puc29NUGV2LWxJbFN3V3duWEdRbHRSQ1UiLCAidXJsIjogImh0dHBzOi8vYWNtZS12MDIuYXBpLmxldHNlbmNyeXB0Lm9yZy9hY21lL25ldy1vcmRlciJ9",
+  "signature": "CMGqs0F8mB87uMjYO8SpS_DOX_QLLoI9AZITYsSH1ux0N6jnOIGMJWPCKvEvoMxpH6WveYp5JNrbXfCIZKM6xfg1btPcAlA0NfCOySEBVEqkVgYRi1KSUKzvVTQ3dB0BeaOJsQgl-Ww1nt_svsU1oYZsoOOYErC4AbEqs16JJ961qRlErDwtIZb1O-ViR4EdA1wo6YqDwfsKeS_v76zpN7HtMi4kgc8NCDDMehOwP8siF1V9Ea-Smbj30QxTBBBbR2qsDVKXR70lf-xEnCmU1wd0qDgbkekhfgqsvxa1i-sg8dFrmvU5X3KVTpWf78sUL5sp5Ou8TeYxILj1V86hNQ",
+  "payload": "ewogICJpZGVudGlmaWVycyI6IFsKICAgIHsKICAgICAgInR5cGUiOiAiZG5zIiwKICAgICAgInZhbHVlIjogInBsYXkudGl0cmVrLnVzIgogICAgfQogIF0KfQ"
+}
+2020-08-31 18:44:44,868:DEBUG:urllib3.connectionpool:https://acme-v02.api.letsencrypt.org:443 "POST /acme/new-order HTTP/1.1" 201 344
+2020-08-31 18:44:44,869:DEBUG:acme.client:Received response:
+HTTP 201
+Server: nginx
+Date: Mon, 31 Aug 2020 17:44:44 GMT
+Content-Type: application/json
+Content-Length: 344
+Connection: keep-alive
+Boulder-Requester: 95419090
+Cache-Control: public, max-age=0, no-cache
+Link: <https://acme-v02.api.letsencrypt.org/directory>;rel="index"
+Location: https://acme-v02.api.letsencrypt.org/acme/order/95419090/4955286362
+Replay-Nonce: 0002vLjupc9YX-fv1JoliKcwgIdH_1fuTZbCkgmZZdyMT4A
+X-Frame-Options: DENY
+Strict-Transport-Security: max-age=604800
+
+{
+  "status": "pending",
+  "expires": "2020-09-07T17:44:44.813259345Z",
+  "identifiers": [
+    {
+      "type": "dns",
+      "value": "play.titrek.us"
+    }
+  ],
+  "authorizations": [
+    "https://acme-v02.api.letsencrypt.org/acme/authz-v3/6897252963"
+  ],
+  "finalize": "https://acme-v02.api.letsencrypt.org/acme/finalize/95419090/4955286362"
+}
+2020-08-31 18:44:44,870:DEBUG:acme.client:Storing nonce: 0002vLjupc9YX-fv1JoliKcwgIdH_1fuTZbCkgmZZdyMT4A
+2020-08-31 18:44:44,873:DEBUG:acme.client:JWS payload:
+b''
+2020-08-31 18:44:44,881:DEBUG:acme.client:Sending POST request to https://acme-v02.api.letsencrypt.org/acme/authz-v3/6897252963:
+{
+  "protected": "eyJhbGciOiAiUlMyNTYiLCAia2lkIjogImh0dHBzOi8vYWNtZS12MDIuYXBpLmxldHNlbmNyeXB0Lm9yZy9hY21lL2FjY3QvOTU0MTkwOTAiLCAibm9uY2UiOiAiMDAwMnZManVwYzlZWC1mdjFKb2xpS2N3Z0lkSF8xZnVUWmJDa2dtWlpkeU1UNEEiLCAidXJsIjogImh0dHBzOi8vYWNtZS12MDIuYXBpLmxldHNlbmNyeXB0Lm9yZy9hY21lL2F1dGh6LXYzLzY4OTcyNTI5NjMifQ",
+  "signature": "i50SQC5hNRKKSJJeODzqWBAYU322pTWvmwc7xysNyxRrsD9i6tz6o9txvbUFkRcLwC1GcRHJuSsaupzGcSmWA8vpWAUJFHai6T_Uu-EslvZ_wy3TUka-HfxYZYsF-AkI5udCXeMErmgAXqgfxFkb-nhzJy0z0h6s6JzX-2TaKC_vyYFQ5kgyRXtL_bxV8VweCITey4_kcG8OmRV6gyEEwmxn2qvEkcZMp2wPY64X24rSr53ul8oDd_ohiShorza1gISswYiWDPkBPXXTpi_eWAmACo2nvnB-hd5n0MFYfRVpBjVnRgOf8--TYt1nMCMLFQfMraRROKgR3fKo3vboig",
+  "payload": ""
+}
+2020-08-31 18:44:44,964:DEBUG:urllib3.connectionpool:https://acme-v02.api.letsencrypt.org:443 "POST /acme/authz-v3/6897252963 HTTP/1.1" 200 792
+2020-08-31 18:44:44,965:DEBUG:acme.client:Received response:
+HTTP 200
+Server: nginx
+Date: Mon, 31 Aug 2020 17:44:44 GMT
+Content-Type: application/json
+Content-Length: 792
+Connection: keep-alive
+Boulder-Requester: 95419090
+Cache-Control: public, max-age=0, no-cache
+Link: <https://acme-v02.api.letsencrypt.org/directory>;rel="index"
+Replay-Nonce: 0001200V7symlnB_3oUM1YfIWyHL3vyDJJK0EK7MX-hIheA
+X-Frame-Options: DENY
+Strict-Transport-Security: max-age=604800
+
+{
+  "identifier": {
+    "type": "dns",
+    "value": "play.titrek.us"
+  },
+  "status": "pending",
+  "expires": "2020-09-07T17:44:44Z",
+  "challenges": [
+    {
+      "type": "http-01",
+      "status": "pending",
+      "url": "https://acme-v02.api.letsencrypt.org/acme/chall-v3/6897252963/lAM1Jg",
+      "token": "zHNZkDECzAMfWxYMugXdxUpG7-8UTSLmRQoTXRkJnOo"
+    },
+    {
+      "type": "dns-01",
+      "status": "pending",
+      "url": "https://acme-v02.api.letsencrypt.org/acme/chall-v3/6897252963/Ia3_rQ",
+      "token": "zHNZkDECzAMfWxYMugXdxUpG7-8UTSLmRQoTXRkJnOo"
+    },
+    {
+      "type": "tls-alpn-01",
+      "status": "pending",
+      "url": "https://acme-v02.api.letsencrypt.org/acme/chall-v3/6897252963/hTH54w",
+      "token": "zHNZkDECzAMfWxYMugXdxUpG7-8UTSLmRQoTXRkJnOo"
+    }
+  ]
+}
+2020-08-31 18:44:44,966:DEBUG:acme.client:Storing nonce: 0001200V7symlnB_3oUM1YfIWyHL3vyDJJK0EK7MX-hIheA
+2020-08-31 18:44:44,967:INFO:certbot.auth_handler:Performing the following challenges:
+2020-08-31 18:44:44,967:INFO:certbot.auth_handler:http-01 challenge for play.titrek.us
+2020-08-31 18:44:44,968:DEBUG:acme.standalone:Failed to bind to :80 using IPv6
+2020-08-31 18:44:44,968:DEBUG:acme.standalone:Failed to bind to :80 using IPv4
+2020-08-31 18:44:44,970:DEBUG:certbot.error_handler:Encountered exception:
+Traceback (most recent call last):
+  File "/usr/lib/python3/dist-packages/certbot/plugins/standalone.py", line 76, in run
+    address, self.http_01_resources)
+  File "/usr/lib/python3/dist-packages/acme/standalone.py", line 189, in __init__
+    BaseDualNetworkedServers.__init__(self, HTTP01Server, *args, **kwargs)
+  File "/usr/lib/python3/dist-packages/acme/standalone.py", line 108, in __init__
+    raise socket.error("Could not bind to IPv4 or IPv6.")
+OSError: Could not bind to IPv4 or IPv6.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/lib/python3/dist-packages/certbot/auth_handler.py", line 75, in handle_authorizations
+    resp = self._solve_challenges(aauthzrs)
+  File "/usr/lib/python3/dist-packages/certbot/auth_handler.py", line 139, in _solve_challenges
+    resp = self.auth.perform(all_achalls)
+  File "/usr/lib/python3/dist-packages/certbot/plugins/standalone.py", line 234, in perform
+    return [self._try_perform_single(achall) for achall in achalls]
+  File "/usr/lib/python3/dist-packages/certbot/plugins/standalone.py", line 234, in <listcomp>
+    return [self._try_perform_single(achall) for achall in achalls]
+  File "/usr/lib/python3/dist-packages/certbot/plugins/standalone.py", line 241, in _try_perform_single
+    _handle_perform_error(error)
+  File "/usr/lib/python3/dist-packages/certbot/plugins/standalone.py", line 239, in _try_perform_single
+    return self._perform_single(achall)
+  File "/usr/lib/python3/dist-packages/certbot/plugins/standalone.py", line 245, in _perform_single
+    servers, response = self._perform_http_01(achall)
+  File "/usr/lib/python3/dist-packages/certbot/plugins/standalone.py", line 254, in _perform_http_01
+    servers = self.servers.run(port, challenges.HTTP01, listenaddr=addr)
+  File "/usr/lib/python3/dist-packages/certbot/plugins/standalone.py", line 78, in run
+    raise errors.StandaloneBindError(error, port)
+certbot.errors.StandaloneBindError: Problem binding to port 80: Could not bind to IPv4 or IPv6.
+
+2020-08-31 18:44:44,970:DEBUG:certbot.error_handler:Calling registered functions
+2020-08-31 18:44:44,971:INFO:certbot.auth_handler:Cleaning up challenges
+2020-08-31 18:44:44,971:DEBUG:certbot.log:Exiting abnormally:
+Traceback (most recent call last):
+  File "/usr/lib/python3/dist-packages/certbot/plugins/standalone.py", line 76, in run
+    address, self.http_01_resources)
+  File "/usr/lib/python3/dist-packages/acme/standalone.py", line 189, in __init__
+    BaseDualNetworkedServers.__init__(self, HTTP01Server, *args, **kwargs)
+  File "/usr/lib/python3/dist-packages/acme/standalone.py", line 108, in __init__
+    raise socket.error("Could not bind to IPv4 or IPv6.")
+OSError: Could not bind to IPv4 or IPv6.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/bin/certbot", line 11, in <module>
+    load_entry_point('certbot==0.31.0', 'console_scripts', 'certbot')()
+  File "/usr/lib/python3/dist-packages/certbot/main.py", line 1365, in main
+    return config.func(config, plugins)
+  File "/usr/lib/python3/dist-packages/certbot/main.py", line 1250, in certonly
+    lineage = _get_and_save_cert(le_client, config, domains, certname, lineage)
+  File "/usr/lib/python3/dist-packages/certbot/main.py", line 121, in _get_and_save_cert
+    lineage = le_client.obtain_and_enroll_certificate(domains, certname)
+  File "/usr/lib/python3/dist-packages/certbot/client.py", line 410, in obtain_and_enroll_certificate
+    cert, chain, key, _ = self.obtain_certificate(domains)
+  File "/usr/lib/python3/dist-packages/certbot/client.py", line 353, in obtain_certificate
+    orderr = self._get_order_and_authorizations(csr.data, self.config.allow_subset_of_names)
+  File "/usr/lib/python3/dist-packages/certbot/client.py", line 389, in _get_order_and_authorizations
+    authzr = self.auth_handler.handle_authorizations(orderr, best_effort)
+  File "/usr/lib/python3/dist-packages/certbot/auth_handler.py", line 75, in handle_authorizations
+    resp = self._solve_challenges(aauthzrs)
+  File "/usr/lib/python3/dist-packages/certbot/auth_handler.py", line 139, in _solve_challenges
+    resp = self.auth.perform(all_achalls)
+  File "/usr/lib/python3/dist-packages/certbot/plugins/standalone.py", line 234, in perform
+    return [self._try_perform_single(achall) for achall in achalls]
+  File "/usr/lib/python3/dist-packages/certbot/plugins/standalone.py", line 234, in <listcomp>
+    return [self._try_perform_single(achall) for achall in achalls]
+  File "/usr/lib/python3/dist-packages/certbot/plugins/standalone.py", line 241, in _try_perform_single
+    _handle_perform_error(error)
+  File "/usr/lib/python3/dist-packages/certbot/plugins/standalone.py", line 239, in _try_perform_single
+    return self._perform_single(achall)
+  File "/usr/lib/python3/dist-packages/certbot/plugins/standalone.py", line 245, in _perform_single
+    servers, response = self._perform_http_01(achall)
+  File "/usr/lib/python3/dist-packages/certbot/plugins/standalone.py", line 254, in _perform_http_01
+    servers = self.servers.run(port, challenges.HTTP01, listenaddr=addr)
+  File "/usr/lib/python3/dist-packages/certbot/plugins/standalone.py", line 78, in run
+    raise errors.StandaloneBindError(error, port)
+certbot.errors.StandaloneBindError: Problem binding to port 80: Could not bind to IPv4 or IPv6.

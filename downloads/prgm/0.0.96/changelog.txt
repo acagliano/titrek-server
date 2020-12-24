@@ -1,0 +1,2 @@
+- Implemented version check on server and client
+- This is now the lowest version that will be publicly available

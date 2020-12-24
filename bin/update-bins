@@ -1,0 +1,10 @@
+#!/bin/sh
+
+cd bin/convimg
+git pull
+make
+
+cd ../convbin
+git pull
+make
+exit 0

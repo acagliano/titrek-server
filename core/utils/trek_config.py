@@ -37,7 +37,7 @@ class Config:
 		try:
 			with open(f"config.json", "w") as f:
 				json.dump(self.settings, f)
-				self.log("Server config written!")
+				self.logger.log(logging.INFO, "Server config written!")
 			return True
 		except:
 			self.logger.log(logging.ERROR, traceback.format_exc(limit=None, chain=True))
