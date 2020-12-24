@@ -103,7 +103,7 @@ class TrekFilter:
 				self.packet_specs = json.load(f)
 		except IOError:
 			self.logger.log(logging.INFO, "Packet specs file missing or invalid. Sanity checks disabled.")
-			self.packet_specs=[]
+			self.packet_specs={}
 			self.enable_sanity=False
 			
 		TrekFilter.status=True
@@ -137,7 +137,7 @@ class TrekFilter:
 		infostring+="\n\n_Blacklist_"
 		for b in self.blacklist:
 			infostring+=f"\nIP: {b}"
-		self.loggger.log(logging.INFO, f"{infostring}")
+		self.logger.log(logging.INFO, f"{infostring}")
 		
 	def save_blacklist(self):
 		try:

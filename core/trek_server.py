@@ -1,14 +1,14 @@
 import socket,threading,ctypes,hashlib,json,os,sys,time,math,ssl,traceback,subprocess,logging,gzip,re
 
-from core.utils import trek_logging
-from core.utils import trek_filter
-from core.utils import trek_modules
-from core.utils import trek_config
-from core.math import trek_generate
+from core.utils.trek_logging import *
+from core.utils.trek_filter import *
+from core.utils.trek_modules import *
+from core.utils.trek_config import *
+from core.math.trek_generate import *
 
 from core.trek_codes import *
-from core import trek_clients
-from core import trek_space
+from core.trek_clients import *
+from core.trek_space import *
 
 
 class Server:
@@ -26,16 +26,16 @@ class Server:
 				pass
 		try:
 			self.setup_loggers()
-			self.config=trek_config.Config(self.logger)
+			self.config=Config(self.logger)
 			self.ssl=self.config.ssl
 #			self.loadbans()
 #			self.load_whitelist()
 #			self.init_binaries()
 			self.fw=self.config.firewall
 
-			self.generator = trek_generate.Generator()
-			self.space = trek_space.Space(self.server_root, self.logger, self.config.settings["space"])
-			self.modules=trek_modules.TrekModules("data/modules/")
+			self.generator = Generator()
+			self.space = Space(self.server_root, self.logger, self.config.settings["space"])
+			self.modules=TrekModules("data/modules/")
 		
 			self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)         # Create a socket object
 			self.sock.settimeout(None)
@@ -48,7 +48,7 @@ class Server:
 
 						 
 	def setup_loggers(self):
-		self.logger=trek_logging.TrekLogging(f"{self.server_root}logs/")
+		self.logger=TrekLogging(f"{self.server_root}logs/")
 						 
 	def init_binaries(self):
 		try:
@@ -215,7 +215,7 @@ class Server:
 			#	self.log(f"Connection from {addr} rejected.")
 			#	conn.close()
 			#	continue
-			self.clients[conn] = client = trek_clients.Client(conn,addr,self)
+			self.clients[conn] = client = Client(conn,addr,self)
 			try:
 				thread = threading.Thread(target=client.handle_connection)
 				self.threads.append(thread)
@@ -419,6 +419,7 @@ class Server:
 				elif line[0]=="except":
 					raise UserException("Console-triggered exception. Don't panic!")
 			except KeyboardInterrupt:
+				self.stop()
 				break
 			except Exception as e:
 				self.elog(traceback.format_exc(limit=None, chain=True))

@@ -1,5 +1,5 @@
 import os, subprocess, traceback, importlib
-from core import trek_server
+from core.trek_server import *
 
 class RunServer:
 	count=0
@@ -8,7 +8,7 @@ class RunServer:
 		return
 		
 	def start_server(self):
-		self.server[RunServer.count]=trek_server.Server(RunServer.count)
+		self.server[RunServer.count]=Server(RunServer.count)
 		self.server[RunServer.count].run()
 		RunServer.count+=1
 		

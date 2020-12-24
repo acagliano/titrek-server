@@ -1,10 +1,10 @@
 import os,traceback,json,logging,socket,hashlib,re
 
 from core.trek_codes import *
-import core.trek_server
-import core.utils.trek_logging
-import core.utils.trek_filter
-import core.utils.trek_modules
+from core.trek_server import *
+from core.utils.trek_logging import *
+from core.utils.trek_filter import *
+from core.utils.trek_modules import *
 from core.math import trek_vec3
 from core.utils.trek_util import *
 
@@ -68,6 +68,10 @@ class Client:
 		
 	def load_modules(self):
 		try:
+			hull=self.data["ships"][0]["hull"]
+			j=self.modules.load_module(hull['file'], hull['level'])
+			for k in j.keys():
+				hull[k]=j[k]
 			for m in self.data["ships"][0]["modules"]:
 				j=self.modules.load_module(m['file'], m['level'])
 				for k in j.keys():
