@@ -4,6 +4,7 @@ from core.utils.trek_logging import *
 from core.utils.trek_filter import *
 from core.utils.trek_modules import *
 from core.utils.trek_config import *
+from core.utils.trek_commands import *
 from core.math.trek_generate import *
 
 from core.trek_codes import *
@@ -32,7 +33,7 @@ class Server:
 #			self.load_whitelist()
 #			self.init_binaries()
 			self.fw=self.config.firewall
-
+			self.commands=TrekCommands(self.logger)
 			self.generator = Generator()
 			self.space = Space(self.server_root, self.logger, self.config.settings["space"])
 			self.modules=TrekModules("data/modules/")
@@ -343,81 +344,7 @@ class Server:
 					line = line.split()
 				else:
 					line = [line]
-				if line[0]=="help":
-					try:
-						with open("helpfile.txt") as f:
-							print(f.read())
-					except:
-						print("No help document availible.")
-				elif line[0]=="broadcast" or line[0]=="say":
-					ostring=""
-					for l in line[1:]:
-						ostring+=l
-						ostring+=" "
-					ostring=ostring[:-1]
-					self.log("[Server] "+ostring)
-					self.broadcast(ostring)	# broadcast to all clients
-				elif line[0]=="stop":
-					self.log("Received stop command.")
-					break
-				elif line[0]=="save":
-					self.log("Saving...")
-					threading.Thread(target=self.space.save, ).start()
-					self.log("Saved.")
-				elif line[0]=="seed":
-					self.generator.seed(hash(line[1]))
-				elif line[0]=="generate":
-					self.log("Generating space...")
-					threading.Thread(target=self.generator.generate_all,args=(self.space.space, )).start()
-					self.log("Finished generating.")
-				elif line[0]=="kick":
-					self.kick(line[1])
-				elif line[0]=="ban":
-					self.ban(line[1])
-				elif line[0]=="ipban":
-					self.ipban(line[1])
-				elif line[0]=="banlist":
-					self.banlist()
-				elif line[0]=="fw":
-					if line[1]=="info":
-						self.fw.printinfo()
-					else:
-						self.log("Valid arguments: fw info")
-				elif line[0]=="whitelist":
-					self.print_whitelist()
-				elif line[0]=="backup":
-					self.log("Saving...")
-					self.backupAll(line[1])
-					self.log("Saved.")
-				elif line[0]=="restore":
-					self.log("Restoring from backup...")
-					self.restoreAll(line[1])
-					self.log("Restored.")
-				elif line[0]=="list":
-					self.log("Connected clients:")
-					if len(self.clients):
-						for client in self.clients.values():
-							self.log(str(client))
-					else:
-						self.log("No clients connected")
-				elif line[0]=="debug":
-					if line[1]=="on":
-						Config.packet_debug=True
-					elif line[1]=="off":
-						Config.packet_debug=False
-					else:
-						self.log(f'Debug status: {Config.settings["debug"]}')
-				elif line[0]=="discord":
-					if line[1]=="enable":
-						self.log("Discord link enabled!")
-						Config.settings["enable-discord-link"]=True
-					elif line[1]=="disable":
-						self.log("Discord link disabled!")
-						Config.settings["enable-discord-link"]=False
-					else:
-						self.log("discord enable|disable")
-				elif line[0]=="except":
-					raise UserException("Console-triggered exception. Don't panic!")
+				self.commands.run(line, self)
 			except KeyboardInterrupt:
 				self.stop()
 				break
