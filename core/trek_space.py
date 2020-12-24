@@ -1,39 +1,39 @@
 
 import os,json,traceback
 import logging
+from core.math.trek_generate import *
 
 class Space:
 	def __init__(self, root_dir, log, config):
 		try:
 			self.config=config
 			self.logger=log
-			self.src=self.config["path"]
-			self.save_dir=f'{root_dir}{self.config["path"]}'
+			self.path=f'{root_dir}space'
 
 			# Can we rewrite such that
 			# If map data is found in
-			# self.save_dir, that is loaded
-			# Else, it generates new from self.src?
-			# unless self.src is no longer needed
-
-			try:
-				os.makedirs(self.config["path"])
-			except:
-				pass
+			# self.path, that is loaded
+			# Else, it generates new 
 			self.space=[]
-			count = 0
-			self.logger.log(logging.INFO, f"Loading map from {self.config['path']}")
-			for fname in self.walk(f"{self.config['path']}"):
-				try:
-					with open(fname) as f:
-						self.space.extend(json.loads(f.read()))
-						count+=1
-				except:
-					self.log(f"Warning: could not load file {fname}")
-					continue
-			self.logger.log(logging.INFO, "Finished loading map")
-			final = len(self.space)
-			self.logger.log(logging.INFO, f"{count} objects iterated; {final} objects loaded")
+			if os.path.isdir(self.path):
+				self.logger.log(logging.INFO, f"Loading map from {self.path}")
+				count=0
+				for fname in self.walk(f"{self.path}"):
+					try:
+						with open(fname) as f:
+							self.space.extend(json.loads(f.read()))
+							count+=1
+					except:
+						self.logger.log(logging.INFO, f"Warning: could not load file {fname}")
+						continue
+				self.logger.log(logging.INFO, "Finished loading map")
+				final = len(self.space)
+				self.logger.log(logging.INFO, f"{count} objects iterated; {final} objects loaded")
+			else:
+				self.logger.log(logging.INFO, "No saved map found. Generating new map.")
+				self.generator=Generator()
+				self.generator.generate_all(self.space)
+				self.logger.log(logging.INFO, "Map generation complete!")
 		except:
 			self.logger.log(logging.ERROR, traceback.print_exc(limit=None, file=None, chain=True))
 
@@ -45,15 +45,11 @@ class Space:
 				yield path+"/"+fname
 
 	def save(self):
-		dname=self.config["path"]
 		try:
-			os.makedirs(f"{dname}")
-		except:
-			pass
-		try:
+			os.makedirs(self.path, exist_ok=True)
 			num=0; L=50
 			for I in range(0,len(self.space),L):
-				with open(dname+"/obj"+str(num)+".json",'w') as f:
+				with open(self.path+"/obj"+str(num)+".json",'w') as f:
 					json.dump(self.space[I:min(I+L,len(self.space))],f)
 				num+=1
 		except:

@@ -1,4 +1,3 @@
-
 from core.math.trek_npcs import *
 from core.math.trek_vec3 import *
 from core.trek_codes import *
