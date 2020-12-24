@@ -4,18 +4,26 @@ from logging.handlers import TimedRotatingFileHandler
 from logging import Handler
 try:
 	import discord_webhook
-	from discord_webhook import DiscordWebhook
+	from discord_webhook import DiscordWebhook,DiscordEmbed
 except:
 	pass
 
 class DiscordHandler(Handler):
-	def __init__(self, channel_url):
+	def __init__(self, channel_url, type):
 		self.channel_url=channel_url
+		self.level=type
+		self.username="Exception" if type==logging.ERROR else "TrekFilter"
+		self.color=16711680 if type==logging.ERROR else 131724
 		Handler.__init__(self)
 
 	def emit(self, record):
+		if not record.levelno==self.level:
+			return False
 		msg=self.format(record)
-		webhook=DiscordWebhook(url=self.channel_url,content=msg)
+		username="Exception" if type==logging.ERROR else "TrekFilter"
+		webhook=DiscordWebhook(url=self.channel_url,username=self.username)
+		embed=DiscordEmbed(description=msg,color=self.color)
+		webhook.add_embed(embed)
 		return webhook.execute()
 		
 		
@@ -82,13 +90,13 @@ class TrekLogging:
 
 	def enable_discord(self):
 		exc_thread_url="https://discord.com/api/webhooks/788497355359518790/7c9oPZgG13_yLnywx3h6wZWY6qXMobNvCHB_6Qjb6ZNbXjw9aP993I8jGE5jXE7DK3Lz"
-		discord_handler_exc=DiscordHandler(exc_thread_url)
+		discord_handler_exc=DiscordHandler(exc_thread_url, logging.ERROR)
 		discord_handler_exc.setFormatter(TrekLogging.formatter)
 		discord_handler_exc.setLevel(logging.ERROR)
 		self.logger.addHandler(discord_handler_exc)
 
 		filter_thread_url="https://discord.com/api/webhooks/788828667085979668/rVc5BA2rymnduGMuTsqysy8lNv1kNYgul4oSxJCYhF-RKc05hj2hGifDjbct8GMTTTH2"
-		discord_handler_filter=DiscordHandler(filter_thread_url)
+		discord_handler_filter=DiscordHandler(filter_thread_url,logging.FILTER)
 		discord_handler_filter.setFormatter(TrekLogging.formatter)
 		discord_handler_filter.setLevel(logging.FILTER)
 		self.logger.addHandler(discord_handler_filter)

@@ -16,7 +16,7 @@ import os,json,traceback,importlib,logging
 from datetime import datetime
 from core.trek_codes import *
 
-logging.FILTER=45
+logging.FILTER=60
 
 class TrekFilter:
 	version="1.0b"
