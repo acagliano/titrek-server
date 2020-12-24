@@ -1,6 +1,25 @@
 import gzip,os,sys,traceback,logging
 from datetime import datetime
 from logging.handlers import TimedRotatingFileHandler
+from logging import Handler
+try:
+	import discord_webhook
+	from discord_webhook import DiscordWebhook
+except:
+	pass
+
+class DiscordHandler(Handler):
+	def __init__(self, channel_url):
+		self.channel_url=channel_url
+		Handler.__init__(self)
+
+	def emit(self, record):
+		msg=self.format(record)
+		webhook=DiscordWebhook(url=self.channel_url,content=msg)
+		return webhook.execute()
+		
+		
+		
 
 
 class GZipRotator:
@@ -60,3 +79,16 @@ class TrekLogging:
 
 	def log(self, lvl, msg):
 		self.logger.log(lvl, msg)
+
+	def enable_discord(self):
+		exc_thread_url="https://discord.com/api/webhooks/788497355359518790/7c9oPZgG13_yLnywx3h6wZWY6qXMobNvCHB_6Qjb6ZNbXjw9aP993I8jGE5jXE7DK3Lz"
+		discord_handler_exc=DiscordHandler(exc_thread_url)
+		discord_handler_exc.setFormatter(TrekLogging.formatter)
+		discord_handler_exc.setLevel(logging.ERROR)
+		self.logger.addHandler(discord_handler_exc)
+
+		filter_thread_url="https://discord.com/api/webhooks/788828667085979668/rVc5BA2rymnduGMuTsqysy8lNv1kNYgul4oSxJCYhF-RKc05hj2hGifDjbct8GMTTTH2"
+		discord_handler_filter=DiscordHandler(filter_thread_url)
+		discord_handler_filter.setFormatter(TrekLogging.formatter)
+		discord_handler_filter.setLevel(logging.FILTER)
+		self.logger.addHandler(discord_handler_filter)

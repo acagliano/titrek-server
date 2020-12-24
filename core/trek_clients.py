@@ -1,21 +1,23 @@
-import os,traceback,json,logging
+import os,traceback,json,logging,socket,hashlib,re
 
-import core.trek_codes
+from core.trek_codes import *
 import core.trek_server
 import core.utils.trek_logging
 import core.utils.trek_filter
 import core.utils.trek_modules
+from core.math import trek_vec3
+from core.utils.trek_util import *
 
 class Client:
-	def __init__(self, conn, addr, server, config):
+	def __init__(self, conn, addr, server):
 		self.conn = conn
 		self.addr = addr
-		self.config = config
+		self.config = server.config
 		self.ip,self.port = self.addr
 		self.connected = True
 		self.logged_in = False
 		self.server = server
-		self.player_root=f"{self.server.server_root}{self.config['path']}"
+		self.player_root=f"{self.server.server_root}{self.config.settings['player']['path']}"
 		try:
 			os.makedirs(self.player_root)
 		except:
@@ -58,8 +60,8 @@ class Client:
 		except:
 			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
 		try:
-			self.pos = Vec3(self.data["player"]["x"],self.data["player"]["y"],self.data["player"]["z"])
-			self.rot = Vec3()
+			self.pos = trek_vec3.Vec3(self.data["player"]["x"],self.data["player"]["y"],self.data["player"]["z"])
+			self.rot = trek_vec3.Vec3()
 			self.load_modules()
 		except:
 			self.elog(traceback.format_exc(limit=None, chain=True))
@@ -67,9 +69,9 @@ class Client:
 	def load_modules(self):
 		try:
 			for m in self.data["ships"][0]["modules"]:
-				json=ShipModule().load(m['file'], m['level'])
-				for k in json.keys():
-					m[k] = json[k]
+				j=self.modules.load_module(m['file'], m['level'])
+				for k in j.keys():
+					m[k]=j[k]
 		except:
 			self.elog(traceback.format_exc(limit=None, chain=True))
 
@@ -91,12 +93,12 @@ class Client:
 		return self.user+" @"+str(self.addr)
 
 	def send(self,data):
-		if Config.settings["debug"]:
+		if self.config.settings["debug"]:
 			self.log(data)
 		packet_length = len(data)
 		i = 0
 		while packet_length:
-			bytes_sent = self.conn.send(bytes(data[i:min(packet_length, Config.settings["packet-size"])]))
+			bytes_sent = self.conn.send(bytes(data[i:min(packet_length, self.config.settings["packet-size"])]))
 			if not bytes_sent:
 				raise Exception("packet transmission error")
 				break
@@ -104,26 +106,26 @@ class Client:
 			packet_length-=bytes_sent
 			
 	def handle_connection(self):
-		self.conn.settimeout(Config.settings["idle-timeout"])
-		while self.server.online and not self.closed:
+		self.conn.settimeout(self.config.settings["idle-timeout"])
+		while self.server.online and self.connected:
 			try:
-				data = list(self.conn.recv(Config.settings["packet-size"]))
+				data = list(self.conn.recv(self.config.settings["packet-size"]))
 			except socket.timeout:
 				self.log(f"Inactive timeout for user {self.user}. Disconnecting.")
 				if self.logged_in:
 					self.save_player()
 					self.logged_in = False
-				self.closed = True
+				self.connected = False
 				break
 			if not data:
 				self.log(f"{self.user} disconnected!")
 				self.disconnect()
-				self.closed = True
+				self.connected = False
 				break
 			self.fw.filter(self.conn, self.addr, data, self.logged_in)
 			if not len(data):
 				continue
-			if Config.settings["debug"]:
+			if self.config.settings["debug"]:
 				packet_string = "".join([s.ljust(5," ") for s in [chr(c) if c in range(0x20,0x80) else "0x0"+hex(c)[2] if c<0x10 else hex(c) for c in data]])
 				self.dlog(f"recieved packet: {packet_string}")
 			try:
@@ -302,7 +304,7 @@ class Client:
 			except Exception as e:
 				self.elog(traceback.format_exc(limit=None, chain=True))
 		self.broadcast(f"{self.user} disconnected")
-		server.purgeclient(self.conn)
+		self.server.purgeclient(self.conn)
 		
 	def load_shipmodule(self,m):
 		padded_string=PaddedString(m["Name"], 9, chr(0))+"\0"
@@ -361,9 +363,8 @@ outputs:
 		except:
 			pass
 		try:
-			with open(f"{ShipModule.path}/defaults.json","r") as f:
-				j=json.load(f)
-				self.data["ships"] = j
+			with open(f"{self.modules.path}defaults.json","r") as f:
+				self.data["ships"]=json.load(f)
 				
 			with open(self.shipfile,"w") as f:
 				json.dump(self.data["ships"],f)
@@ -392,10 +393,10 @@ outputs:
 			return
 		self.log(f"Registering user: [{user}]")
 		passw_md5 = hashlib.md5(bytes(passw,'UTF-8')).hexdigest()  # Generate md5 hash of password
-		for root,dirs,files in os.walk(f'{Config.settings["player"]["path"]}'): #search in players directory
+		for root,dirs,files in os.walk(self.player_root): #search in players directory
 			for d in dirs: #only search directories
 				try:
-					with open(f'{Config.settings["player"]["path"]}{d}/account.json', 'r') as f:
+					with open(f'{self.player_root}{d}/account.json', 'r') as f:
 						account = json.load(f)
 				except IOError:
 					continue
@@ -408,11 +409,11 @@ outputs:
 					self.send([ControlCodes["REGISTER"],ResponseCodes['INVALID']])
 					return
 		try:
-			os.makedirs(f'{Config.players}{user}')
+			os.makedirs(f'{self.player_root}{user}')
 		except:
 			self.elog("Directory already exists or error creating")
 			pass
-		with open(f'{Config.settings["player"]["path"]}{user}/account.json','w') as f:
+		with open(f'{self.player_root}{user}/account.json','w') as f:
 			json.dump({
 				'displayname':user,
 				'passw_md5':passw_md5,
@@ -426,7 +427,7 @@ outputs:
 		self.broadcast(f"{user} registered")
 		self.send([ControlCodes["REGISTER"],ResponseCodes['SUCCESS']])       # Register successful
 		self.trustworthy = True
-		self.playerdir = f"{Config.settings['player']['path']}{self.user}/"
+		self.playerdir = f"{self.player_root}{self.user}/"
 		self.playerfile = f"{self.playerdir}player.json"
 		self.shipfile = f"{self.playerdir}ships.json"
 		self.create_new_game()
@@ -436,17 +437,17 @@ outputs:
 		user,passw = [ToUTF8(a) for a in bytes(data[1:]).split(b"\0",maxsplit=1)]
 		print(user,passw)
 		self.log(f"Logging in user: [{user}]")
-		if user in Config.banned_users:
-			self.send([ControlCodes["LOGIN"],ResponseCodes['BANNED']])
-			self.log(f"[{user}] Banned user attempted login.")
-			return
+		#if user in self.config.banned_users:
+		#	self.send([ControlCodes["LOGIN"],ResponseCodes['BANNED']])
+		#	self.log(f"[{user}] Banned user attempted login.")
+		#	return
 		passw_md5 = hashlib.md5(bytes(passw,'UTF-8')).hexdigest()  # Generate md5 hash of password
 		try:
-			for root, dirs, files in os.walk(f'{Config.settings["player"]["path"]}'):  # search in players directory
+			for root, dirs, files in os.walk(self.player_root):  # search in players directory
 				if user in dirs:
 					try:
-						self.dlog(f"Opening {Config.settings['player']['path']}{user}/account.json")
-						with open(f"{Config.settings['player']['path']}{user}/account.json", 'r') as f:
+						self.dlog(f"Opening {self.player_root}{user}/account.json")
+						with open(f"{self.player_root}{user}/account.json", 'r') as f:
 							account = json.load(f)
 							if account['passw_md5'] == passw_md5:
 								self.user = user
@@ -454,7 +455,7 @@ outputs:
 								self.log(f"[{user}] has successfully logged in!")
 								self.broadcast(f"{user} logged in")
 								self.send([ControlCodes["LOGIN"],ResponseCodes['SUCCESS']])   # Log in successful
-								self.playerdir = f"{Config.settings['player']['path']}{self.user}/"
+								self.playerdir = f"{self.player_root}{self.user}/"
 								self.playerfile = f"{self.playerdir}player.json"
 								self.shipfile = f"{self.playerdir}ships.json"
 								self.load_player()
@@ -479,11 +480,11 @@ outputs:
 		client_version = data[1:4]
 		gfx_version = data[4:6] # not used yet
 		for i in range(3):
-			if client_version[i] < Config.settings["min-client"][i]:
+			if client_version[i] < self.config.settings["min-client"][i]:
 				self.send([ControlCodes["VERSION_CHECK"],VersionCheckCodes['VERSION_ERROR']])
 				self.disconnect()
 				return
-			if client_version[i] > Config.settings["min-client"][i]:
+			if client_version[i] > self.config.settings["min-client"][i]:
 				self.send([ControlCodes["VERSION_CHECK"],VersionCheckCodes['VERSION_OK']])
 				self.log(f"{self.user}: client ok")
 				return
@@ -498,5 +499,5 @@ outputs:
 		if self.logged_in:
 			self.save_player()
 			self.logged_in = False
-		self.closed = True
-		Server.purge = True
+		self.connected = False
+		self.server.purge = True

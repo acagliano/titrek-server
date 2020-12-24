@@ -33,7 +33,7 @@ class TrekFilter:
 	
 	def set_logger(self,log):
 		self.logger=log
-		self.logger.addLevelName(logging.FILTER, "FILTER")
+		logging.addLevelName(logging.FILTER, "FILTER")
 	
 	def config(self,config):
 		if not config["enable"]:
@@ -103,10 +103,11 @@ class TrekFilter:
 				self.packet_specs = json.load(f)
 		except IOError:
 			self.logger.log(logging.INFO, "Packet specs file missing or invalid. Sanity checks disabled.")
+			self.packet_specs=[]
 			self.enable_sanity=False
 			
 		TrekFilter.status=True
-		self.logger(logging.INFO, "Filter enabled!")
+		self.logger.log(logging.INFO, "Filter enabled!")
 		
 	def log(self, msg):
 		self.logger.log(logging.FILTER, f"{msg}")
@@ -176,7 +177,7 @@ class TrekFilter:
 				if response:
 					delim=","
 					msg=f"IP {addr[0]} failed TrekFilter.{r['check']} for packet {data[0]}\nPerforming Actions: {delim.join(r['failaction'])}"
-					self.loggers.log(logging.FILTER, msg)
+					self.logger.log(logging.FILTER, msg)
 					for action in r["failaction"]:
 						try:
 							getattr(self, action)(conn, addr, data)
@@ -190,15 +191,15 @@ class TrekFilter:
 				if not data:
 					break
 		except:
-			self.logging.log(logging.ERROR, traceback.print_exc(limit=None, file=None, chain=True))
+			self.logger.log(logging.ERROR, traceback.print_exc(limit=None, file=None, chain=True))
 			return
 		
 	def packet_order(self, addr, data, trusted):
 		if trusted:
-			return True
-		if not data[0]<9:
 			return False
-		return True
+		if not data[0]<9:
+			return True
+		return False
 						
 	def blacklisted(self, addr, data, trusted):
 		ip, port = addr
@@ -208,11 +209,11 @@ class TrekFilter:
 			
 	def sanity(self, addr, data, trusted):
 		if not self.enable_sanity:
-			self.logging.log(logging.DEBUG, "Sanity checks are disabled, skipping!")
+			self.logger.log(logging.DEBUG, "Sanity checks are disabled, skipping!")
 			return False
 		packet_id=str(data[0])
 		if not packet_id in self.packet_specs:
-			self.logging.log(logging.DEBUG, f"Packet {packet_id} not in speclist. Skipping!")
+			self.logger.log(logging.DEBUG, f"Packet {packet_id} not in speclist. Skipping!")
 			return False 
 		packet_segments=bytes(data[1:len(data)-1]).split(b"\0")
 		if not len(packet_segments)==len(self.packet_specs[packet_id]["segments"]):
@@ -276,6 +277,6 @@ class TrekFilter:
 				text = f'{date_now} Connect from blacklisted IP at {ip}\n'
 				f.write(text)
 		except:
-			self.logging.log(logging.ERROR, traceback.print_exc(limit=None, file=None, chain=True))
+			self.logger.log(logging.ERROR, traceback.print_exc(limit=None, file=None, chain=True))
     
   

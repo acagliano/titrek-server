@@ -6,6 +6,7 @@ from core.utils import trek_modules
 from core.utils import trek_config
 from core.math import trek_generate
 
+from core.trek_codes import *
 from core import trek_clients
 from core import trek_space
 
@@ -171,7 +172,7 @@ class Server:
 #			self.discord_out("Server",e,1)
 		
 	def dlog(self,*args,**kwargs):
-		if Config.settings["debug"]:
+		if self.config.settings["debug"]:
 			self.logger.log(logging.DEBUG, *args, **kwargs)
 		
 	def broadcast(self,msg,sender="Server"):
@@ -210,11 +211,11 @@ class Server:
 		while self.online:
 			ssock.listen(1)
 			conn, addr = ssock.accept()
-			if addr[0] in Config.banned_ips:
-				self.log(f"Connection from {addr} rejected.")
-				conn.close()
-				continue
-			self.clients[conn] = client = Client(conn,addr,self,Config.settings["player"])
+			#if addr[0] in Config.banned_ips:
+			#	self.log(f"Connection from {addr} rejected.")
+			#	conn.close()
+			#	continue
+			self.clients[conn] = client = trek_clients.Client(conn,addr,self)
 			try:
 				thread = threading.Thread(target=client.handle_connection)
 				self.threads.append(thread)
@@ -253,7 +254,7 @@ class Server:
 		try:
 			self.log("Shutting down.")
 			self.space.save()
-			if Config().save():
+			if self.config.save():
 				 self.log("Successfully wrote config")
 			self.broadcast(f"server shutting down in 10s")
 			time.sleep(10)

@@ -1,5 +1,5 @@
 import ssl,traceback,os,logging,json
-import core.utils.trek_filter
+from core.utils import trek_filter
 SUPPORTS_SSL=False
 
 class Config:
@@ -19,12 +19,14 @@ class Config:
 					self.ssl = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
 					self.ssl.load_cert_chain(f'{ssl_path}/fullchain.pem', f'{ssl_path}/privkey.pem')
 				if self.settings["enable-discord-link"]:
-					# do stuff that we have yet to figure out
-					self.discord=True
-				else:
-					self.logger.log(logging.ERROR, "Error initializing DiscordHandler()")
+					try:
+						import discord_webhook
+						self.logger.enable_discord()
+					except ImportError:
+						self.logger.log(logging.INFO, "Package discord-webhook not installed")
+						pass
 				if self.settings["firewall"]["enable"]:
-					self.firewall=TrekFilter()
+					self.firewall=trek_filter.TrekFilter()
 					self.firewall.set_logger(log)
 					self.firewall.config(self.settings["firewall"])
 				self.logger.log(logging.INFO, "Server config loaded!")
@@ -34,7 +36,7 @@ class Config:
 	def save(self):
 		try:
 			with open(f"config.json", "w") as f:
-				json.dump(Config.settings, f)
+				json.dump(self.settings, f)
 				self.log("Server config written!")
 			return True
 		except:
