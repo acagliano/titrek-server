@@ -344,7 +344,7 @@ class Server:
 					line = line.split()
 				else:
 					line = [line]
-				self.commands.run(line, self)
+				self.commands.run(line)
 			except KeyboardInterrupt:
 				self.stop()
 				break
