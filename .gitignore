@@ -2,6 +2,9 @@
 /cache
 /bans
 /filter
+/ssl
+/data/downloads
+/data/promos.json
 */__pycache__
 /.idea
 *.pyc
