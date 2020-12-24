@@ -3,8 +3,9 @@ import logging,os,json,traceback
 from core.trek_server import *
 
 class TrekCommands:
-  def __init__(self, log):
+  def __init__(self, server, log):
     self.logger=log
+    self.server=server
     try:
       with open("commands.json") as f:
         j=json.load(f)
@@ -14,7 +15,7 @@ class TrekCommands:
     except:
       self.logger.log(logging.ERROR, traceback.format_exc(limit=None, chain=True)) 
       
-  def run(self,commands,client=None):
+  def run(self,commands, client=None):
     command=commands[0]
     if not command in self.commands.keys():
       self.logger.log(logging.INFO, "Invalid command. Type 'help' to view the command list")
