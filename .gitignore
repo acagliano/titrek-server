@@ -1,6 +1,7 @@
 /backups
 /cache
-/missions
+/bans
+/filter
 */__pycache__
 /.idea
 *.pyc
