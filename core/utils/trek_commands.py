@@ -26,7 +26,7 @@ class TrekCommands:
 	def init_bare(self):
 		try:
 			self.commands["help"]={"permlvl":1, "run":"help", "args":0, "description":"lists all available commands","helper":""}
-			self.commands["broadcast"]={"permlvl":1, "run":"broadcast", "description":"sends messages to all clients", "helper":"broadcast <msg>"}
+			self.commands["broadcast"]={"permlvl":1, "run":"broadcast", "args":None, "description":"sends messages to all clients", "helper":"broadcast <msg>"}
 			self.commands["say"]=self.commands["broadcast"]
 			self.commands["stop"]={"permlvl":2, "run":"stop", "args":0, "description":"stops the server", "helper":"stop"}
 			self.commands["save"]={"permlvl":2, "run":"save", "args":0, "description":"saves the map", "helper":"save"}
@@ -55,8 +55,9 @@ class TrekCommands:
 		spec=self.commands[command]
 		args=len(commands)-1
 		print(spec)
-		if not args==spec["args"]:
+		if not spec["args"]==None and not args==spec["args"]:
 			self.logger.log(logging.INFO, f"Invalid command usage. {spec['helper']}")
+			return
 		try:
 			if args>0:
 				getattr(self,spec["run"])(commands[1:])
