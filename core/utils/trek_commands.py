@@ -7,12 +7,20 @@ class ConsoleException(Exception):
 
 
 class TrekCommands:
-	def __init__(self, runserver, log):
-		self.logger=log
+	def __init__(self, runserver):
 		self.attach=runserver.attach
 		self.reload=runserver.reload
+		try:
+			with open("commands.json") as f:
+				self.commands=json.load(f)
+		except IOError:
+			self.commands={}
+			self.init_bare()
+		except:
+			pass 
 		
 	def load_server_commands(self,server):
+		self.logger=server.logger
 		self.server=server
 		self.stop=server.stop
 		self.broadcast=server.broadcast
@@ -20,15 +28,7 @@ class TrekCommands:
 		self.fw_printinfo=server.fw.printinfo
 #		self.backup=server.backup
 #		self.restore=server.restore
-		try:
-			with open("commands.json") as f:
-				self.commands=json.load(f)
-		except IOError:
-			self.logger.log(logging.ERROR, "Failed to load commands file. Initializing bare command set.")
-			self.commands={}
-			self.init_bare()
-		except:
-			self.logger.log(logging.ERROR, traceback.format_exc(limit=None, chain=True)) 
+		
 
 	def init_bare(self):
 		try:
