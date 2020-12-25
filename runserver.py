@@ -36,11 +36,16 @@ class RunServer:
 		return
 	
 	def reload_server(self, number):
+		number=number[0]
 		clients=self.server[number].clients
 		importlib.reload("core.trek_server")
 		self.server[number]=Server()
 		self.server[number].clients=clients
 		self.server[number].run()
+		
+	def attach(self, number):
+		number=number[0]
+		self.commands.load_server_commands(self.server[number])
 		
 		
        
