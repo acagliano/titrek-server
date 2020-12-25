@@ -7,8 +7,12 @@ class ConsoleException(Exception):
 
 
 class TrekCommands:
-	def __init__(self, server, log):
+	def __init__(self, runserver, log):
 		self.logger=log
+		self.attach=runserver.attach
+		self.reload=runserver.reload
+		
+	def load_server_commands(self,server):
 		self.server=server
 		self.stop=server.stop
 		self.broadcast=server.broadcast
@@ -29,6 +33,8 @@ class TrekCommands:
 	def init_bare(self):
 		try:
 			self.commands["help"]={"permlvl":1, "run":"help", "args":0, "description":"lists all available commands","helper":""}
+			self.commands["attach"]={"permlvl":2, "run":"attach", "args":1, "description":"binds the console session to the selected server","helper":"attach <number>"}
+			self.commands["reload"]={"permlvl":2, "run":"reload", "args":1, "description":"fully reloads the selected server","helper":"reload <number>"}
 			self.commands["broadcast"]={"permlvl":1, "run":"broadcast", "args":None, "description":"sends messages to all clients", "helper":"broadcast <msg>"}
 			self.commands["say"]=self.commands["broadcast"]
 			self.commands["stop"]={"permlvl":2, "run":"stop", "args":0, "description":"stops the server", "helper":"stop"}
