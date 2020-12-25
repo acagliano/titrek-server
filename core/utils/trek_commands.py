@@ -18,7 +18,7 @@ class TrekCommands:
 			self.commands=j["commands"]
 		except IOError:
 			self.logger.log(logging.ERROR, "Failed to load commands file. Initializing bare command set.")
-			self.commands=[]
+			self.commands={}
 			self.init_bare()
 		except:
 			self.logger.log(logging.ERROR, traceback.format_exc(limit=None, chain=True)) 
