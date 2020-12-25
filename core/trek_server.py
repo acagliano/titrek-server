@@ -13,7 +13,7 @@ from core.trek_space import *
 
 
 class Server:
-	def __init__(self, serv_num):
+	def __init__(self, runserver, serv_num):
 		self.instance_num=serv_num
 		self.server_root=f"servers/server.{self.instance_num}/"
 		for directory in [
@@ -334,19 +334,3 @@ class Server:
 			os.system("cp -r backups/"+sname+" space")
 		except:
 			self.elog("WARNING: failed to restore")
-
-	def console(self):
-		while True:
-			try:
-				line = input("")
-				self.log("[Console] "+line)
-				if " " in line:
-					line = line.split()
-				else:
-					line = [line]
-				self.commands.run(line)
-			except KeyboardInterrupt:
-				self.stop()
-				break
-			except Exception as e:
-				self.elog(traceback.format_exc(limit=None, chain=True))
