@@ -53,6 +53,7 @@ class RunServer:
 		print(f"Attaching console to server {number}")
 		if number>(len(self.server)-1):
 			print("Error: server number undefined...")
+			return
 		self.commands.load_server_commands(self.server[number])
 		
 		
