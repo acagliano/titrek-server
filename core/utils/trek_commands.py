@@ -2,6 +2,10 @@ import logging,os,json,traceback
 
 from core.trek_server import *
 
+class ConsoleException(Exception):
+	pass
+
+
 class TrekCommands:
 	def __init__(self, server, log):
 		self.logger=log
@@ -75,5 +79,5 @@ class TrekCommands:
 		self.logger.log(logging.INFO, ostring)
 	
 	def trigger_exception(self):
-		raise Exception("Now why would one possibly want to cause an error?")
+		raise ConsoleException("Now why would one possibly want to cause an error?")
 
