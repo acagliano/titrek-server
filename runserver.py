@@ -18,7 +18,7 @@ class RunServer:
 		RunServer.count-=1
 		# implement when multi-instance is a thing
 		
-	def console_emit(self, number):
+	def console_emit(self):
 		# function where you can attach to the server number of the server you want to look in on
 		while True:
 			try:
