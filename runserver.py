@@ -36,7 +36,8 @@ class RunServer:
 		return
 	
 	def reload(self, number):
-		number=number[0]
+		if isinstance(number, list):
+			number=number[0]
 		clients=self.server[number].clients
 		importlib.reload("core.trek_server")
 		self.server[number]=Server()
@@ -44,7 +45,8 @@ class RunServer:
 		self.server[number].run()
 		
 	def attach(self, number):
-		number=number[0]
+		if isinstance(number, list):
+			number=number[0]
 		print(f"Attaching console to server {number}")
 		if number>len(self.server):
 			print("Error: server number undefined...")
