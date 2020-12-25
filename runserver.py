@@ -19,6 +19,20 @@ class RunServer:
 		
 	def console_emit(self, number):
 		# function where you can attach to the server number of the server you want to look in on
+		self.commands=TrekCommands(self)
+		while True:
+			try:
+				line = input("")
+				self.log("[Console] "+line)
+				if " " in line:
+					line = line.split()
+				else:
+					line = [line]
+				self.commands.run(line)
+			except KeyboardInterrupt:
+				break
+			except Exception as e:
+				print(traceback.format_exc(limit=None, chain=True))
         	return
 		
 	def reload_server(self, number):
@@ -35,3 +49,4 @@ if __name__ == '__main__':
 	
 	server = RunServer()
 	server.start_server()
+	server.console_emit()
