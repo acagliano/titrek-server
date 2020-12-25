@@ -35,7 +35,7 @@ class RunServer:
 				print(traceback.format_exc(limit=None, chain=True))
 		return
 	
-	def reload_server(self, number):
+	def reload(self, number):
 		number=number[0]
 		clients=self.server[number].clients
 		importlib.reload("core.trek_server")
