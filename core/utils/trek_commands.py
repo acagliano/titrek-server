@@ -54,7 +54,6 @@ class TrekCommands:
 			return
 		spec=self.commands[command]
 		args=len(commands)-1
-		print(spec)
 		if not spec["args"]==None and not args==spec["args"]:
 			self.logger.log(logging.INFO, f"Invalid command usage. {spec['helper']}")
 			return
