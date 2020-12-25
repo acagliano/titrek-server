@@ -5,6 +5,7 @@ class RunServer:
 	count=0
 	def __init__(self):
 		self.server={}
+		self.commands=TrekCommands(self)
 		return
 		
 	def start_server(self):
@@ -19,7 +20,6 @@ class RunServer:
 		
 	def console_emit(self, number):
 		# function where you can attach to the server number of the server you want to look in on
-		self.commands=TrekCommands(self)
 		while True:
 			try:
 				line = input("")
