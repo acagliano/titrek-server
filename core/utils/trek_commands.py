@@ -18,8 +18,7 @@ class TrekCommands:
 #		self.restore=server.restore
 		try:
 			with open("commands.json") as f:
-				j=json.load(f)
-			self.commands=j["commands"]
+				self.commands=json.load(f)
 		except IOError:
 			self.logger.log(logging.ERROR, "Failed to load commands file. Initializing bare command set.")
 			self.commands={}
