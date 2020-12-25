@@ -23,7 +23,7 @@ class RunServer:
 		while True:
 			try:
 				line = input("")
-				self.log("[Console] "+line)
+				print("[Console] "+line)
 				if " " in line:
 					line = line.split()
 				else:
@@ -33,8 +33,8 @@ class RunServer:
 				break
 			except Exception as e:
 				print(traceback.format_exc(limit=None, chain=True))
-        	return
-		
+		return
+	
 	def reload_server(self, number):
 		clients=self.server[number].clients
 		importlib.reload("core.trek_server")
