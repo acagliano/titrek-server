@@ -8,7 +8,7 @@ class RunServer:
 		return
 		
 	def start_server(self):
-		self.server[RunServer.count]=Server(RunServer.count)
+		self.server[RunServer.count]=Server(RunServer.count, self)
 		self.server[RunServer.count].run()
 		RunServer.count+=1
 		
