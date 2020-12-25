@@ -11,6 +11,7 @@ class RunServer:
 	def start_server(self):
 		self.server[RunServer.count]=Server(self, RunServer.count)
 		self.server[RunServer.count].run()
+		self.attach(RunServer.count)
 		RunServer.count+=1
 		
 	def stop_server(self, number):
