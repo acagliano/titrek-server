@@ -33,7 +33,6 @@ class Server:
 #			self.load_whitelist()
 #			self.init_binaries()
 			self.fw=self.config.firewall
-			runserver.attach(serv_num)
 			self.generator = Generator()
 			self.space = Space(self.server_root, self.logger, self.config.settings["space"])
 			self.modules=TrekModules("data/modules/")
