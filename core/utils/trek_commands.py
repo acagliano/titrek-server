@@ -35,7 +35,7 @@ class TrekCommands:
 			self.commands["kick"]={"permlvl":1, "run":"kick", "args":1, "description":"kicks the player from the server", "helper":"kick <username|ip>"}
 			self.commands["ban"]={"permlvl":1, "run":"ban", "args":2, "description":"bans the player from the server", "helper":"ban <username|ip>"}
 			self.commands["banlist"]={"permlvl":1, "run":"banlist", "args":0, "description":"shows the list of banned users/ips", "helper":"banlist"}
-			self.commands["fwinfo"]={"permlvl":1, "run":"fw_printinfo", "args":0, "description":"shows firewall status", "helper":"fw"}
+			self.commands["fwinfo"]={"permlvl":1, "run":"fw_printinfo", "args":0, "description":"shows firewall status", "helper":"fwinfo"}
 			self.commands["backup"]={"permlvl":2, "run":"backup", "args":0, "description":"backs up entire server state to timestamped file","helper":"backup"}
 			self.commands["restore"]={"permlvl":2, "run":"restore", "args":1, "description":"restores server state from timestamped file","helper":"backup <file>"}
 			self.commands["list"]={"permlvl":0, "run":"list", "args":0, "description":"lists all connected sessions","helper":"list"}
