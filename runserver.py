@@ -4,49 +4,23 @@ from core.trek_server import *
 class RunServer:
 	count=0
 	def __init__(self):
-		self.server={}
-		self.commands=TrekCommands(self)
 		return
 		
 	def start_server(self):
-		self.server[RunServer.count]=Server(self, RunServer.count)
-		self.server[RunServer.count].run()
-		self.attach(RunServer.count)
-		RunServer.count+=1
+		self.server=Server(self)
+		self.server.run()
 		
-	def stop_server(self, number):
-		self.server[number].stop()
-		RunServer.count-=1
-		# implement when multi-instance is a thing
-		
-	def console_emit(self):
-		# function where you can attach to the server number of the server you want to look in on
-		while True:
-			try:
-				line = input("")
-				print("[Console] "+line)
-				if " " in line:
-					line = line.split()
-				else:
-					line = [line]
-				self.commands.run(line)
-			except KeyboardInterrupt:
-				break
-			except Exception as e:
-				print(traceback.format_exc(limit=None, chain=True))
-		return
+	def stop_server(self):
+		self.server.stop()
 	
-	def reload(self, number):
-		if isinstance(number, list):
-			number=number[0]
-		number=int(number)
+	def reload(self):
 		try:
-			clients=self.server[number].clients
+			clients=self.server.clients
 			for module in sys.modules.values():
     				importlib.reload(module)
-			self.server[number]=Server()
-			self.server[number].clients=clients
-			self.server[number].run()
+			self.server=Server()
+			self.server.clients=clients
+			self.server.run()
 		except: print(traceback.format_exc(limit=None, chain=True))
 		
 	def attach(self, number):
@@ -77,4 +51,3 @@ if __name__ == '__main__':
 	
 	server = RunServer()
 	server.start_server()
-	server.console_emit()
