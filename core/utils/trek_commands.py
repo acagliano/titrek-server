@@ -74,10 +74,10 @@ class TrekCommands:
 				getattr(self,spec["run"])(commands[1:])
 			else:
 				getattr(self,spec["run"])()
-		except AttributeError: 
-			try:
-				self.logger.log(logging.ERROR, f"{command} registered, but unimplemented.")   
-			except: print(traceback.format_exc(limit=None, chain=True))
+	#	except AttributeError: 
+	#		try:
+	#			self.logger.log(logging.ERROR, f"{command} registered, but unimplemented.")   
+	#		except: print(traceback.format_exc(limit=None, chain=True))
 		except: 
 			try:
 				self.logger.log(logging.ERROR, traceback.print_exc(limit=None, file=None, chain=True))
