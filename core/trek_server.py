@@ -26,7 +26,6 @@ class Server:
 				pass
 		try:
 			self.setup_loggers()
-			self.commands=TrekCommands(self)
 			self.config=Config(self.logger)
 			self.ssl=self.config.ssl
 #			self.loadbans()
@@ -43,6 +42,7 @@ class Server:
 			self.clients = {}
 			self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 			self.sock.bind(('', self.port))                 # Now wait for client connection.
+			self.commands=TrekCommands(self)
 		except:
 			self.elog(traceback.format_exc(limit=None, chain=True))
 
