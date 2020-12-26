@@ -13,7 +13,7 @@ from core.trek_space import *
 
 
 class Server:
-	def __init__(self, runserver, serv_num):
+	def __init__(self):
 		self.commands=TrekCommands(self)
 		self.server_root=""
 		for directory in [
