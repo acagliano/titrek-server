@@ -41,7 +41,8 @@ class RunServer:
 			number=number[0]
 		number=int(number)
 		clients=self.server[number].clients
-		importlib.reload("core.trek_server")
+		for module in sys.modules.values():
+    			importlib.reload(module)
 		self.server[number]=Server()
 		self.server[number].clients=clients
 		self.server[number].run()
