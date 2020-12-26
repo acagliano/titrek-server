@@ -1,0 +1,2 @@
+discord-webhook==0.11.0
+pyOpenSSL==19.0.0
