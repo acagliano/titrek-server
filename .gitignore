@@ -5,6 +5,7 @@
 /ssl
 /logs
 /players
+/space
 /downloads
 /data/promos.json
 */__pycache__
