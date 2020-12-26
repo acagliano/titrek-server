@@ -56,7 +56,9 @@ class TrekCommands:
 			with open("commands.json", "w+") as f:
 				json.dump(self.commands, f)
 		except:
-			self.logger.log(logging.ERROR, traceback.format_exc(limit=None, chain=True)) 
+			try:
+				self.logger.log(logging.ERROR, traceback.format_exc(limit=None, chain=True)) 
+			except: print(traceback.format_exc(limit=None, chain=True))
 			
 	def run(self,commands, client=None):
 		command=commands[0]
@@ -73,8 +75,14 @@ class TrekCommands:
 				getattr(self,spec["run"])(commands[1:])
 			else:
 				getattr(self,spec["run"])()
-		except AttributeError: self.logger.log(logging.ERROR, f"{command} registered, but unimplemented.")                    
-		except: self.logger.log(logging.ERROR, traceback.print_exc(limit=None, file=None, chain=True))
+		except AttributeError: 
+			try:
+				self.logger.log(logging.ERROR, f"{command} registered, but unimplemented.")   
+			except: print(traceback.format_exc(limit=None, chain=True))
+		except: 
+			try:
+				self.logger.log(logging.ERROR, traceback.print_exc(limit=None, file=None, chain=True))
+			except: print(traceback.format_exc(limit=None, chain=True))
 
 	def help(self):
 		ostring="\n"
