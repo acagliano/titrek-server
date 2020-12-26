@@ -9,9 +9,9 @@ class ConsoleException(Exception):
 class TrekCommands:
 		
 	def __init__(self,server):
+		self.server=server
+		self.logger=server.logger
 		try:
-			self.logger=server.logger
-			self.server=server
 			self.stop=server.stop
 			self.broadcast=server.broadcast
 #			self.reload=server.reload
