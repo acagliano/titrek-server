@@ -3,11 +3,11 @@
 /bans
 /filter
 /ssl
+/logs
+/players
 /downloads
 /data/promos.json
 */__pycache__
 /.idea
 *.pyc
 *.pyo
-/servers
-server.*
