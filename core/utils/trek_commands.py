@@ -8,17 +8,16 @@ class ConsoleException(Exception):
 
 class TrekCommands:
 	def __init__(self, runserver):
-		self.attach=runserver.attach
-		self.reload=runserver.reload
-		self.serverlist=runserver.serverlist
 		try:
+			self.attach=runserver.attach
+			self.reload=runserver.reload
+			self.serverlist=runserver.serverlist
 			with open("commands.json") as f:
 				self.commands=json.load(f)
 		except IOError:
 			self.commands={}
 			self.init_bare()
-		except:
-			pass 
+		except: print(traceback.format_exc(limit=None, chain=True))
 		
 	def load_server_commands(self,server):
 		self.logger=server.logger
