@@ -7,35 +7,26 @@ class ConsoleException(Exception):
 
 
 class TrekCommands:
-	def __init__(self, runserver):
-		try:
-			self.attach=runserver.attach
-			self.reload=runserver.reload
-			self.serverlist=runserver.serverlist
-			with open("commands.json") as f:
-				self.commands=json.load(f)
-		except IOError:
-			self.commands={}
-			self.init_bare()
-		except: print(traceback.format_exc(limit=None, chain=True))
 		
-	def load_server_commands(self,server):
-		self.logger=server.logger
-		self.server=server
-		self.stop=server.stop
-		self.broadcast=server.broadcast
-#		self.save=server.save
-		self.fw_printinfo=server.fw.printinfo
-#		self.backup=server.backup
-#		self.restore=server.restore
+	def __init__(self,server):
+		try:
+			self.logger=server.logger
+			self.server=server
+			self.stop=server.stop
+			self.broadcast=server.broadcast
+#			self.reload=server.reload
+#			self.save=server.save
+			self.fw_printinfo=server.fw.printinfo
+#			self.backup=server.backup
+#			self.restore=server.restore
+			self.init_bare()
+		except: self.logger.log(logging.ERROR, traceback.format_exc(limit=None, chain=True))
 		
 
 	def init_bare(self):
 		try:
 			self.commands["help"]={"permlvl":1, "run":"help", "args":0, "description":"lists all available commands","helper":""}
-			self.commands["attach"]={"permlvl":2, "run":"attach", "args":1, "description":"binds the console session to the selected server","helper":"attach <number>"}
 			self.commands["reload"]={"permlvl":2, "run":"reload", "args":1, "description":"fully reloads the selected server","helper":"reload <number>"}
-			self.commands["serverlist"]={"permlvl":1, "run":"serverlist", "args":0, "description":"lists all running server instances","helper":"serverlist"}
 			self.commands["broadcast"]={"permlvl":1, "run":"broadcast", "args":None, "description":"sends messages to all clients", "helper":"broadcast <msg>"}
 			self.commands["say"]=self.commands["broadcast"]
 			self.commands["stop"]={"permlvl":2, "run":"stop", "args":0, "description":"stops the server", "helper":"stop"}
@@ -52,12 +43,15 @@ class TrekCommands:
 			self.commands["debug"]={"permlvl":1, "run":"debug", "args":1, "description":"enables/disables server debug mode","helper":"debug enable|disable"}
 			self.commands["discord"]={"permlvl":2, "run":"discord", "args":1, "description":"enables/disables discord error/firewall piping","helper":"discord enable|disable"}
 			self.commands["except"]={"permlvl":1, "run":"trigger_exception", "args":0, "description":"causes a harmless testing exception","helper":"except"}
-			with open("commands.json", "w+") as f:
-				json.dump(self.commands, f)
-		except:
-			try:
-				self.logger.log(logging.ERROR, traceback.format_exc(limit=None, chain=True)) 
-			except: print(traceback.format_exc(limit=None, chain=True))
+ 
+		except: print(traceback.format_exc(limit=None, chain=True))
+				
+#	def merge_command_list(self, commands):
+#		try:
+#			with open("commands.json", "w+") as f:
+#				file_commands=json.load(f)
+#				for c in commands.keys():
+#					file_commands[c]=commands[c]
 			
 	def run(self,commands, client=None):
 		command=commands[0]
@@ -81,7 +75,7 @@ class TrekCommands:
 		except: 
 			try:
 				self.logger.log(logging.ERROR, traceback.print_exc(limit=None, file=None, chain=True))
-			except: print(traceback.format_exc(limit=None, chain=True))
+			except: self.logger.log(logging.ERROR, traceback.format_exc(limit=None, chain=True))
 
 	def help(self):
 		ostring="\n"
