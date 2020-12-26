@@ -62,11 +62,12 @@ class RunServer:
 	def serverlist(self):
 		ostring=""
 		count=0
-		for s in self.server:
+		for s in self.server.values():
 			if self.commands.server==s:
 				ostring+="# "
 			else: ostring+= "  "
 			ostring+=f"Server #{count}, Port: {s.port}"
+			count+=1
 		print(ostring)
 		
 		
