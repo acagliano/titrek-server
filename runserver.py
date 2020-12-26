@@ -7,7 +7,7 @@ class RunServer:
 		return
 		
 	def start_server(self):
-		self.server=Server(self)
+		self.server=Server()
 		self.server.run()
 		
 	def stop_server(self):
