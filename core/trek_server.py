@@ -14,7 +14,6 @@ from core.trek_space import *
 
 class Server:
 	def __init__(self):
-		self.commands=TrekCommands(self)
 		self.server_root=""
 		for directory in [
 			self.server_root,
@@ -27,6 +26,7 @@ class Server:
 				pass
 		try:
 			self.setup_loggers()
+			self.commands=TrekCommands(self)
 			self.config=Config(self.logger)
 			self.ssl=self.config.ssl
 #			self.loadbans()
