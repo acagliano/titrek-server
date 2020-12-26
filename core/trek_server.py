@@ -14,8 +14,8 @@ from core.trek_space import *
 
 class Server:
 	def __init__(self, runserver, serv_num):
-		self.instance_num=serv_num
-		self.server_root=f"servers/server.{self.instance_num}/"
+		self.commands=TrekCommands(self)
+		self.server_root=""
 		for directory in [
 			self.server_root,
 			f"{self.server_root}logs",
@@ -306,6 +306,22 @@ class Server:
 				self.log(f"User bans written successfully.")
 		except:
 			self.elog(traceback.format_exc(limit=None, chain=True))
+				 
+	def console_emit(self):
+		while True:
+			try:
+				line = input("")
+				print("[Console] "+line)
+				if " " in line:
+					line = line.split()
+				else:
+					line = [line]
+				self.commands.run(line)
+			except KeyboardInterrupt:
+				break
+			except Exception as e:
+				print(traceback.format_exc(limit=None, chain=True))
+		return
 			
 	def purgeclient(self, conn):
 		del self.clients[conn]
