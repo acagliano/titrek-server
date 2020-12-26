@@ -84,6 +84,7 @@ class Server:
 			self.main_thread = threading.Thread(target=self.main)
 			self.main_thread.start()
 			self.log(f"Server running on port {self.config.settings['port']}")
+			self.console_emit()
 		#	self.flush_log_to_archive()
 		except:
 			self.elog(traceback.format_exc(limit=None, chain=True))
