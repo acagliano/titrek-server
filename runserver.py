@@ -40,12 +40,14 @@ class RunServer:
 		if isinstance(number, list):
 			number=number[0]
 		number=int(number)
-		clients=self.server[number].clients
-		for module in sys.modules.values():
-    			importlib.reload(module)
-		self.server[number]=Server()
-		self.server[number].clients=clients
-		self.server[number].run()
+		try:
+			clients=self.server[number].clients
+			for module in sys.modules.values():
+    				importlib.reload(module)
+			self.server[number]=Server()
+			self.server[number].clients=clients
+			self.server[number].run()
+		except: print(traceback.format_exc(limit=None, chain=True))
 		
 	def attach(self, number):
 		if isinstance(number, list):
