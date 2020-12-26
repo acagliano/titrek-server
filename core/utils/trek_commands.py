@@ -25,6 +25,7 @@ class TrekCommands:
 
 	def init_bare(self):
 		try:
+			self.commands={}
 			self.commands["help"]={"permlvl":1, "run":"help", "args":0, "description":"lists all available commands","helper":""}
 			self.commands["reload"]={"permlvl":2, "run":"reload", "args":1, "description":"fully reloads the selected server","helper":"reload <number>"}
 			self.commands["broadcast"]={"permlvl":1, "run":"broadcast", "args":None, "description":"sends messages to all clients", "helper":"broadcast <msg>"}
