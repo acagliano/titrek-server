@@ -10,6 +10,7 @@ class TrekCommands:
 	def __init__(self, runserver):
 		self.attach=runserver.attach
 		self.reload=runserver.reload
+		self.serverlist=runserver.serverlist
 		try:
 			with open("commands.json") as f:
 				self.commands=json.load(f)
@@ -35,6 +36,7 @@ class TrekCommands:
 			self.commands["help"]={"permlvl":1, "run":"help", "args":0, "description":"lists all available commands","helper":""}
 			self.commands["attach"]={"permlvl":2, "run":"attach", "args":1, "description":"binds the console session to the selected server","helper":"attach <number>"}
 			self.commands["reload"]={"permlvl":2, "run":"reload", "args":1, "description":"fully reloads the selected server","helper":"reload <number>"}
+			self.commands["serverlist"]={"permlvl":1, "run":"serverlist", "args":0, "description":"lists all running server instances","helper":"serverlist"}
 			self.commands["broadcast"]={"permlvl":1, "run":"broadcast", "args":None, "description":"sends messages to all clients", "helper":"broadcast <msg>"}
 			self.commands["say"]=self.commands["broadcast"]
 			self.commands["stop"]={"permlvl":2, "run":"stop", "args":0, "description":"stops the server", "helper":"stop"}
