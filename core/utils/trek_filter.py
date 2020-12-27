@@ -14,6 +14,7 @@
 
 import os,json,traceback,importlib,logging
 from datetime import datetime
+from logging.handlers import TimedRotatingFileHandler
 from core.trek_codes import *
 
 logging.FILTER=60
@@ -33,7 +34,12 @@ class TrekFilter:
 	
 	def set_logger(self,log):
 		self.logger=log
+		filter_log="logs/filter.log"
 		logging.addLevelName(logging.FILTER, "FILTER")
+		file_handler_filter = TimedRotatingFileHandler(filter_log, when="midnight", interval=1, backupCount=5)
+		file_handler_filter.setFormatter(TrekLogging.formatter)
+		file_handler_filter.setLevel(logging.FILTER)
+		file_handler_filter.addHandler(file_handler_filter)
 	
 	def config(self,config):
 		if not config["enable"]:
