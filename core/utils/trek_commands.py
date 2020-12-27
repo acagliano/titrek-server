@@ -27,7 +27,7 @@ class TrekCommands:
 		try:
 			self.commands={}
 			self.commands["help"]={"permlvl":1, "run":"help", "args":None, "description":"lists all available commands","helper":""}
-			self.commands["reload"]={"permlvl":2, "run":"reload", "args":1, "description":"fully reloads the selected server","helper":"reload <number>"}
+			self.commands["reload"]={"permlvl":2, "run":"reload", "args":0, "description":"fully reloads the selected server","helper":"reload"}
 			self.commands["broadcast"]={"permlvl":1, "run":"broadcast", "args":None, "description":"sends messages to all clients", "helper":"broadcast <msg>"}
 			self.commands["say"]=self.commands["broadcast"]
 			self.commands["stop"]={"permlvl":2, "run":"stop", "args":0, "description":"stops the server", "helper":"stop"}
