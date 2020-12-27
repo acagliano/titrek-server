@@ -40,7 +40,7 @@ class TrekFilter:
 		file_handler_filter = TimedRotatingFileHandler(filter_log, when="midnight", interval=1, backupCount=5)
 		file_handler_filter.setFormatter(TrekLogging.formatter)
 		file_handler_filter.setLevel(logging.FILTER)
-		file_handler_filter.addHandler(file_handler_filter)
+		self.logger.addHandler(file_handler_filter)
 	
 	def config(self,config):
 		if not config["enable"]:
