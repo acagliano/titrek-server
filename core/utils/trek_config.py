@@ -25,10 +25,9 @@ class Config:
 					except ImportError:
 						self.logger.log(logging.INFO, "Package discord-webhook not installed")
 						pass
-				if self.settings["firewall"]["enable"]:
-					self.firewall=trek_filter.TrekFilter()
-					self.firewall.set_logger(log)
-					self.firewall.config(self.settings["firewall"])
+				self.firewall=trek_filter.TrekFilter()
+				self.firewall.set_logger(log)
+				self.firewall.config(self.settings["firewall"])
 				self.logger.log(logging.INFO, "Server config loaded!")
 		except:
 			self.logger.log(logging.ERROR, traceback.format_exc(limit=None, chain=True))
