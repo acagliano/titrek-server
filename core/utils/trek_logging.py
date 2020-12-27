@@ -64,6 +64,7 @@ class TrekLogging:
 			file_handler_default = TimedRotatingFileHandler(server_log, when="midnight", interval=1, backupCount=5)
 			file_handler_default.setFormatter(TrekLogging.formatter)
 			file_handler_default.setLevel(logging.DEBUG)
+			file_handler_default.rotator = GZipRotator()
 			log.addHandler(file_handler_default)
 		
 			# set handler for error messages
