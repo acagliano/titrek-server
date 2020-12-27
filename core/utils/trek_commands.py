@@ -80,11 +80,13 @@ class TrekCommands:
 
 	def help(self):
 		ostring="\n"
+		ostring+="######## TI-Trek Active Commands ########"
+		max_len = len(max(self.commands.keys(), key=len))
 		for c in self.commands.keys():
 			cmd=self.commands[c]
-			ostring+=f"[{c}] "
+			ostring+=f"[{c}]".ljust(max_len+3)
 			ostring+=f"[{cmd['helper']}], "
-			ostring+=f"[{cmd['description']}]\n"
+			ostring+=f"{cmd['description']}\n"
 		self.logger.log(logging.INFO, ostring)
 	
 	def trigger_exception(self):
