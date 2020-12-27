@@ -26,7 +26,7 @@ class TrekCommands:
 	def init_bare(self):
 		try:
 			self.commands={}
-			self.commands["help"]={"permlvl":1, "run":"help", "args":0, "description":"lists all available commands","helper":""}
+			self.commands["help"]={"permlvl":1, "run":"help", "args":None, "description":"lists all available commands","helper":""}
 			self.commands["reload"]={"permlvl":2, "run":"reload", "args":1, "description":"fully reloads the selected server","helper":"reload <number>"}
 			self.commands["broadcast"]={"permlvl":1, "run":"broadcast", "args":None, "description":"sends messages to all clients", "helper":"broadcast <msg>"}
 			self.commands["say"]=self.commands["broadcast"]
@@ -78,15 +78,24 @@ class TrekCommands:
 				self.logger.log(logging.ERROR, traceback.print_exc(limit=None, file=None, chain=True))
 			except: self.logger.log(logging.ERROR, traceback.format_exc(limit=None, chain=True))
 
-	def help(self):
+	def help(self, args):
 		ostring="\n"
-		ostring+="######## TI-Trek Active Commands ########"
-		max_len = len(max(self.commands.keys(), key=len))
-		for c in self.commands.keys():
-			cmd=self.commands[c]
-			ostring+=f"[{c}]".ljust(max_len+4)
-			ostring+=f"{cmd['helper']} | "
-			ostring+=f"{cmd['description']}\n"
+		if len(args):
+			for a in args:
+				if not a in self.commands:
+					ostring+=f"command {a} invalid\n\n"
+					continue
+				cmd=self.commands[a]
+				ostring+=f"[{a}]    {cmd['helper']}\n    {cmd['description']}\n\n"
+		else:
+			ostring+="######## TI-Trek Active Commands ########\n"
+			ostring+="type 'help <command(s)>' for more info\n\n"
+			max_len = len(max(self.commands.keys(), key=len))
+			for c in self.commands.keys():
+				cmd=self.commands[c]
+				ostring+=f"[{c}]".ljust(max_len+4)
+				ostring+=f"{cmd['helper']} | "
+				ostring+=f"{cmd['description']}\n"
 		self.logger.log(logging.INFO, ostring)
 	
 	def trigger_exception(self):
