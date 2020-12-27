@@ -37,7 +37,7 @@ class TrekFilter:
 		self.logger=log
 		filter_log="logs/filter.log"
 		logging.addLevelName(logging.FILTER, "FILTER")
-		file_handler_filter = FileHandler(filter_log)
+		file_handler_filter = logging.FileHandler(filter_log)
 		file_handler_filter.setFormatter(TrekLogging.formatter)
 		file_handler_filter.setLevel(logging.FILTER)
 		self.logger.logger.addHandler(file_handler_filter)
