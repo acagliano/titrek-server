@@ -116,6 +116,7 @@ class Client:
 		while self.server.online and self.connected:
 			try:
 				data = list(self.conn.recv(self.config.settings["packet-size"]))
+				self.fw.filter(self.conn, self.addr, data, self.logged_in)
 			except socket.timeout:
 				self.log(f"Inactive timeout for user {self.user}. Disconnecting.")
 				if self.logged_in:
@@ -128,7 +129,6 @@ class Client:
 				self.disconnect()
 				self.connected = False
 				break
-			self.fw.filter(self.conn, self.addr, data, self.logged_in)
 			if not len(data):
 				continue
 			if self.config.settings["debug"]:
