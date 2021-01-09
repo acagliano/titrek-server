@@ -109,7 +109,7 @@ class Client:
 					break
 				i+=bytes_sent
 				packet_length-=bytes_sent
-		except BrokenPipeError: self.elog("send() called on a closed connection. This may be due to a firewall action, or may be a bug.")
+		except (BrokenPipeError, OSError): self.elog("send() called on a closed connection. This is probably intended behavior, but worth double checking.")
 			
 	def handle_connection(self):
 		self.conn.settimeout(self.config.settings["idle-timeout"])
