@@ -78,18 +78,19 @@ class TrekCommands:
 				self.logger.log(logging.ERROR, traceback.print_exc(limit=None, file=None, chain=True))
 			except: self.logger.log(logging.ERROR, traceback.format_exc(limit=None, chain=True))
 
-	def help(self, args):
-		if " " in args:
-			args=args.split()
-		else: args = [args]
-		ostring="\n"
-		if len(args):
+	def help(self, args=""):
+		if not args=="":
+			if " " in args:
+				args=args.split()
+			else: args = [args]
 			for a in args:
 				if not a in self.commands:
 					ostring+=f"command {a} invalid\n\n"
 					continue
 				cmd=self.commands[a]
 				ostring+=f"[{a}]    {cmd['helper']}\n    {cmd['description']}\n\n"
+			ostring="\n"
+		
 		else:
 			ostring+="######## TI-Trek Active Commands ########\n"
 			ostring+="type 'help <command(s)>' for more info\n\n"
