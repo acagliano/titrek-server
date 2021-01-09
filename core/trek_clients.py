@@ -303,7 +303,7 @@ class Client:
 			except socket.error:
 				pass
 			except ClientDisconnectErr as e:
-				self.elog(str(e))
+				self.log(str(e))
 				self.disconnect()
 				self.server.purgeclient(self.conn)
 				self.broadcast(f"{self.user} disconnected")
