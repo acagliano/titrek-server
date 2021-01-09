@@ -8,6 +8,9 @@ from core.utils.trek_modules import *
 from core.math import trek_vec3
 from core.utils.trek_util import *
 
+class ClientDisconnectErr(Exception):
+	pass
+
 class Client:
 	def __init__(self, conn, addr, server):
 		self.conn = conn
@@ -117,25 +120,10 @@ class Client:
 			try:
 				data = list(self.conn.recv(self.config.settings["packet-size"]))
 				self.fw.filter(self.conn, self.addr, data, self.logged_in)
-			except socket.timeout:
-				self.log(f"Inactive timeout for user {self.user}. Disconnecting.")
-				if self.logged_in:
-					self.save_player()
-					self.logged_in = False
-				self.connected = False
-				break
-			if not data:
-				self.log(f"{self.user} disconnected!")
-				self.disconnect()
-				self.connected = False
-				break
-			if not len(data):
-				continue
-			if self.config.settings["debug"]:
-				packet_string = "".join([s.ljust(5," ") for s in [chr(c) if c in range(0x20,0x80) else "0x0"+hex(c)[2] if c<0x10 else hex(c) for c in data]])
-				self.dlog(f"recieved packet: {packet_string}")
-			try:
-				
+				if not data:
+					raise ClientDisconnectErr(f"{self.user} disconnected!")
+				if not len(data):
+					continue
 				if data[0]==ControlCodes["LOGIN"]:
 					self.log_in(data)
 				elif data[0]==ControlCodes["REGISTER"]:
@@ -305,12 +293,24 @@ class Client:
 							engine=self.findModuleOfType("warp")
 						engine["curspeed"]=int.from_bytes(data[2:], 'little')
 						self.send([ControlCodes["ENGINE_SETSPEED"]]+ list(data[1:]))
+				if self.config.settings["debug"]:
+					packet_string = "".join([s.ljust(5," ") for s in [chr(c) if c in range(0x20,0x80) else "0x0"+hex(c)[2] if c<0x10 else hex(c) for c in data]])
+					self.dlog(f"recieved packet: {packet_string}")
+				
+			except socket.timeout:
+				raise ClientDisconnectErr(f"Inactive timeout for user {self.user}. Disconnecting.")
+				break	
 			except socket.error:
 				pass
+			except ClientDisconnectErr as e:
+				self.elog(str(e))
+				self.disconnect()
+				self.server.purgeclient(self.conn)
+				self.broadcast(f"{self.user} disconnected")
+				break
 			except Exception as e:
 				self.elog(traceback.format_exc(limit=None, chain=True))
-		self.server.purgeclient(self.conn)
-		self.broadcast(f"{self.user} disconnected")
+				    
 		
 	def load_shipmodule(self,m):
 		padded_string=PaddedString(m["Name"], 9, chr(0))+"\0"
