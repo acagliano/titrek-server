@@ -175,9 +175,10 @@ class Server:
 		
 	def broadcast(self,msg,sender="Server"):
 #		self.discord_out(sender,msg,0)
+		msg=" ".join(msg)
 		for conn in self.clients.keys():
 			client = self.clients[conn]
-			client.send([ControlCodes["MESSAGE"]]+list(bytes(sender+": "+" ".join(msg)+'\0', 'UTF-8')))
+			client.send([ControlCodes["MESSAGE"]]+list(bytes(sender+": "+msg+'\0', 'UTF-8')))
 	
 #	def discord_out(self,sender,msg,msgtype):
 #		if not self.config.settings["enable-discord-link"]:
