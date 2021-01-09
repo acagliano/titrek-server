@@ -309,8 +309,8 @@ class Client:
 				pass
 			except Exception as e:
 				self.elog(traceback.format_exc(limit=None, chain=True))
-		self.broadcast(f"{self.user} disconnected")
 		self.server.purgeclient(self.conn)
+		self.broadcast(f"{self.user} disconnected")
 		
 	def load_shipmodule(self,m):
 		padded_string=PaddedString(m["Name"], 9, chr(0))+"\0"
