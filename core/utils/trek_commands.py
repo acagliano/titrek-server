@@ -78,7 +78,10 @@ class TrekCommands:
 				self.logger.log(logging.ERROR, traceback.print_exc(limit=None, file=None, chain=True))
 			except: self.logger.log(logging.ERROR, traceback.format_exc(limit=None, chain=True))
 
-	def help(self, args=[]):
+	def help(self, args):
+		if " " in args:
+			args=args.split()
+		else: args = [args]
 		ostring="\n"
 		if len(args):
 			for a in args:
