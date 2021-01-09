@@ -237,6 +237,7 @@ class TrekFilter:
 			
 	def special_chars(self, segment):
 		if any([a in segment for a in TrekFilter.special_characters]):
+			self.logger.log(logging.FILTER, f"Suspect packet segment intercepted: {segment}")
 			return True
 		else:
 			return False
