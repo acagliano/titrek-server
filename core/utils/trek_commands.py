@@ -79,6 +79,7 @@ class TrekCommands:
 			except: self.logger.log(logging.ERROR, traceback.format_exc(limit=None, chain=True))
 
 	def help(self, args=""):
+		ostring="\n"
 		if not args=="":
 			if " " in args:
 				args=args.split()
@@ -89,7 +90,6 @@ class TrekCommands:
 					continue
 				cmd=self.commands[a]
 				ostring+=f"[{a}]    {cmd['helper']}\n    {cmd['description']}\n\n"
-			ostring="\n"
 		
 		else:
 			ostring+="######## TI-Trek Active Commands ########\n"
