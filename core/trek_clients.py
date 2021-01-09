@@ -101,13 +101,15 @@ class Client:
 			self.log(data)
 		packet_length = len(data)
 		i = 0
-		while packet_length:
-			bytes_sent = self.conn.send(bytes(data[i:min(packet_length, self.config.settings["packet-size"])]))
-			if not bytes_sent:
-				raise Exception("packet transmission error")
-				break
-			i+=bytes_sent
-			packet_length-=bytes_sent
+		try:
+			while packet_length:
+				bytes_sent = self.conn.send(bytes(data[i:min(packet_length, self.config.settings["packet-size"])]))
+				if not bytes_sent:
+					raise Exception("packet transmission error")
+					break
+				i+=bytes_sent
+				packet_length-=bytes_sent
+		except BrokenPipeError: self.elog("send() called on a closed connection. This may be due to a firewall action, or may be a bug.")
 			
 	def handle_connection(self):
 		self.conn.settimeout(self.config.settings["idle-timeout"])
