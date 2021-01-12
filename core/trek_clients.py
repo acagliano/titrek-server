@@ -484,7 +484,7 @@ outputs:
 	def kick(self):
 		# send kick to client
 		self.connected=False
-		self.conn.close()
+		self.conn.shutdown(socket.SHUT_WR)
 				    
 	def version_check(self, data):
 		client_version = data[1:4]
