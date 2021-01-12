@@ -217,7 +217,7 @@ class Server:
 			for conn in self.clients.keys():
 				client = self.clients[conn]
 				if client.ip==ip:
-					client.disconnect()
+					client.kick()
 		except: self.elog(traceback.format_exc(limit=None, chain=True))
 		
 	def kick_user(self,user):		 
@@ -227,7 +227,7 @@ class Server:
 			for conn in self.clients.keys():
 				client = self.clients[conn]
 				if client.user==user:
-					client.disconnect()
+					client.kick()
 		except: self.elog(traceback.format_exc(limit=None, chain=True))
 				 
 				 
