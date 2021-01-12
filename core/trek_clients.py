@@ -116,11 +116,11 @@ class Client:
 			
 	def handle_connection(self):
 		self.conn.settimeout(self.config.settings["idle-timeout"])
-		try:
-			while self.server.online and self.connected:
+		while self.server.online:
+			try:
 				data = list(self.conn.recv(self.config.settings["packet-size"]))
 				self.fw.filter(self.conn, self.addr, data, self.logged_in)
-				if not data:
+				if not data or not self.connected:
 					raise ClientDisconnectErr(f"{self.user} disconnected!")
 				if not len(data):
 					continue
@@ -297,18 +297,18 @@ class Client:
 					packet_string = "".join([s.ljust(5," ") for s in [chr(c) if c in range(0x20,0x80) else "0x0"+hex(c)[2] if c<0x10 else hex(c) for c in data]])
 					self.dlog(f"recieved packet: {packet_string}")
 				
-		except socket.timeout:
-			raise ClientDisconnectErr(f"Inactive timeout for user {self.user}. Disconnecting.")
-			break	
-		except socket.error:
-			pass
-		except ClientDisconnectErr as e:
-			self.log(str(e))
-			self.disconnect()
-			self.server.purgeclient(self.conn)
-			self.broadcast(f"{self.user} disconnected")
-		except Exception as e:
-			self.elog(traceback.format_exc(limit=None, chain=True))
+			except socket.timeout:
+				raise ClientDisconnectErr(f"Inactive timeout for user {self.user}. Disconnecting.")
+				break	
+			except socket.error:
+				pass
+			except ClientDisconnectErr as e:
+				self.log(str(e))
+				self.disconnect()
+				self.server.purgeclient(self.conn)
+				self.broadcast(f"{self.user} disconnected")
+			except Exception as e:
+				self.elog(traceback.format_exc(limit=None, chain=True))
 				    
 		
 	def load_shipmodule(self,m):
