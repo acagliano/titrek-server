@@ -307,7 +307,6 @@ class Client:
 			self.disconnect()
 			self.server.purgeclient(self.conn)
 			self.broadcast(f"{self.user} disconnected")
-			break
 		except Exception as e:
 			self.elog(traceback.format_exc(limit=None, chain=True))
 				    
