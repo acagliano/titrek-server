@@ -216,11 +216,7 @@ class Server:
 		for conn in self.clients.keys():
 			client = self.clients[conn]
 			if client.ip==ip:
-				o.append(conn)
-		for conn in o:
-			client = self.clients[conn]
-			client.disconnect()
-			self.purgeclient(conn)
+				client.connected=False
 		
 	def kick_user(self,user):		 
 		o=[]
@@ -228,11 +224,7 @@ class Server:
 		for conn in self.clients.keys():
 			client = self.clients[conn]
 			if client.user==user:
-				o.append(conn)
-		for conn in o:
-			client = self.clients[conn]
-			client.disconnect()
-			self.purgeclient(conn)
+				client.connected=False
 				 
 				 
 	def list(self):
