@@ -119,9 +119,9 @@ class Client:
 		while self.server.online:
 			try:
 				data = list(self.conn.recv(self.config.settings["packet-size"]))
-				self.fw.filter(self.conn, self.addr, data, self.logged_in)
 				if not data or not self.connected:
 					raise ClientDisconnectErr(f"{self.user} disconnected!")
+				self.fw.filter(self.conn, self.addr, data, self.logged_in)
 				if not len(data):
 					continue
 				if data[0]==ControlCodes["LOGIN"]:
