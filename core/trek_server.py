@@ -213,18 +213,22 @@ class Server:
 	def kick_ip(self,ip):
 		o=[]
 		self.log(f"Kicking IP {ip}")
-		for conn in self.clients.keys():
-			client = self.clients[conn]
-			if client.ip==ip:
-				client.disconnect()
+		try:
+			for conn in self.clients.keys():
+				client = self.clients[conn]
+				if client.ip==ip:
+					client.disconnect()
+		except: self.elog(traceback.format_exc(limit=None, chain=True))
 		
 	def kick_user(self,user):		 
 		o=[]
 		self.log(f"Kicking user {user}")
-		for conn in self.clients.keys():
-			client = self.clients[conn]
-			if client.user==user:
-				client.disconnect()
+		try:
+			for conn in self.clients.keys():
+				client = self.clients[conn]
+				if client.user==user:
+					client.disconnect()
+		except: self.elog(traceback.format_exc(limit=None, chain=True))
 				 
 				 
 	def list(self):
