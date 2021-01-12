@@ -191,7 +191,7 @@ class Server:
 			try:
 				 ipaddress.IPv4Network(a)
 				 self.kick_ip(a)
-        		except ValueError:
+			except ValueError:
 				 self.kick_user(a)
 				 
 	def ban(self,arg):
