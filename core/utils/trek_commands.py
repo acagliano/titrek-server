@@ -14,6 +14,9 @@ class TrekCommands:
 		try:
 			self.stop=server.stop
 			self.broadcast=server.broadcast
+			self.list=server.list
+			self.ban=server.ban
+			self.kick=server.kick
 #			self.reload=server.reload
 #			self.save=server.save
 			self.fw_printinfo=server.fw.printinfo
