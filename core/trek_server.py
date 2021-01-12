@@ -1,4 +1,4 @@
-import socket,threading,ctypes,hashlib,json,os,sys,time,math,ssl,traceback,subprocess,logging,gzip,re
+import socket,threading,ctypes,hashlib,json,os,sys,time,math,ssl,traceback,subprocess,logging,gzip,re,ipaddress
 
 from core.utils.trek_logging import *
 from core.utils.trek_filter import *
@@ -28,8 +28,7 @@ class Server:
 			self.setup_loggers()
 			self.config=Config(self.logger)
 			self.ssl=self.config.ssl
-#			self.loadbans()
-#			self.load_whitelist()
+			self.loadbans()
 #			self.init_binaries()
 			self.fw=self.config.firewall
 			self.generator = Generator()
@@ -46,7 +45,15 @@ class Server:
 		except:
 			self.elog(traceback.format_exc(limit=None, chain=True))
 
-						 
+		
+	def loadbans(self):
+		try:
+			with open("bans.txt") as f:
+				self.bans=f.readlines()
+		except:
+			self.bans=[]
+			
+			
 	def setup_loggers(self):
 		self.logger=TrekLogging(f"{self.server_root}logs/")
 						 
@@ -85,20 +92,9 @@ class Server:
 			self.main_thread.start()
 			self.log(f"Server running on port {self.config.settings['port']}")
 			self.console_emit()
-		#	self.flush_log_to_archive()
 		except:
 			self.elog(traceback.format_exc(limit=None, chain=True))
 
-	#def flush_log_to_archive(self):
-	#	try:
-	#		with gzip.open(Config.log_archive, 'ab') as gf:
-	#			with open(Config.log_file, 'rb') as lf:
-	#				gf.write(lf.read())
-	#		sleep(2)
-     #       open(f'{Config.log_file}', 'w+').close()
-		#	self.log("Instance logfile flushed to archive.")
-	#	except:
-	#		self.elog(traceback.print_exc(limit=None, file=None, chain=True))
 			
 #	def banlist(self):
 #		print("[BANNED USERS]")
@@ -107,101 +103,21 @@ class Server:
 #		print("[BANNED IPS]")
 #		for b in Config.banned_ips:
 #			print(b)
-#
-#	def print_whitelist(self):
-#		print("[WHITELISTED IPS]")
-#		for w in Config.whitelist:
-#			print(w)
-#	
-#	def load_whitelist(self):
-#		try:
-#			with open("whitelist.txt","r") as f:
-#				Config.whitelist = f.read().splitlines()
-#		except IOError:
-#			pass
-#		except:
-#			self.elog(traceback.format_exc(limit=None, chain=True))
-#			
-#	def whitelist_add(self,ip):
-#		try:
-#			if not ip in Config.whitelist:
-#				Config.whitelist.append(ip)
-#				self.log(f"{ip} added to whitelist.")
-#				self.save_whitelist()
-#			else:
-#				self.log(f"{ip} already whitelisted.")
-#		except:
-#			self.elog(traceback.format_exc(limit=None, chain=True))
-#	
-#	def whitelist_remove(self,ip):
-#		try:
-#			Config.whitelist.remove(ip)
-#			self.log(f"{ip} removed from whitelist.")
-#			self.save_whitelist()
-#		except:
-#			self.elog(traceback.format_exc(limit=None, chain=True))
-#	
-#	def save_whitelist(self):
-#		try:
-#			with open("whitelist.txt","w+") as f:
-#				for w in Config.whitelist:
-#					f.write(str(w)+"\n")
-#			self.log(f"Whitelist written successfully.")
-#		except:
-#			self.elog(traceback.format_exc(limit=None, chain=True))
-#			
-#	def loadbans(self):
-#		try:
-#			with open("bans/userban.txt","r") as f:
-#				Config.banned_users = f.read().splitlines()
-#			with open("bans/ipban.txt","r") as f:
-#				Config.banned_ips = f.read().splitlines()
-#		except IOError:
-#			pass
-#		except:
-#			self.elog(traceback.format_exc(limit=None, chain=True))
 
 	def log(self,*args,**kwargs):
 		self.logger.log(logging.INFO, *args, **kwargs)
 	
 	def elog(self,*args,**kwargs):
 		self.logger.log(logging.ERROR, *args, **kwargs)
-#		for e in args:
-#			self.discord_out("Server",e,1)
 		
 	def dlog(self,*args,**kwargs):
 		if self.config.settings["debug"]:
 			self.logger.log(logging.DEBUG, *args, **kwargs)
 		
 	def broadcast(self,msg,sender="Server"):
-#		self.discord_out(sender,msg,0)
 		for conn in self.clients.keys():
 			client = self.clients[conn]
 			client.send([ControlCodes["MESSAGE"]]+list(bytes(sender+": "+msg+'\0', 'UTF-8')))
-	
-#	def discord_out(self,sender,msg,msgtype):
-#		if not self.config.settings["enable-discord-link"]:
-#			return
-#		try:
-#			if msgtype==0:
-#				author = "Server Message" if sender=="Server" else sender
-#				url="https://discord.com/api/webhooks/788494210734358559/4Y5PH-P_rS-ZQ63-sHpfp2FmXY9rZm114BMMAJQsn6xsQHPOquaYC33tOXiVoZ4Ph6Io"
-#				webhook = DiscordWebhook(url=url, username=author, content=f"{msg}")
-#			if msgtype==1:
-#				author="Exception"
-#				url="https://discord.com/api/webhooks/788497355359518790/7c9oPZgG13_yLnywx3h6wZWY6qXMobNvCHB_6Qjb6ZNbXjw9aP993I8jGE5jXE7DK3Lz"
-#				webhook = DiscordWebhook(url=url, username=author)
-#				embed = DiscordEmbed(description=f"{msg}", color=16711680)
-#				webhook.add_embed(embed)
-#			if msgtype==2:
-#				author="TrekFilter"
-#				url="https://discord.com/api/webhooks/788828667085979668/rVc5BA2rymnduGMuTsqysy8lNv1kNYgul4oSxJCYhF-RKc05hj2hGifDjbct8GMTTTH2"
-#				webhook = DiscordWebhook(url=url, username=author)
-#				embed = DiscordEmbed(description=f"{msg}", color=131724)
-#				webhook.add_embed(embed)
-#			response = webhook.execute()
-#		except:
-#			print(traceback.format_exc(limit=None, chain=True))
 	
 	def main(self):
 		self.broadcast(f"Server Online!")
@@ -266,14 +182,37 @@ class Server:
 		except:
 			self.elog(traceback.format_exc(limit=None, chain=True))
 
-	def kick(self,username):
-		for conn in self.clients.keys():
-			client = self.clients[conn]
-			if client.user==username:
-				client.disconnect()
-
-	def kickip(self,ip):
+	def kick(self,arg):
+		if " " in arg:
+			args=arg.split()
+		else:
+			args=[arg]
+		for a in args:
+			try:
+				 ipaddress.IPv4Network(a)
+				 self.kick_ip(a)
+        		except ValueError:
+				 self.kick_user(a)
+				 
+	def ban(self,arg):
+		if " " in arg:
+			args=arg.split()
+		else:
+			args=[arg]
+		for a in args:
+			try:
+				 ipaddress.IPv4Network(a)
+				 self.kick_ip(a)
+				 if not a in self.bans:
+				 	self.bans.append(a)
+			except ValueError:
+				 self.kick_user(a)
+				 if not a in self.bans:
+				 	self.bans.append(a)
+				 
+	def kick_ip(self,ip):
 		o=[]
+		self.log(f"Kicking IP {ip}")
 		for conn in self.clients.keys():
 			client = self.clients[conn]
 			if client.ip==ip:
@@ -282,31 +221,31 @@ class Server:
 			client = self.clients[conn]
 			client.disconnect()
 			self.purgeclient(conn)
-
-	def ban(self,username):
-		self.kick(username)
-		if not username in Config.banned_users:
-			Config.banned_users.append(username)
-			self.save_bans()
-
-	def ipban(self,ip):
-		self.kickip(ip)
-		if not ip in Config.banned_ips:
-			Config.banned_ips.append(ip)
-			self.save_bans()
 		
-	def save_bans(self):
-		try:
-			with open("bans/ipban.txt","w+") as f:
-				for w in Config.banned_ips:
-					f.write(str(w)+"\n")
-				self.log(f"IP bans written successfully.")
-			with open("bans/userban.txt","w+") as f:
-				for w in Config.banned_users:
-					f.write(str(w)+"\n")
-				self.log(f"User bans written successfully.")
-		except:
-			self.elog(traceback.format_exc(limit=None, chain=True))
+	def kick_user(self,user):		 
+		o=[]
+		self.log(f"Kicking user {user}")
+		for conn in self.clients.keys():
+			client = self.clients[conn]
+			if client.user==user:
+				o.append(conn)
+		for conn in o:
+			client = self.clients[conn]
+			client.disconnect()
+			self.purgeclient(conn)
+				 
+				 
+	def list(self):
+		o="\n"
+		if len(self.clients):
+			for conn in self.clients.keys():
+				client=self.clients[conn]
+				o+=f"{client.ip}:{client.port}"
+				if hasattr(client, 'user'):
+					 o+=f" => User: {client.user}"
+				o+="\n"
+		else: o+="No active connections\n"
+		self.log(o)
 				 
 	def console_emit(self):
 		while True:
