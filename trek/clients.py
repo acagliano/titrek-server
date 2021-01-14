@@ -5,7 +5,7 @@ from trek.server import *
 from trek.utils.logging import *
 from trek.utils.filter import *
 from trek.utils.modules import *
-from trek.math import vec3
+from trek.math.vec3 import *
 from trek.utils.util import *
 
 class ClientDisconnectErr(Exception):
@@ -63,8 +63,8 @@ class Client:
 		except:
 			self.elog(traceback.print_exc(limit=None, file=None, chain=True))
 		try:
-			self.pos = trek_vec3.Vec3(self.data["player"]["x"],self.data["player"]["y"],self.data["player"]["z"])
-			self.rot = trek_vec3.Vec3()
+			self.pos = Vec3(self.data["player"]["x"],self.data["player"]["y"],self.data["player"]["z"])
+			self.rot = Vec3()
 			self.load_modules()
 		except:
 			self.elog(traceback.format_exc(limit=None, chain=True))
