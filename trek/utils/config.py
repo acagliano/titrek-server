@@ -1,5 +1,5 @@
 import ssl,traceback,os,logging,json
-from trek.utils import filter
+from trek.utils.filter import *
 SUPPORTS_SSL=False
 
 class Config:
@@ -25,7 +25,7 @@ class Config:
 					except ImportError:
 						self.logger.log(logging.INFO, "Package discord-webhook not installed")
 						pass
-				self.firewall=trek_filter.TrekFilter()
+				self.firewall=TrekFilter()
 				self.firewall.set_logger(log)
 				self.firewall.config(self.settings["firewall"])
 				self.logger.log(logging.INFO, "Server config loaded!")
