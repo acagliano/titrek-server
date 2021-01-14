@@ -15,8 +15,8 @@
 import os,json,traceback,importlib,logging
 from datetime import datetime
 from logging.handlers import TimedRotatingFileHandler
-from core.trek_codes import *
-from core.utils.trek_logging import TrekLogging
+from trek.codes import *
+from trek.utils.logging import TrekLogging
 
 logging.FILTER=60
 

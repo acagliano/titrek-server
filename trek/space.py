@@ -1,7 +1,7 @@
 
 import os,json,traceback
 import logging
-from core.math.trek_generate import *
+from trek.math.generate import *
 
 class Space:
 	def __init__(self, root_dir, log, config):

@@ -1,5 +1,5 @@
 import importlib
-from core.trek_server import *
+from trek.server import *
 
 # The server class is not reloadable, every other class may be
 	

@@ -1,9 +1,8 @@
-from core.math.trek_npcs import *
-from core.math.trek_vec3 import *
-from core.trek_codes import *
-from core.math.trek_constants import *
 import os,json,math,random,time,traceback
-
+from trek.math.npcs import *
+from trek.math.vec3 import *
+from trek.codes import *
+from trek.math.constants import *
 
 class Generator:
 	def __init__(self):

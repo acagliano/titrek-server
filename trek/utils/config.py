@@ -1,5 +1,5 @@
 import ssl,traceback,os,logging,json
-from core.utils import trek_filter
+from trek.utils import filter
 SUPPORTS_SSL=False
 
 class Config:

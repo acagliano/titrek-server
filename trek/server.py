@@ -1,15 +1,15 @@
 import socket,threading,ctypes,hashlib,json,os,sys,time,math,ssl,traceback,subprocess,logging,gzip,re,ipaddress
 
-from core.utils.trek_logging import *
-from core.utils.trek_filter import *
-from core.utils.trek_modules import *
-from core.utils.trek_config import *
-from core.utils.trek_commands import *
-from core.math.trek_generate import *
+from trek.utils.logging import *
+from trek.utils.filter import *
+from trek.utils.modules import *
+from trek.utils.config import *
+from trek.utils.commands import *
+from trek.math.generate import *
 
-from core.trek_codes import *
-from core.trek_clients import *
-from core.trek_space import *
+from trek.codes import *
+from trek.clients import *
+from trek.space import *
 
 
 class Server:

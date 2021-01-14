@@ -1,12 +1,12 @@
 import os,traceback,json,logging,socket,hashlib,re
 
-from core.trek_codes import *
-from core.trek_server import *
-from core.utils.trek_logging import *
-from core.utils.trek_filter import *
-from core.utils.trek_modules import *
-from core.math import trek_vec3
-from core.utils.trek_util import *
+from trek.codes import *
+from trek.server import *
+from trek.utils.logging import *
+from trek.utils.filter import *
+from trek.utils.modules import *
+from trek.math import vec3
+from trek.utils.util import *
 
 class ClientDisconnectErr(Exception):
 	pass
