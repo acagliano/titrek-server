@@ -1,4 +1,4 @@
-import gzip,os,sys,traceback,logging
+import gzip,os,sys,traceback,logging,json
 from datetime import datetime
 from logging.handlers import TimedRotatingFileHandler
 from logging import Handler
