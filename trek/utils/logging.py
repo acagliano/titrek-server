@@ -90,12 +90,14 @@ class TrekLogging:
 		self.logger.log(lvl, msg)
 
 	def enable_discord(self, exec_thread, filter_thread):
-		discord_handler_exc=DiscordHandler(exc_thread, logging.ERROR)
-		discord_handler_exc.setFormatter(TrekLogging.formatter)
-		discord_handler_exc.setLevel(logging.ERROR)
-		self.logger.addHandler(discord_handler_exc)
+		if not (exec_thread is None):
+			discord_handler_exc=DiscordHandler(exc_thread, logging.ERROR)
+			discord_handler_exc.setFormatter(TrekLogging.formatter)
+			discord_handler_exc.setLevel(logging.ERROR)
+			self.logger.addHandler(discord_handler_exc)
 
-		discord_handler_filter=DiscordHandler(filter_thread,logging.FILTER)
-		discord_handler_filter.setFormatter(TrekLogging.formatter)
-		discord_handler_filter.setLevel(logging.FILTER)
-		self.logger.addHandler(discord_handler_filter)
+		if not (filter_thread) is None:
+			discord_handler_filter=DiscordHandler(filter_thread,logging.FILTER)
+			discord_handler_filter.setFormatter(TrekLogging.formatter)
+			discord_handler_filter.setLevel(logging.FILTER)
+			self.logger.addHandler(discord_handler_filter)
