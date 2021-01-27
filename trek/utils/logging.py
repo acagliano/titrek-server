@@ -90,6 +90,9 @@ class TrekLogging:
 		self.logger.log(lvl, msg)
 
 	def enable_discord(self):
+		# To enable webhooks, create a webhooks.json file
+		# To print exceptions, use the "exc" key
+		# To print Filter output, use the "filter" key
 		try:
 			with open("webhooks.json") as f:
 				webhooks=json.load(f)
