@@ -89,8 +89,8 @@ class TrekLogging:
 	def log(self, lvl, msg):
 		self.logger.log(lvl, msg)
 
-	def enable_discord(self, exec_thread, filter_thread):
-		if not (exec_thread is None):
+	def enable_discord(self, exc_thread, filter_thread):
+		if not (exc_thread is None):
 			discord_handler_exc=DiscordHandler(exc_thread, logging.ERROR)
 			discord_handler_exc.setFormatter(TrekLogging.formatter)
 			discord_handler_exc.setLevel(logging.ERROR)
