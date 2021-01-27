@@ -89,15 +89,13 @@ class TrekLogging:
 	def log(self, lvl, msg):
 		self.logger.log(lvl, msg)
 
-	def enable_discord(self):
-		exc_thread_url="https://discord.com/api/webhooks/788497355359518790/7c9oPZgG13_yLnywx3h6wZWY6qXMobNvCHB_6Qjb6ZNbXjw9aP993I8jGE5jXE7DK3Lz"
-		discord_handler_exc=DiscordHandler(exc_thread_url, logging.ERROR)
+	def enable_discord(self, exec_thread, filter_thread):
+		discord_handler_exc=DiscordHandler(exc_thread, logging.ERROR)
 		discord_handler_exc.setFormatter(TrekLogging.formatter)
 		discord_handler_exc.setLevel(logging.ERROR)
 		self.logger.addHandler(discord_handler_exc)
 
-		filter_thread_url="https://discord.com/api/webhooks/788828667085979668/rVc5BA2rymnduGMuTsqysy8lNv1kNYgul4oSxJCYhF-RKc05hj2hGifDjbct8GMTTTH2"
-		discord_handler_filter=DiscordHandler(filter_thread_url,logging.FILTER)
+		discord_handler_filter=DiscordHandler(filter_thread,logging.FILTER)
 		discord_handler_filter.setFormatter(TrekLogging.formatter)
 		discord_handler_filter.setLevel(logging.FILTER)
 		self.logger.addHandler(discord_handler_filter)
