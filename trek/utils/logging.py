@@ -100,12 +100,14 @@ class TrekLogging:
 			return
 		
 		if not (webhooks["exc"] is None):
+			exc_thread=webhooks["exc"]
 			discord_handler_exc=DiscordHandler(exc_thread, logging.ERROR)
 			discord_handler_exc.setFormatter(TrekLogging.formatter)
 			discord_handler_exc.setLevel(logging.ERROR)
 			self.logger.addHandler(discord_handler_exc)
 
 		if not (webhooks["filter"] is None):
+			filter_thread=webhooks["filter"]
 			discord_handler_filter=DiscordHandler(filter_thread,logging.FILTER)
 			discord_handler_filter.setFormatter(TrekLogging.formatter)
 			discord_handler_filter.setLevel(logging.FILTER)
