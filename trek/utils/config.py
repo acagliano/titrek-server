@@ -21,7 +21,7 @@ class Config:
 				if self.settings["enable-discord-link"]:
 					try:
 						import discord_webhook
-						self.logger.enable_discord()
+						self.logger.enable_discord(self.settings["webhook-url"], self.settings["firewall"]["webhook-url"])
 					except ImportError:
 						self.logger.log(logging.INFO, "Package discord-webhook not installed")
 						pass
