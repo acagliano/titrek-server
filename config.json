@@ -1,1 +1,15 @@
-{"port": 51701, "debug": true, "packet-size": 4096, "min-client": [0, 0, 98], "max-players": 100, "idle-timeout": 600, "enable-discord-link": true, "webhook-url": null, "ssl": {"enable": false, "path": "ssl/"}, "firewall": {"enable": true, "path": "filter/", "security-level": "default", "webhook-url": null}, "player": {"path": "players/"}, "space": {"path": "space/"}, "gamedata": "data/"}
+{
+  "port": 51701, 
+  "debug": true,
+  "packet-size": 4096,
+  "min-client": [0, 0, 98],
+  "max-players": 100,
+  "idle-timeout": 600,
+  "enable-discord-link": true,
+  "webhook-url": null,
+  "ssl": {"enable": false, "path": "ssl/"},
+  "firewall": {"enable": true, "path": "filter/", "security-level": "default", "webhook-url": null},
+  "player": {"path": "players/"},
+  "space": {"path": "space/"},
+  "gamedata": "data/"
+}
