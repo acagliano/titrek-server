@@ -389,36 +389,37 @@ outputs:
 			self.send([ControlCodes['MESSAGE']]+output)
    
 
-    def log_in(self, data):
-        try:
-            key = data[1:]      # should be 128-bytes
-            root, dirs, files = os.walk(self.player_root):  # search in players directory
-            for dir in dirs:
-                try:
-                    self.dlog(f"Attempting to match key to user")
-                    with open(f"{self.player_root}{dir}/account.json", 'r') as f:
-                        account = json.load(f)
-                        if bcrypt.hashpw(key, account['pubkey']) == account['pubkey']:
-                            self.user = user
-                            self.logged_in = True
-                            self.log(f"Key match for user {user}!")
-                            self.broadcast(f"{user} logged in")
-                            self.send([ControlCodes["LOGIN"],ResponseCodes['SUCCESS']])   # Log in successful
-                            self.playerdir = f"{self.player_root}{self.user}/"
-                            self.playerfile = f"{self.playerdir}player.json"
-                            self.shipfile = f"{self.playerdir}ships.json"
-                            self.load_player()
-                            return
-                except IOError:
-                    self.dlog(f"Error reading account file for {user}")
-                    self.send([ControlCodes["MESSAGE"]]+list(b'server i/o error\0'))
-                    return
-            self.log(f"Could not find user {user}.")
-            self.send([ControlCodes["LOGIN"],ResponseCodes['MISSING']])  # Error: user does not exist
-            return
+	def log_in(self, data):
+		try:
+			key = data[1:]      # should be 128-bytes
+			root, dirs, files = os.walk(self.player_root)  # search in players directory
+			for dir in dirs:
+				try:
+					self.dlog(f"Attempting to match key to user")
+					with open(f"{self.player_root}{dir}/account.json", 'r') as f:
+						account = json.load(f)
+						if bcrypt.hashpw(key, account['pubkey']) == account['pubkey']:
+							self.user = user
+							self.logged_in = True
+							self.log(f"Key match for user {user}!")
+							self.broadcast(f"{user} logged in")
+							self.send([ControlCodes["LOGIN"],ResponseCodes['SUCCESS']])   # Log in successful
+							self.playerdir = f"{self.player_root}{self.user}/"
+							self.playerfile = f"{self.playerdir}player.json"
+							self.shipfile = f"{self.playerdir}ships.json"
+							self.load_player()
+							return
+				except IOError:
+					self.dlog(f"Error reading account file for {user}")
+					self.send([ControlCodes["MESSAGE"]]+list(b'server i/o error\0'))
+					return
+			self.log(f"Could not match key. Sorry..")
+			self.send([ControlCodes["LOGIN"],ResponseCodes['MISSING']])  # Error: user does not exist
+			return
 		except:
 			self.elog(traceback.format_exc(limit=None, chain=True))
 		
+
 	def kick(self):
 		# send kick to client
 		self.connected=False
