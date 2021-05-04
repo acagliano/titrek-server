@@ -1,4 +1,4 @@
-import os,traceback,json,logging,socket,hashlib,re
+import os,traceback,json,logging,socket,hashlib,re,bcrypt
 
 from trek.codes import *
 from trek.server import *
@@ -388,97 +388,40 @@ outputs:
 			#send the info packet prefixed with response code.
 			self.send([ControlCodes['MESSAGE']]+output)
 
-	def register(self, data):
-		user,passw,email = [ToUTF8(a) for a in bytes(data[1:]).split(b"\0",maxsplit=2)]
-		emailregex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
-		print(user,passw,email)
-		if not re.search(emailregex,email):
-			self.log(f"Invalid email for {user}")
-			self.send([ControlCodes["MESSAGE"]]+list(b'invalid email\0'))
-			self.send([ControlCodes["REGISTER"],ResponseCodes['INVALID']])
-			return
-		self.log(f"Registering user: [{user}]")
-		passw_md5 = hashlib.md5(bytes(passw,'UTF-8')).hexdigest()  # Generate md5 hash of password
-		for root,dirs,files in os.walk(self.player_root): #search in players directory
-			for d in dirs: #only search directories
-				try:
-					with open(f'{self.player_root}{d}/account.json', 'r') as f:
-						account = json.load(f)
-				except IOError:
-					continue
-				if d == user:
-					self.log(f"[{user}] Already registered.")
-					self.send([ControlCodes["REGISTER"],ResponseCodes['DUPLICATE']])  # Error: user already exists
-					return
-				elif account['email'] == email:
-					self.log(f"Email address {email} has already been registered to an account.")
-					self.send([ControlCodes["REGISTER"],ResponseCodes['INVALID']])
-					return
-		try:
-			os.makedirs(f'{self.player_root}{user}')
-		except:
-			self.elog("Directory already exists or error creating")
-			pass
-		with open(f'{self.player_root}{user}/account.json','w') as f:
-			json.dump({
-				'displayname':user,
-				'passw_md5':passw_md5,
-				'email':email,
-				'permLvl':0,
-				'subscribe':False,
-				},f)
-		self.user = user
-		self.logged_in = True
-		self.log(f"[{user}] has been successfuly registered!")
-		self.broadcast(f"{user} registered")
-		self.send([ControlCodes["REGISTER"],ResponseCodes['SUCCESS']])       # Register successful
-		self.trustworthy = True
-		self.playerdir = f"{self.player_root}{self.user}/"
-		self.playerfile = f"{self.playerdir}player.json"
-		self.shipfile = f"{self.playerdir}ships.json"
-		self.create_new_game()
-		self.load_player()
-
 	def log_in(self, data):
-		user,passw = [ToUTF8(a) for a in bytes(data[1:]).split(b"\0",maxsplit=1)]
+		key = data[1:]      # should be 128-bytes
 		print(user,passw)
 		self.log(f"Logging in user: [{user}]")
 		#if user in self.config.banned_users:
 		#	self.send([ControlCodes["LOGIN"],ResponseCodes['BANNED']])
 		#	self.log(f"[{user}] Banned user attempted login.")
 		#	return
-		passw_md5 = hashlib.md5(bytes(passw,'UTF-8')).hexdigest()  # Generate md5 hash of password
+		
 		try:
-			for root, dirs, files in os.walk(self.player_root):  # search in players directory
-				if user in dirs:
-					try:
-						self.dlog(f"Opening {self.player_root}{user}/account.json")
-						with open(f"{self.player_root}{user}/account.json", 'r') as f:
-							account = json.load(f)
-							if account['passw_md5'] == passw_md5:
-								self.user = user
-								self.logged_in = True
-								self.log(f"[{user}] has successfully logged in!")
-								self.broadcast(f"{user} logged in")
-								self.send([ControlCodes["LOGIN"],ResponseCodes['SUCCESS']])   # Log in successful
-								self.playerdir = f"{self.player_root}{self.user}/"
-								self.playerfile = f"{self.playerdir}player.json"
-								self.shipfile = f"{self.playerdir}ships.json"
-								self.load_player()
-								return
-							else:
-								self.log(f"[{user}] entered incorrect password.")
-								self.send([ControlCodes["MESSAGE"]]+list(b'incorrect password\0'))
-								self.send([ControlCodes["LOGIN"],ResponseCodes['INVALID']])  # Error: incorrect password
-								return
-					except IOError:
-						self.dlog(f"Error reading account file for {user}")
-						self.send([ControlCodes["MESSAGE"]]+list(b'server i/o error\0'))
-						return
-				else:
-					self.log(f"Could not find user {user}.")
-					self.send([ControlCodes["LOGIN"],ResponseCodes['MISSING']])  # Error: user does not exist
-					return
+			root, dirs, files = os.walk(self.player_root):  # search in players directory
+            for dir in dirs:
+                try:
+                    self.dlog(f"Attempting to match key to user")
+                    with open(f"{self.player_root}{dir}/account.json", 'r') as f:
+                        account = json.load(f)
+                        if bcrypt.hashpw(key, account['pubkey']) == account['pubkey']:
+                            self.user = user
+                            self.logged_in = True
+                            self.log(f"Key match for user {user}!")
+                            self.broadcast(f"{user} logged in")
+                            self.send([ControlCodes["LOGIN"],ResponseCodes['SUCCESS']])   # Log in successful
+                            self.playerdir = f"{self.player_root}{self.user}/"
+                            self.playerfile = f"{self.playerdir}player.json"
+                            self.shipfile = f"{self.playerdir}ships.json"
+                            self.load_player()
+                            return
+                except IOError:
+                    self.dlog(f"Error reading account file for {user}")
+                    self.send([ControlCodes["MESSAGE"]]+list(b'server i/o error\0'))
+                    return
+            self.log(f"Could not find user {user}.")
+            self.send([ControlCodes["LOGIN"],ResponseCodes['MISSING']])  # Error: user does not exist
+            return
 		except:
 			self.elog(traceback.format_exc(limit=None, chain=True))
 		
