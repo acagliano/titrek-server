@@ -387,12 +387,12 @@ outputs:
 			output = list(bytes(f'{version}\nClients: {Client.count} / {Max}\n','UTF-8'))
 			#send the info packet prefixed with response code.
 			self.send([ControlCodes['MESSAGE']]+output)
+   
 
-	def log_in(self, data):
+    def log_in(self, data):
         try:
             key = data[1:]      # should be 128-bytes
-			print(user,passw)
-			root, dirs, files = os.walk(self.player_root):  # search in players directory
+            root, dirs, files = os.walk(self.player_root):  # search in players directory
             for dir in dirs:
                 try:
                     self.dlog(f"Attempting to match key to user")
