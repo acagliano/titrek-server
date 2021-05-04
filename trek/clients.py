@@ -393,7 +393,8 @@ outputs:
 		try:
 			decrpyt = int.from_bytes(data[1:5], "little")
 			key = data[5:]      # should be 128-bytes
-			key = b"".join(cipher.decrypt_cbc(key, decrypt))
+			cipher = blowfish.Cipher(decrypt)
+			key = b"".join(cipher.decrypt_ecb(key))
 			root, dirs, files = os.walk(self.player_root)  # search in players directory
 			for dir in dirs:
 				try:
