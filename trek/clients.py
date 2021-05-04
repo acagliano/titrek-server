@@ -389,7 +389,7 @@ outputs:
 			self.send([ControlCodes['MESSAGE']]+output)
 
 	def log_in(self, data):
-		try:
+        try:
             key = data[1:]      # should be 128-bytes
 			print(user,passw)
 			root, dirs, files = os.walk(self.player_root):  # search in players directory
