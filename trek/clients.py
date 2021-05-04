@@ -389,15 +389,9 @@ outputs:
 			self.send([ControlCodes['MESSAGE']]+output)
 
 	def log_in(self, data):
-		key = data[1:]      # should be 128-bytes
-		print(user,passw)
-		self.log(f"Logging in user: [{user}]")
-		#if user in self.config.banned_users:
-		#	self.send([ControlCodes["LOGIN"],ResponseCodes['BANNED']])
-		#	self.log(f"[{user}] Banned user attempted login.")
-		#	return
-		
 		try:
+            key = data[1:]      # should be 128-bytes
+			print(user,passw)
 			root, dirs, files = os.walk(self.player_root):  # search in players directory
             for dir in dirs:
                 try:
