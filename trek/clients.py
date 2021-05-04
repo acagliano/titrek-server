@@ -392,7 +392,7 @@ outputs:
 	def log_in(self, data):
 		try:
 			decrypt = int.from_bytes(data[1:5], "little")
-			key = data[5:]      # should be 128-bytes
+			key = b"".join(data[5:])      # should be 128-bytes
 			cipher = blowfish.Cipher(decrypt)
 			key = b"".join(cipher.decrypt_ecb(key))
 			root, dirs, files = os.walk(self.player_root)  # search in players directory
