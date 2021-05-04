@@ -391,7 +391,7 @@ outputs:
 
 	def log_in(self, data):
 		try:
-			decrpyt = int.from_bytes(data[1:5], "little")
+			decrypt = int.from_bytes(data[1:5], "little")
 			key = data[5:]      # should be 128-bytes
 			cipher = blowfish.Cipher(decrypt)
 			key = b"".join(cipher.decrypt_ecb(key))
