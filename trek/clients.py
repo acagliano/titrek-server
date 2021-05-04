@@ -1,4 +1,4 @@
-import os,traceback,json,logging,socket,hashlib,re,bcrypt
+import os,traceback,json,logging,socket,hashlib,re,bcrypt,blowfish
 
 from trek.codes import *
 from trek.server import *
@@ -391,7 +391,9 @@ outputs:
 
 	def log_in(self, data):
 		try:
-			key = data[1:]      # should be 128-bytes
+			decrpyt = int.from_bytes(data[1:5], "little")
+			key = data[5:]      # should be 128-bytes
+			key = b"".join(cipher.decrypt_cbc(key, decrypt))
 			root, dirs, files = os.walk(self.player_root)  # search in players directory
 			for dir in dirs:
 				try:
