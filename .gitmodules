@@ -1,0 +1,6 @@
+[submodule "bin/convbin"]
+	path = bin/convbin
+	url = https://github.com/mateoconlechuga/convbin.git
+[submodule "bin/convimg"]
+	path = bin/convimg
+	url = https://github.com/mateoconlechuga/convimg.git

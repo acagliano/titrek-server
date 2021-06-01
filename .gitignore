@@ -1,9 +1,14 @@
 /backups
 /cache
-/missions
+/bans
+/filter
+/ssl
+/logs
+/players
+/space
+/downloads
+/data/promos.json
 */__pycache__
 /.idea
 *.pyc
 *.pyo
-/servers
-server.*
