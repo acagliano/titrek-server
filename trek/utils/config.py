@@ -3,7 +3,7 @@ from trek.utils.filter import *
 SUPPORTS_SSL=False
 
 class Config:
-	def __init__(self, log):
+	def __init__(self, log, server):
 		try:
 			self.ssl=False
 			self.firewall=False
@@ -25,9 +25,7 @@ class Config:
 					except ImportError:
 						self.logger.log(logging.INFO, "Package discord-webhook not installed")
 						pass
-				self.firewall=TrekFilter()
-				self.firewall.set_logger(log)
-				self.firewall.config(self.settings["firewall"])
+				self.firewall=TrekFilter(server)
 				self.logger.log(logging.INFO, "Server config loaded!")
 		except:
 			self.logger.log(logging.ERROR, traceback.format_exc(limit=None, chain=True))
