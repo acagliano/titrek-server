@@ -26,7 +26,7 @@ class Server:
 				pass
 		try:
 			self.setup_loggers()
-			self.config=Config(self.logger)
+			self.config=Config(self.logger, self)
 			self.ssl=self.config.ssl
 			self.loadbans()
 #			self.init_binaries()
