@@ -404,10 +404,10 @@ outputs:
 						account = json.load(f)
 						hashed_pw=hashlib.sha512(bytes(key)).hexdigest()
 						if hashed_pw == account['pubkey']:
-							self.user = user
+							self.user = dir
 							self.logged_in = True
-							self.log(f"Key match for user {user}!")
-							self.broadcast(f"{user} logged in")
+							self.log(f"Key match for user {self.user}!")
+							self.broadcast(f"{self.user} logged in")
 							self.send([ControlCodes["LOGIN"],ResponseCodes['SUCCESS']])   # Log in successful
 							self.playerdir = f"{self.player_root}{self.user}/"
 							self.playerfile = f"{self.playerdir}player.json"
