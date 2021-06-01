@@ -1,3 +1,4 @@
+
 # This file is the beginning of a self-contained, custom firewall
 # for the TI-Trek server. It uses a JSON rules file, containing
 # check names, methods, and actions.
@@ -41,31 +42,29 @@ class TrekFilter:
 
 	def __init__(self, server):
 	# not really much to do here.
-		self.log=server.log
-		self.elog=server.elog
-		self.dlog=server.dlog
+		self.server=server
 		logging.addLevelName(logging.FILTER, "FILTER")
 		return
 	
 	
 	def filter_packet(self,client,data):
 		try:
-			self.log.log(logging.INFO, f"Checking packet {data[0]} from {client.addr[0]}")
+			self.server.log(f"Checking packet {data[0]} from {client.addr[0]}")
 			if self.invalid_size(data):
-				self.log(logging.FILTER, f"Suspect packet from {client.addr[0]} intercepted. Reason: invalid size")
+				self.server.logger.log(logging.FILTER, f"Suspect packet from {client.addr[0]} intercepted. Reason: invalid size")
 				return False
 			if self.restricted_ids(client, data):
-				self.log(logging.FILTER, f"Suspect packet from {client.addr[0]} intercepted. Reason: unpriviledged client attempting to use priviledged packet IDs")
+				self.server.logger.log(logging.FILTER, f"Suspect packet from {client.addr[0]} intercepted. Reason: unpriviledged client attempting to use priviledged packet IDs")
 				return False
-			if self.special_chars(self, data):
-				self.log(logging.FILTER, f"Suspect packet from {client.addr[0]} intercepted. Reason: non-text characters in text-only data segment")
+			if self.special_chars(data):
+				self.server.logger.log(logging.FILTER, f"Suspect packet from {client.addr[0]} intercepted. Reason: non-text characters in text-only data segment")
 				return False
 
 			return True
             
 			
 		except:
-			self.log.log(logging.ERROR, traceback.print_exc(limit=None, file=None, chain=True))
+			self.server.elog(traceback.print_exc(limit=None, file=None, chain=True))
 			return
 
 	def invalid_size(self, data):
