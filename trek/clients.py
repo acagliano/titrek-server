@@ -442,7 +442,7 @@ outputs:
 				self.send([ControlCodes["VERSION_CHECK"],VersionCheckCodes['VERSION_OK']])
 				self.log(f"{self.user}: client ok")
 				self.key = os.urandom(4)
-				self.send([ControlCodes["WELCOME"]] + u32(int.from_bytes(self.key, sys.byteorder)))
+				self.send([ControlCodes["WELCOME"]] + list(self.key))
 				return
 		self.send([ControlCodes["VERSION_CHECK"],VersionCheckCodes['VERSION_OK']])
 		self.log(f"{self.user}: client ok")
