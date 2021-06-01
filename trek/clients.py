@@ -121,7 +121,7 @@ class Client:
 				data = list(self.conn.recv(self.config.settings["packet-size"]))
 				if not data or not self.connected:
 					raise ClientDisconnectErr(f"{self.user} disconnected!")
-				if not self.fw.filter(self, data):
+				if not self.fw.filter_packet(self, data):
 					raise ClientDisconnectErr(f"{self.user} disconnected, invalid packet.")
 				if not len(data):
 					continue
