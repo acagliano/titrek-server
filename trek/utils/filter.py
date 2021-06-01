@@ -36,64 +36,61 @@ TextOnlyPackets={
 class TrekFilter:
 	special_characters = [bytes(a,'UTF-8') for a in ["/","\\","#","$","%","^","&","*","!","~","`","\"","|"]] + \
 					[bytes([a]) for a in range(1,0x20)] + [bytes([a]) for a in range(0x7F,0xFF)]
-    packet_names = list(ControlCodes.keys())
-    packet_values = list(ControlCodes.values())
+	packet_names = list(ControlCodes.keys())
+	packet_values = list(ControlCodes.values())
 
 	def __init__(self, server):
 	# not really much to do here.
-        self.log=server.log
-        self.elog=server.elog
-        self.dlog=server.dlog
-        logging.addLevelName(logging.FILTER, "FILTER")
+		self.log=server.log
+		self.elog=server.elog
+		self.dlog=server.dlog
+		logging.addLevelName(logging.FILTER, "FILTER")
 		return
 	
 	
 	def filter_packet(self,client,data):
 		try:
 			self.log.log(logging.INFO, f"Checking packet {data[0]} from {client.addr[0]}")
-            if self.invalid_size(data):
-                self.log(logging.FILTER, f"Suspect packet from {client.addr[0]} intercepted. Reason: invalid size")
-                return False
-            if self.restricted_ids(client, data):
-                self.log(logging.FILTER, f"Suspect packet from {client.addr[0]} intercepted. Reason: unpriviledged client attempting to use priviledged packet IDs")
-                return False
-            if self.special_chars(self, data):
-                self.log(logging.FILTER, f"Suspect packet from {client.addr[0]} intercepted. Reason: non-text characters in text-only data segment")
-                return False
-                
-                
-            return True
+			if self.invalid_size(data):
+				self.log(logging.FILTER, f"Suspect packet from {client.addr[0]} intercepted. Reason: invalid size")
+				return False
+			if self.restricted_ids(client, data):
+				self.log(logging.FILTER, f"Suspect packet from {client.addr[0]} intercepted. Reason: unpriviledged client attempting to use priviledged packet IDs")
+				return False
+			if self.special_chars(self, data):
+				self.log(logging.FILTER, f"Suspect packet from {client.addr[0]} intercepted. Reason: non-text characters in text-only data segment")
+				return False
+
+			return True
             
 			
 		except:
 			self.log.log(logging.ERROR, traceback.print_exc(limit=None, file=None, chain=True))
 			return
-		
-	
-    def invalid_size(self, data):
-        position = TrekFilter.packet_values.index(data[0])
-        key = TrekFilter.packet_names[position]
-        if key in PacketSizes:
-            if (len(data)-1) == PacketSizes[key]:
-                return False
-            else
-                return True
-        else return False
-        
-    def restricted_ids(self, client, data):
-        if client.logged_in:
-            return False
-        if(data[0] > 9):
-            return True
-			
+
+	def invalid_size(self, data):
+		position = TrekFilter.packet_values.index(data[0])
+		key = TrekFilter.packet_names[position]
+		if key in PacketSizes:
+			if (len(data)-1) == PacketSizes[key]:
+				return False
+			else:
+				return True
+		else: return False
+
+	def restricted_ids(self, client, data):
+		if client.logged_in:
+			return False
+		if(data[0] > 9):
+			return True
+
 	def special_chars(self, data):
-        position = TrekFilter.packet_values.index(data[0])
-        key = TrekFilter.packet_names[position]
-        if key in TextOnlyPackets:
-            segment = data[TextOnlyPackets[key]["start"]:TextOnlyPackets[key]["stop"]]
-            if any([a in segment for a in TrekFilter.special_characters]):
-                return True
-            else:
-                return False
-					
-	
+		position = TrekFilter.packet_values.index(data[0])
+		key = TrekFilter.packet_names[position]
+		if key in TextOnlyPackets:
+			segment = data[TextOnlyPackets[key]["start"]:TextOnlyPackets[key]["stop"]]
+			if any([a in segment for a in TrekFilter.special_characters]):
+				return True
+			else:
+				return False
+		else: return False

@@ -122,7 +122,7 @@ class Client:
 				if not data or not self.connected:
 					raise ClientDisconnectErr(f"{self.user} disconnected!")
 				if not self.fw.filter(self, data):
-                    raise ClientDisconnectErr(f"{self.user} disconnected, invalid packet.")
+					raise ClientDisconnectErr(f"{self.user} disconnected, invalid packet.")
 				if not len(data):
 					continue
 				if data[0]==ControlCodes["LOGIN"]:
