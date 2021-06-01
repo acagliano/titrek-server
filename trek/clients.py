@@ -392,9 +392,8 @@ outputs:
 
 	def log_in(self, data):
 		try:
-			decrypt = int.from_bytes(data[1:5], "little")
-			decrpyt = bytes(decrypt.to_bytes(4, sys.byteorder))
-			key = bytes(data[5:])     # should be 128-bytes
+			decrypt = bytes(self.key)
+			key = bytes(data[0:])     # should be 128-bytes
 			cipher = blowfish.Cipher(decrypt)
 			key = b"".join(cipher.decrypt_ecb(key))
 			root, dirs, files = os.walk(self.player_root)  # search in players directory
@@ -441,6 +440,8 @@ outputs:
 			if client_version[i] > self.config.settings["min-client"][i]:
 				self.send([ControlCodes["VERSION_CHECK"],VersionCheckCodes['VERSION_OK']])
 				self.log(f"{self.user}: client ok")
+				self.key = os.urandom(4)
+				self.send([ControlCodes["WELCOME"] + u32(self.key))
 				return
 		self.send([ControlCodes["VERSION_CHECK"],VersionCheckCodes['VERSION_OK']])
 		self.log(f"{self.user}: client ok")
