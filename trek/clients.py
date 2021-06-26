@@ -398,7 +398,7 @@ outputs:
 			cipher = AES.new(self.key, AES.MODE_CBC, iv=iv)
 			padded_key = cipher.decrypt(ct)
 			padding = padded_key[len(padded_key)-1]
-			key = padded_key[0:-padding]
+			key = str(padded_key[0:-padding])
 			for dir in os.listdir(self.player_root):
 				try:
 					
