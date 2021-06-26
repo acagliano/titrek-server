@@ -397,7 +397,7 @@ outputs:
 			ct = bytes(data[17:])
 			cipher = AES.new(self.key, AES.MODE_CBC, iv=iv)
 			padded_key = cipher.decrypt(ct)
-			padding = padded_key[len(key)-1]
+			padding = padded_key[len(padded_key)-1]
 			print(f"padded-key-len: {len(padded_key)}\n")
 			print(f"padding-len: {padding}\n")
 			key = key[0:-padding]
