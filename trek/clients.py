@@ -399,6 +399,7 @@ outputs:
 			key = cipher.decrypt(ct)
 			padding = key[len(key)-1]
 			key = key[0:-padding]
+			print(f"key-len: {len(key)}\n")
 			for dir in os.listdir(self.player_root):
 				try:
 					
