@@ -398,15 +398,14 @@ outputs:
 			cipher = AES.new(self.key, AES.MODE_CBC, iv=iv)
 			padded_key = cipher.decrypt(ct)
 			padding = padded_key[len(padded_key)-1]
-			key = padded_key[0:-padding].decode(sys.stdout.encoding)
+			key = padded_key[0:-padding]
 			for dir in os.listdir(self.player_root):
 				try:
 					
 					self.dlog(f"Attempting to match key to user")
 					with open(f"{self.player_root}{dir}/account.json", 'r') as f:
 						account = json.load(f)
-						hashed_pw=hashlib.sha512(bytes(key, sys.stdout.encoding)).hexdigest()
-						print(f"Try: {hashed_pw}\nTarget: {account['pubkey']}\n")
+						hashed_pw=hashlib.sha512(bytes(key).hexdigest()
 						if hashed_pw == account['pubkey']:
 							self.user = dir
 							self.logged_in = True
