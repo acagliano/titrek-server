@@ -400,7 +400,7 @@ outputs:
 			padding = padded_key[len(padded_key)-1]
 			print(f"padded-key-len: {len(padded_key)}\n")
 			print(f"padding-len: {padding}\n")
-			key = key[0:-padding]
+			key = padded_key[0:-padding]
 			print(f"key-len: {len(key)}\n")
 			for dir in os.listdir(self.player_root):
 				try:
