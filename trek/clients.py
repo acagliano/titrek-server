@@ -1,4 +1,5 @@
 import os,traceback,json,logging,socket,hashlib,re,bcrypt,blowfish
+from Cryptodome.Cipher import AES
 
 from trek.codes import *
 from trek.server import *
@@ -392,10 +393,10 @@ outputs:
 
 	def log_in(self, data):
 		try:
-			decrypt = bytes(self.key)
-			key = bytes(data[1:])     # should be 128-bytes
-			cipher = blowfish.Cipher(decrypt)
-			key = b"".join(cipher.decrypt_ecb(key))
+			iv = data[0:16]
+			ct = data[16:]
+			cipher = AES.new(self.key, AES.MODE_CBC, iv=iv)
+			key = cipher.decrypt(ct)
 			for dir in os.listdir(self.player_root):
 				try:
 					
