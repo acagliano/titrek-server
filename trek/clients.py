@@ -442,7 +442,7 @@ outputs:
 			if client_version[i] > self.config.settings["min-client"][i]:
 				self.send([ControlCodes["VERSION_CHECK"],VersionCheckCodes['VERSION_OK']])
 				self.log(f"{self.user}: client ok")
-				self.key = os.urandom(4)
+				self.key = os.urandom(32)
 				self.send([ControlCodes["WELCOME"]] + list(self.key))
 				return
 		self.send([ControlCodes["VERSION_CHECK"],VersionCheckCodes['VERSION_OK']])
