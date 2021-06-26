@@ -393,9 +393,8 @@ outputs:
 
 	def log_in(self, data):
 		try:
-			iv = bytes(data[0:16])
-			ct = bytes(data[16:])
-			print(f"iv-len: {len(iv)}\n ct-len: {len(ct)}\n")
+			iv = bytes(data[1:17])
+			ct = bytes(data[17:])
 			cipher = AES.new(self.key, AES.MODE_CBC, iv=iv)
 			key = cipher.decrypt(ct)
 			for dir in os.listdir(self.player_root):
