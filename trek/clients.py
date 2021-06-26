@@ -405,7 +405,7 @@ outputs:
 					self.dlog(f"Attempting to match key to user")
 					with open(f"{self.player_root}{dir}/account.json", 'r') as f:
 						account = json.load(f)
-						hashed_pw=hashlib.sha512(bytes(key)).hexdigest()
+						hashed_pw=hashlib.sha512(bytes(key, sys.stdout.encoding)).hexdigest()
 						print(f"Try: {hashed_pw}\nTarget: {account['pubkey']}\n")
 						if hashed_pw == account['pubkey']:
 							self.user = dir
