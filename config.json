@@ -2,7 +2,7 @@
   "port": 51701, 
   "debug": true,
   "packet-size": 4096,
-  "min-client": [0, 0, 98],
+  "min-client": [0, 0, 101],
   "max-players": 100,
   "idle-timeout": 600,
   "enable-discord-link": true,
