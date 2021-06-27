@@ -1,17 +1,13 @@
 
-# This file is the beginning of a self-contained, custom firewall
-# for the TI-Trek server. It uses a JSON rules file, containing
-# check names, methods, and actions.
-
-# "check" name of the test to be done
-#  -----(also the name of the file in which the method can be found)
-# "method" the self.method to call to perform the check
-# "failaction" the action to take should the packet fail the check
-# Might add the ability to pass a format specifier to the filter, such that our sanity checks...
-# ... can know what type of data to expect in different packet segments
-
-# Not yet implemented, but this module will be designed as a class
-# that can be invoked optionally, should a user wish to provide it on their own server
+# This file is a self-contained custom packet filter firewall for the TI-Trek service.
+# It has 3 packet check modes:
+# 	<> Validate packet size
+#	<> Unpriviledged client accessing priviledged packet IDs
+#	<> Special characters in text-only packet segments
+# A packet failing any of these three checks triggers a Filter event.
+# A packet triggering a filter event causes the immediate disconnect of the offending client.
+# The offense is logged to the server logfile.
+# There is a fail2ban jail that can ban repeat offenders.
 
 import os,json,traceback,importlib,logging
 from datetime import datetime
