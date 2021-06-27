@@ -5,8 +5,6 @@ SUPPORTS_SSL=False
 class Config:
 	def __init__(self, log, server):
 		try:
-			self.ssl=False
-			self.firewall=False
 			self.logger=log
 			with open(f'config.json', 'r') as f:
 				self.settings=json.load(f)
