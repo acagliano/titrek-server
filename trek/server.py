@@ -27,7 +27,6 @@ class Server:
 		try:
 			self.setup_loggers()
 			self.config=Config(self.logger, self)
-			self.ssl=self.config.ssl
 			self.loadbans()
 #			self.init_binaries()
 			self.fw=self.config.firewall
@@ -121,10 +120,9 @@ class Server:
 	
 	def main(self):
 		self.broadcast(f"Server Online!")
-		ssock = self.ssl.wrap_socket(self.sock, server_side=True) if self.ssl else self.sock
 		while self.online:
-			ssock.listen(1)
-			conn, addr = ssock.accept()
+			self.sock.listen(1)
+			conn, addr = self.sock.accept()
 			#if addr[0] in Config.banned_ips:
 			#	self.log(f"Connection from {addr} rejected.")
 			#	conn.close()
