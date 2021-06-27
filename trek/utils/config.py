@@ -12,12 +12,6 @@ class Config:
 				self.settings=json.load(f)
 				self.settings["packet-size"]=max(4096, self.settings["packet-size"])
 				self.settings["gamedata"]="data/"
-				if not SUPPORTS_SSL:
-					self.settings["ssl"]["enable"]=False
-				if self.settings["ssl"]["enable"]:
-					ssl_path=Config.settings["ssl"]["path"]
-					self.ssl = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-					self.ssl.load_cert_chain(f'{ssl_path}/fullchain.pem', f'{ssl_path}/privkey.pem')
 				if self.settings["enable-discord-link"]:
 					try:
 						import discord_webhook
