@@ -406,7 +406,7 @@ outputs:
 					with open(f"{self.player_root}{dir}/account.json", 'r') as f:
 						account = json.load(f)
 						hashed_pw=hashlib.sha512(bytes(key)).hexdigest()
-						if hashed_pw == account['pubkey']:
+						if hmac.compare_digest(hashed_pw, account['pubkey']):
 							self.user = dir
 							self.logged_in = True
 							self.log(f"Key match for user {self.user}!")
