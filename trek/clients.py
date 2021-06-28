@@ -1,5 +1,6 @@
 import os,traceback,json,logging,socket,hashlib,re,bcrypt,blowfish
 from Cryptodome.Cipher import AES
+import hmac
 
 from trek.codes import *
 from trek.server import *
