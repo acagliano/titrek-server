@@ -242,7 +242,7 @@ class Server:
 		self.log(o)
 		
 	def debug(self, arguments):
-		targetpacket = int(arguments[1])
+		targetpacket = int(arguments[0])
 		if not targetpacket in self.config.settings["debug"]:
 				self.config.settings["debug"].append(targetpacket)
 		elif targetpacket in self.config.settings["debug"]:
