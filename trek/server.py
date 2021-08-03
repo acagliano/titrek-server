@@ -245,8 +245,10 @@ class Server:
 		targetpacket = int(arguments[0])
 		if not targetpacket in self.config.settings["debug"]:
 				self.config.settings["debug"].append(targetpacket)
+				self.log(f"debug for packet {targetpacket} enabled")
 		elif targetpacket in self.config.settings["debug"]:
 				self.config.settings["debug"].remove(targetpacket)
+				self.log(f"debug for packet {targetpacket} disabled")
 		return
 				 
 	def console_emit(self):
