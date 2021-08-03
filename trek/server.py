@@ -240,6 +240,22 @@ class Server:
 				o+="\n"
 		else: o+="No active connections\n"
 		self.log(o)
+		
+	def debug(self, arguments):
+		targetmode = arguments[0]
+		targetpacket = arguments[1]
+		if not isinstance(targetmode, str):
+			self.log("Correct usage: debug enable|disable <packetid>")
+			return
+		if not isinstance(targetpacket, int):
+			self.log("Correct usage: debug enable|disable <packetid>")
+			return
+		if targetmode=="enable":
+			if not targetmode in self.config.debug: self.config.debug.append(targetpacket)
+		elif targetmode=="disable":
+			if targetmode in self.config.debug: self.config.debug.remove(targetpacket)
+		else: self.log(f"Packet already {targetmode}d")
+		return
 				 
 	def console_emit(self):
 		while True:
