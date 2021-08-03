@@ -17,6 +17,7 @@ class TrekCommands:
 			self.list=server.list
 			self.ban=server.ban
 			self.kick=server.kick
+			self.debug=server.debug
 #			self.reload=server.reload
 #			self.save=server.save
 #			self.backup=server.backup
