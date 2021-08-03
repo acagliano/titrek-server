@@ -165,8 +165,6 @@ class Server:
 		try:
 			self.log("Shutting down.")
 			self.space.save()
-			if self.config.save():
-				 self.log("Successfully wrote config")
 			self.broadcast(f"server shutting down in 10s")
 			time.sleep(10)
 			for client in self.clients.keys():
