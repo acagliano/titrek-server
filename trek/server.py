@@ -242,17 +242,10 @@ class Server:
 		self.log(o)
 		
 	def debug(self, arguments):
-		targetmode = arguments[0]
 		targetpacket = int(arguments[1])
-		if not isinstance(targetmode, str):
-			self.log("Correct usage: debug enable|disable <packetid>. Arg1 not a string.")
-			return
-		if not isinstance(targetpacket, int):
-			self.log("Correct usage: debug enable|disable <packetid>. Arg2 not an int.")
-			return
-		if not targetmode in self.config.settings["debug"]:
+		if not targetpacket in self.config.settings["debug"]:
 				self.config.settings["debug"].append(targetpacket)
-		elif targetmode in self.config.settings["debug"]:
+		elif targetpacket in self.config.settings["debug"]:
 				self.config.settings["debug"].remove(targetpacket)
 		return
 				 
