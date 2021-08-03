@@ -251,9 +251,11 @@ class Server:
 			self.log("Correct usage: debug enable|disable <packetid>")
 			return
 		if targetmode=="enable":
-			if not targetmode in self.config.debug: self.config.debug.append(targetpacket)
+			if not targetmode in self.config.settings["debug"]:
+				self.config.settings["debug"].append(targetpacket)
 		elif targetmode=="disable":
-			if targetmode in self.config.debug: self.config.debug.remove(targetpacket)
+			if targetmode in self.config.settings["debug"]:
+				self.config.settings["debug"].remove(targetpacket)
 		else: self.log(f"Packet already {targetmode}d")
 		return
 				 
