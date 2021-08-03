@@ -102,7 +102,7 @@ class Client:
 		return self.user+" @"+str(self.addr)
 
 	def send(self,data):
-		if self.config.settings["debug"]:
+		if data[0] in self.config.settings["debug"]:
 			self.log(data)
 		packet_length = len(data)
 		i = 0
@@ -296,7 +296,7 @@ class Client:
 							engine=self.findModuleOfType("warp")
 						engine["curspeed"]=int.from_bytes(data[2:], 'little')
 						self.send([ControlCodes["ENGINE_SETSPEED"]]+ list(data[1:]))
-				if self.config.settings["debug"]:
+				if data[0] in self.config.settings["debug"]:
 					packet_string = "".join([s.ljust(5," ") for s in [chr(c) if c in range(0x20,0x80) else "0x0"+hex(c)[2] if c<0x10 else hex(c) for c in data]])
 					self.dlog(f"recieved packet: {packet_string}")
 				
