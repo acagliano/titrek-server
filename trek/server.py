@@ -245,10 +245,10 @@ class Server:
 		targetmode = arguments[0]
 		targetpacket = arguments[1]
 		if not isinstance(targetmode, str):
-			self.log("Correct usage: debug enable|disable <packetid>")
+			self.log("Correct usage: debug enable|disable <packetid>. Arg1 not a string.")
 			return
 		if not isinstance(targetpacket, int):
-			self.log("Correct usage: debug enable|disable <packetid>")
+			self.log("Correct usage: debug enable|disable <packetid>. Arg2 not an int.")
 			return
 		if targetmode=="enable":
 			if not targetmode in self.config.settings["debug"]:
