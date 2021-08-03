@@ -23,6 +23,7 @@ ControlCodes = {
     "REGISTER":2,
     "LOGIN":3,
     "VERSION_CHECK":4,   # This is for the client not up to date response , See response codes. VERSION_* must be the second byte of packet
+    "WELCOME":5,
     
     # GAMEPLAY
     # Map Interfacing: 10 - 19 
