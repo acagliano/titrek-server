@@ -421,9 +421,11 @@ outputs:
 				except IOError:
 					self.dlog(f"Error reading account file for {user}")
 					self.send([ControlCodes["MESSAGE"]]+list(b'server i/o error\0'))
+					raise ClientDisconnectErr(f"{self.user} disconnected!")
 					return
 			self.log(f"Could not match key. Sorry..")
 			self.send([ControlCodes["LOGIN"],ResponseCodes['MISSING']])  # Error: user does not exist
+			raise ClientDisconnectErr(f"{self.user} disconnected!")
 			return
 		except:
 			self.elog(traceback.format_exc(limit=None, chain=True))
