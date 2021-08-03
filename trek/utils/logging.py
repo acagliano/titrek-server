@@ -20,12 +20,16 @@ class DiscordHandler(Handler):
 		if not record.levelno==self.level:
 			return False
 		msg=self.format(record)
+		if "ClientDisconnectErr" in msg: return
 		username="Exception" if type==logging.ERROR else "TrekFilter"
 		webhook=DiscordWebhook(url=self.channel_url,username=self.username)
 		embed=DiscordEmbed(description=msg,color=self.color)
 		webhook.add_embed(embed)
 		return webhook.execute()
-		
+
+class NoParsingFilter(logging.Filter):
+	def filter(self, record):
+		return not record.getMessage().startswith('parsing')
 		
 		
 
