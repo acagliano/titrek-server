@@ -431,8 +431,11 @@ outputs:
 
 	def kick(self):
 		# send kick to client
-		self.connected=False
-		self.conn.shutdown(socket.SHUT_WR)
+		try:
+			self.connected=False
+			self.conn.shutdown(socket.SHUT_WR)
+		except OSError: self.log("Error terminating the endpoint; It may have already disconnected")
+		except: self.elog(traceback.format_exc(limit=None, chain=True))
 				    
 	def version_check(self, data):
 		client_version = data[1:4]
