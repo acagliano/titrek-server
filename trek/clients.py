@@ -403,7 +403,7 @@ outputs:
 			for dir in os.listdir(self.player_root):
 				try:
 					
-					self.dlog(f"Attempting to match key to user")
+					self.dlog(f"Attempting to match key to user {dir}")
 					with open(f"{self.player_root}{dir}/account.json", 'r') as f:
 						account = json.load(f)
 						hashed_pw=hashlib.sha512(bytes(key)).hexdigest()
