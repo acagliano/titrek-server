@@ -1,6 +1,6 @@
 {
   "port": 51701, 
-  "debug": true,
+  "debug": [],
   "packet-size": 4096,
   "min-client": [0, 0, 101],
   "max-players": 100,
