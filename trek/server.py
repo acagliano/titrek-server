@@ -243,7 +243,7 @@ class Server:
 		
 	def debug(self, arguments):
 		targetmode = arguments[0]
-		targetpacket = arguments[1]
+		targetpacket = int(arguments[1])
 		if not isinstance(targetmode, str):
 			self.log("Correct usage: debug enable|disable <packetid>. Arg1 not a string.")
 			return
