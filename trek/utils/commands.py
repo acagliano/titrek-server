@@ -42,7 +42,7 @@ class TrekCommands:
 			self.commands["backup"]={"permlvl":2, "run":"backup", "args":False, "description":"backs up entire server state to timestamped file","helper":"backup"}
 			self.commands["restore"]={"permlvl":2, "run":"restore", "args":True, "description":"restores server state from timestamped file","helper":"backup <file>"}
 			self.commands["list"]={"permlvl":0, "run":"list", "args":False, "description":"lists all connected sessions","helper":"list"}
-			self.commands["debug"]={"permlvl":1, "run":"debug", "args":True, "description":"enables/disables server debug mode","helper":"debug enable|disable"}
+			self.commands["debug"]={"permlvl":2, "run":"debug", "args":True, "description":"enables/disables server debug mode","helper":"debug enable|disable <packet #>"}
 			self.commands["discord"]={"permlvl":2, "run":"discord", "args":True, "description":"enables/disables discord error/firewall piping","helper":"discord enable|disable"}
 			self.commands["except"]={"permlvl":1, "run":"trigger_exception", "args":False, "description":"causes a harmless testing exception","helper":"except"}
  
