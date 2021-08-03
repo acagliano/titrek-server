@@ -250,13 +250,10 @@ class Server:
 		if not isinstance(targetpacket, int):
 			self.log("Correct usage: debug enable|disable <packetid>. Arg2 not an int.")
 			return
-		if targetmode=="enable":
-			if not targetmode in self.config.settings["debug"]:
+		if not targetmode in self.config.settings["debug"]:
 				self.config.settings["debug"].append(targetpacket)
-		elif targetmode=="disable":
-			if targetmode in self.config.settings["debug"]:
+		elif targetmode in self.config.settings["debug"]:
 				self.config.settings["debug"].remove(targetpacket)
-		else: self.log(f"Packet already {targetmode}d")
 		return
 				 
 	def console_emit(self):
