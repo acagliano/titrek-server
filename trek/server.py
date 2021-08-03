@@ -110,8 +110,7 @@ class Server:
 		self.logger.log(logging.ERROR, *args, **kwargs)
 		
 	def dlog(self,*args,**kwargs):
-		if self.config.settings["debug"]:
-			self.logger.log(logging.DEBUG, *args, **kwargs)
+		self.logger.log(logging.DEBUG, *args, **kwargs)
 		
 	def broadcast(self,msg,sender="Server"):
 		for conn in self.clients.keys():
