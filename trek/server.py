@@ -113,6 +113,8 @@ class Server:
 		self.logger.log(logging.DEBUG, *args, **kwargs)
 		
 	def broadcast(self,msg,sender="Server"):
+		if type(msg) is list:
+			msg = " ".join(msg)
 		for conn in self.clients.keys():
 			client = self.clients[conn]
 			client.send([ControlCodes["MESSAGE"]]+list(bytes(sender+": "+msg+'\0', 'UTF-8')))
