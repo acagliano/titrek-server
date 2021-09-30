@@ -385,7 +385,7 @@ outputs:
 					del self.gfx_curr
 					del self.gfx_hash
 		except IOError:
-			output = list(bytes(f'error loading ui assets','UTF-8'))
+			output = list(bytes(f'error loading ui assets\0','UTF-8'))
 			self.send([ControlCodes['MESSAGE']]+output)
 			self.elog("File IO Error: [gfx_ui]")
 			return
