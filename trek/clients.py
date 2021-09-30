@@ -152,7 +152,11 @@ class Client:
 						except:
 							self.elog(f"Could not find one or more required files in folder","cli-versions/prgm/{paths[0]}")
 				elif self.logged_in:
-					if data[0]==ControlCodes["DEBUG"]:
+					if data[0]==ControlCodes["GFX_REQ_UPDATE"]:
+						self.init_gfx_transfer(data)
+					elif data[0]==ControlCodes["GFX_FRAME_NEXT"]:
+						self.gfx_send_frame()
+					elif data[0]==ControlCodes["DEBUG"]:
 						self.server.log(ToUTF8(data[1:])) # send a debug message to the server console
 					elif data[0]==ControlCodes["PLAYER_MOVE"]:
 						G = FromSignedInt(data[1])
@@ -358,6 +362,52 @@ outputs:
 			if m["Type"]==Type:
 				return m
 		return None
+	
+	def init_gfx_transfer(self, data):
+		try:
+			user_gfx_dir = f"{self.playerdir}gfx/"
+			default_gfx_dir = f"{data/assets/ui/}"
+			selected_gfx_dir = default_gfx_dir
+			client_side_sha256 = data[1:]
+			if os.path.isdir(gfx_dir):
+				if os.path.isfile(f"{gfx_dir}uiassets.bin")
+					selected_gfx_dir = user_gfx_dir
+			with open(f"{selected_gfx_dir}uiassets.bin", "rb") as f:
+				self.gfx_bin = f.read()
+				self.gfx_len = len(self.gfx_bin)
+				self.gfx_hash = hashlib.sha256(bytes(self.gfx_bin))
+				self.gfx_curr = 0
+				self.send([ControlCodes['GFX_FRAME_START']]+u24(self.gfx_len))
+				if hmac.compare_digest(client_side_sha256, self.gfx_hash):
+					self.send([ControlCodes['GFX_SKIP']])
+					del self.gfx_bin
+					del self.gfx_len
+					del self.gfx_curr
+					del self.gfx_hash
+		except IOError:
+			output = list(bytes(f'error loading ui assets','UTF-8'))
+			self.send([ControlCodes['MESSAGE']]+output)
+			self.elog("File IO Error: [gfx_ui]")
+			return
+		except:
+			self.elog(traceback.format_exc(limit=None, chain=True))
+			
+		
+		
+	def gfx_send_frame(self):
+		if self.gfx_curr == self.gfx_len:
+			self.send([ControlCodes['GFX_FRAME_DONE']]+list(self.gfx_hash))
+			del self.gfx_bin
+			del self.gfx_len
+			del self.gfx_curr
+			del self.gfx_hash
+			return
+		buf_len = self.config.settings["packet-size"] - 1
+		send_size = buf_len
+		if (self.gfx_len - self.gfx_curr) < buf_len:
+			send_size = self.gfx_len - self.gfx_curr
+		self.send([ControlCodes['GFX_FRAME_IN']]+self.gfx_bin[self.gfx_curr:send_size])
+		self.gfx_curr += send_size
 
 
 	def fromControlCode(self,code):
