@@ -108,7 +108,6 @@ class Client:
 			bytes_sent = self.conn.send(bytes(data[0:min(packet_length, self.config.settings["packet-size"])]))
 			if not bytes_sent:
 				raise Exception("packet transmission error")
-				break
 			return bytes_sent
 		except (BrokenPipeError, OSError): self.elog("send() called on a closed connection. This is probably intended behavior, but worth double checking.")
 			
