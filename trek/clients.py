@@ -369,7 +369,7 @@ outputs:
 			default_gfx_dir = f"data/assets/ui/"
 			selected_gfx_dir = default_gfx_dir
 			client_side_sha256 = data[1:]
-			if os.path.isdir(gfx_dir):
+			if os.path.isdir(user_gfx_dir):
 				if os.path.isfile(f"{gfx_dir}uiassets.bin")
 					selected_gfx_dir = user_gfx_dir
 			with open(f"{selected_gfx_dir}uiassets.bin", "rb") as f:
