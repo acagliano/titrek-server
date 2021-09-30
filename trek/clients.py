@@ -402,11 +402,10 @@ outputs:
 			del self.gfx_curr
 			del self.gfx_hash
 			return
-		buf_len = self.config.settings["packet-size"] - 1
-		send_size = buf_len if ((self.gfx_len - self.gfx_curr) > buf_len) else self.gfx_len - self.gfx_curr
-		send_data = self.gfx_bin[self.gfx_curr:(self.gfx_curr+send_size)]
+		data_len = min(self.config.settings["packet-size"] - 1, self.gfx_len - self.gfx_curr)
+		send_data = self.gfx_bin[self.gfx_curr:(self.gfx_curr+data_len)]
 		self.send([ControlCodes['GFX_FRAME_IN']]+list(send_data))
-		self.gfx_curr += send_size
+		self.gfx_curr += data_len
 
 
 	def fromControlCode(self,code):
