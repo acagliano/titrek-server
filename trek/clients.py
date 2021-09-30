@@ -375,7 +375,7 @@ outputs:
 			with open(f"{selected_gfx_dir}uiassets.bin", "rb") as f:
 				self.gfx_bin = f.read()
 				self.gfx_len = len(self.gfx_bin)
-				self.gfx_hash = hashlib.sha256(bytes(self.gfx_bin))
+				self.gfx_hash = hashlib.sha256(bytes(self.gfx_bin)).digest()
 				self.gfx_curr = 0
 				self.send([ControlCodes['GFX_FRAME_START']]+u24(self.gfx_len))
 				if hmac.compare_digest(client_side_sha256, self.gfx_hash):
