@@ -105,7 +105,7 @@ class Client:
 		if data[0] in self.config.settings["debug"]:
 			self.log(data)
 		try:
-			bytes_sent = self.conn.send(bytes(data[0:min(packet_length, self.config.settings["packet-size"])]))
+			bytes_sent = self.conn.send(bytes(data[0:min(len(data), self.config.settings["packet-size"])]))
 			if not bytes_sent:
 				raise Exception("packet transmission error")
 			return bytes_sent
