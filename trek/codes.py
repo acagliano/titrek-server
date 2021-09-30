@@ -41,9 +41,12 @@ ControlCodes = {
     "ENGINE_SETSPEED":25,
     
     # File Streaming: 90 - 91
-    "PRGMUPDATE":90,
-    "GFXUPDATE":91,
-    "CACHE_SPRITE":92,
+    "GFX_REQ_UPDATE":90,
+    "GFX_FRAME_START":91,
+    "GFX_FRAME_IN":92,
+    "GFX_FRAME_NEXT":93,
+    "GFX_FRAME_DONE":94,
+    "GFX_SKIP":95,
     
     # DEBUG: 0xf*
     "PING":0xfc,
