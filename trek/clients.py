@@ -390,7 +390,7 @@ outputs:
 		
 		
 	def gfx_send_frame(self):
-		if self.gfx_curr == self.gfx_len:
+		if self.gfx_curr >= self.gfx_len:
 			self.send([ControlCodes['GFX_FRAME_DONE']]+list(self.gfx_hash))
 			del self.gfx_bin
 			del self.gfx_len
@@ -398,7 +398,7 @@ outputs:
 			del self.gfx_hash
 			return
 		data_sent = self.send([ControlCodes['GFX_FRAME_IN']]+list(self.gfx_bin[self.gfx_curr:]))
-		self.gfx_curr += data_sent
+		self.gfx_curr += (data_sent - 1)
 
 
 	def fromControlCode(self,code):
