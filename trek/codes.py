@@ -47,6 +47,7 @@ ControlCodes = {
     "GFX_FRAME_NEXT":93,
     "GFX_FRAME_DONE":94,
     "GFX_SKIP":95,
+    "PRGMUPDATE":96,
     
     # DEBUG: 0xf*
     "PING":0xfc,
