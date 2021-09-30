@@ -397,7 +397,7 @@ outputs:
 			del self.gfx_curr
 			del self.gfx_hash
 			return
-		data_sent = self.send([ControlCodes['GFX_FRAME_IN']]+list(self.gfx_data[self.gfx_curr:]))
+		data_sent = self.send([ControlCodes['GFX_FRAME_IN']]+list(self.gfx_bin[self.gfx_curr:]))
 		self.send([ControlCodes['GFX_FRAME_IN']]+list(send_data))
 		self.gfx_curr += data_sent
 
