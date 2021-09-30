@@ -366,7 +366,7 @@ outputs:
 	def init_gfx_transfer(self, data):
 		try:
 			user_gfx_dir = f"{self.playerdir}gfx/"
-			default_gfx_dir = f"{data/assets/ui/}"
+			default_gfx_dir = f"data/assets/ui/"
 			selected_gfx_dir = default_gfx_dir
 			client_side_sha256 = data[1:]
 			if os.path.isdir(gfx_dir):
