@@ -104,16 +104,12 @@ class Client:
 	def send(self,data):
 		if data[0] in self.config.settings["debug"]:
 			self.log(data)
-		packet_length = len(data)
-		i = 0
 		try:
-			while packet_length:
-				bytes_sent = self.conn.send(bytes(data[i:min(packet_length, self.config.settings["packet-size"])]))
-				if not bytes_sent:
-					raise Exception("packet transmission error")
-					break
-				i+=bytes_sent
-				packet_length-=bytes_sent
+			bytes_sent = self.conn.send(bytes(data[0:min(packet_length, self.config.settings["packet-size"])]))
+			if not bytes_sent:
+				raise Exception("packet transmission error")
+				break
+			return bytes_sent
 		except (BrokenPipeError, OSError): self.elog("send() called on a closed connection. This is probably intended behavior, but worth double checking.")
 			
 	def handle_connection(self):
@@ -402,10 +398,9 @@ outputs:
 			del self.gfx_curr
 			del self.gfx_hash
 			return
-		data_len = min(self.config.settings["packet-size"] - 1, self.gfx_len - self.gfx_curr)
-		send_data = self.gfx_bin[self.gfx_curr:(self.gfx_curr+data_len)]
+		data_sent = self.send([ControlCodes['GFX_FRAME_IN']]+list(self.gfx_data[self.gfx_curr:]))
 		self.send([ControlCodes['GFX_FRAME_IN']]+list(send_data))
-		self.gfx_curr += data_len
+		self.gfx_curr += data_sent
 
 
 	def fromControlCode(self,code):
