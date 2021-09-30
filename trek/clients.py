@@ -404,7 +404,7 @@ outputs:
 			return
 		buf_len = self.config.settings["packet-size"] - 1
 		send_size = buf_len if ((self.gfx_len - self.gfx_curr) > buf_len) else self.gfx_len - self.gfx_curr
-		self.send([ControlCodes['GFX_FRAME_IN']]+list(self.gfx_bin[self.gfx_curr:send_size]))
+		self.send([ControlCodes['GFX_FRAME_IN']]+list(self.gfx_bin[self.gfx_curr:self.gfx_curr+send_size]))
 		self.gfx_curr += send_size
 
 
