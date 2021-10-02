@@ -364,7 +364,7 @@ outputs:
 			user_gfx_dir = f"{self.playerdir}gfx/"
 			default_gfx_dir = f"data/assets/ui/"
 			selected_gfx_dir = default_gfx_dir
-			client_side_sha256 = bytes(data[1:])
+			self.client_side_sha256 = bytes(data[1:])
 			if os.path.isdir(user_gfx_dir):
 				if os.path.isfile(f"{user_gfx_dir}uiassets.bin"):
 					selected_gfx_dir = user_gfx_dir
@@ -374,8 +374,6 @@ outputs:
 				self.gfx_hash = hashlib.sha256(bytes(self.gfx_bin)).digest()
 				self.gfx_curr = 0
 				self.send([ControlCodes['GFX_FRAME_START']]+u24(self.gfx_len))
-				if hmac.compare_digest(client_side_sha256, self.gfx_hash):
-					self.send([ControlCodes['GFX_SKIP']])
 		except IOError:
 			output = list(bytes(f'error loading ui assets\0','UTF-8'))
 			self.send([ControlCodes['MESSAGE']]+output)
@@ -387,12 +385,21 @@ outputs:
 		
 		
 	def gfx_send_frame(self):
+		if hmac.compare_digest(self.client_side_sha256, self.gfx_hash):
+			self.send([ControlCodes['GFX_SKIP']])
+			del self.gfx_bin
+			del self.gfx_len
+			del self.gfx_curr
+			del self.gfx_hash
+			del self.client_side_sha256
+			return
 		if self.gfx_curr >= self.gfx_len:
 			self.send([ControlCodes['GFX_FRAME_DONE']]+list(self.gfx_hash))
 			del self.gfx_bin
 			del self.gfx_len
 			del self.gfx_curr
 			del self.gfx_hash
+			del self.client_side_sha256
 			return
 		data_offset = min(self.config.settings["packet-size"]-1, self.gfx_len - self.gfx_curr)
 		data_to_send = self.gfx_bin[self.gfx_curr:self.gfx_curr+data_offset]
