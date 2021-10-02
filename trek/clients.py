@@ -376,10 +376,6 @@ outputs:
 				self.send([ControlCodes['GFX_FRAME_START']]+u24(self.gfx_len))
 				if hmac.compare_digest(client_side_sha256, self.gfx_hash):
 					self.send([ControlCodes['GFX_SKIP']])
-					del self.gfx_bin
-					del self.gfx_len
-					del self.gfx_curr
-					del self.gfx_hash
 		except IOError:
 			output = list(bytes(f'error loading ui assets\0','UTF-8'))
 			self.send([ControlCodes['MESSAGE']]+output)
