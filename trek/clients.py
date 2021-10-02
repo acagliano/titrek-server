@@ -108,6 +108,7 @@ class Client:
 			bytes_sent = self.conn.send(bytes(data[0:min(len(data), self.config.settings["packet-size"])]))
 			if not bytes_sent:
 				raise Exception("packet transmission error")
+			print(f"Sent packet id {data[0]}; Packet length: {bytes_sent}")
 			return bytes_sent
 		except (BrokenPipeError, OSError): self.elog("send() called on a closed connection. This is probably intended behavior, but worth double checking.")
 			
@@ -397,8 +398,10 @@ outputs:
 			del self.gfx_curr
 			del self.gfx_hash
 			return
-		data_end = self.gfx_curr + min(self.config.settings["packet-size"]-1, self.gfx_len - self.gfx_curr)
-		data_sent = self.send([ControlCodes['GFX_FRAME_IN']]+list(self.gfx_bin[self.gfx_curr:data_end]))
+		data_offset = min(self.config.settings["packet-size"]-1, self.gfx_len - self.gfx_curr)
+		data_to_send = self.gfx_bin[self.gfx_curr:self.gfx_curr+data_offset]
+		print(f"Length of data to send (outer): {len(data_to_send)}\n")
+		data_sent = self.send([ControlCodes['GFX_FRAME_IN']]+list(data_to_send))
 		self.gfx_curr += (data_sent - 1)
 
 
