@@ -361,12 +361,14 @@ outputs:
 	
 	def init_gfx_transfer(self, data):
 		try:
+			self.log("Loading graphics for client")
 			user_gfx_dir = f"{self.playerdir}gfx/"
 			default_gfx_dir = f"data/assets/ui/"
 			selected_gfx_dir = default_gfx_dir
 			self.client_side_sha256 = bytes(data[1:])
 			if os.path.isdir(user_gfx_dir):
 				if os.path.isfile(f"{user_gfx_dir}uiassets.bin"):
+					self.log("Loading custom graphics")
 					selected_gfx_dir = user_gfx_dir
 			with open(f"{selected_gfx_dir}uiassets.bin", "rb") as f:
 				self.gfx_bin = f.read()
@@ -387,6 +389,7 @@ outputs:
 	def gfx_send_frame(self):
 		if hmac.compare_digest(self.client_side_sha256, self.gfx_hash):
 			self.send([ControlCodes['GFX_SKIP']])
+			self.log("Hash match for graphics. Skipping download.")
 			del self.gfx_bin
 			del self.gfx_len
 			del self.gfx_curr
@@ -395,6 +398,7 @@ outputs:
 			return
 		if self.gfx_curr >= self.gfx_len:
 			self.send([ControlCodes['GFX_FRAME_DONE']]+list(self.gfx_hash))
+			self.log("gfx download complete")
 			del self.gfx_bin
 			del self.gfx_len
 			del self.gfx_curr
