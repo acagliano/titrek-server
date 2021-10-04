@@ -127,8 +127,10 @@ class Client:
 					self.log_in(data)
 				elif data[0]==ControlCodes["REGISTER"]:
 					self.register(data)
-				elif data[0]==ControlCodes["VERSION_CHECK"]:
-					self.version_check(data)
+				elif data[0]==ControlCodes["MAIN_REQ_UPDATE"]:
+						self.init_client_transfer(data)
+				elif data[0]==ControlCodes["MAIN_FRAME_NEXT"]:
+						self.client_send_frame()
 				elif data[0]==ControlCodes["PING"]:
 						self.server.log("Ping? Pong!")
 						self.send([ControlCodes["PING"]])
@@ -384,6 +386,23 @@ outputs:
 		except:
 			self.elog(traceback.format_exc(limit=None, chain=True))
 			
+	def init_client_transfer(self, data):
+		try:
+			self.log("Loading client binary")
+			client_bin = f"data/bins/TITREK.bin"
+			self.client_side_sha256 = bytes(data[1:])
+			with open(f"{client_bin}", "rb") as f:
+				self.client_bin = f.read()
+				self.client_len = len(self.gfx_bin)
+				self.client_hash = hashlib.sha256(bytes(self.gfx_bin)).digest()
+				self.client_curr = 0
+				self.send([ControlCodes['MAIN_FRAME_START']]+u24(self.client_len))
+				
+		except IOError:
+			output = list(bytes(f'error loading client bin\0','UTF-8'))
+			self.send([ControlCodes['MESSAGE']]+output)
+			self.elog("File IO Error: [client_bin]")
+			return		
 		
 		
 	def gfx_send_frame(self):
@@ -410,6 +429,30 @@ outputs:
 		print(f"Length of data to send (outer): {len(data_to_send)}\n")
 		data_sent = self.send([ControlCodes['GFX_FRAME_IN']]+list(data_to_send))
 		self.gfx_curr += (data_sent - 1)
+	
+	def client_send_frame(self):
+		if hmac.compare_digest(self.client_side_sha256, self.client_hash):
+			self.send([ControlCodes['MAIN_SKIP']])
+			self.log("Hash match for binary. Skipping download.")
+			del self.client_bin
+			del self.client_len
+			del self.client_curr
+			del self.client_hash
+			del self.client_side_sha256
+			return
+		if self.client_curr >= self.client_len:
+			self.send([ControlCodes['MAIN_FRAME_DONE']]+list(self.gfx_hash))
+			self.log("client download complete")
+			del self.client_bin
+			del self.client_len
+			del self.client_curr
+			del self.client_hash
+			del self.client_side_sha256
+			return
+		data_offset = min(self.config.settings["packet-size"]-1, self.client_len - self.client_curr)
+		data_to_send = self.client_bin[self.client_curr:self.client_curr+data_offset]
+		data_sent = self.send([ControlCodes['MAIN_FRAME_IN']]+list(data_to_send))
+		self.client_curr += (data_sent - 1)
 
 
 	def fromControlCode(self,code):
