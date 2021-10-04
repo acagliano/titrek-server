@@ -26,6 +26,14 @@ PacketSizes={
     "LOAD_SHIP":0
 }
 
+UnprivPackets={
+	"LOGIN",
+	"REGISTER",
+	"MAIN_REQ_UPDATE",
+	"MAIN_FRAME_NEXT",
+	"PING"
+}
+	
 TextOnlyPackets={
 
 }
@@ -74,9 +82,11 @@ class TrekFilter:
 		else: return False
 
 	def restricted_ids(self, client, data):
-		if client.logged_in:
+		position = TrekFilter.packet_values.index(data[0])
+		key = TrekFilter.packet_names[position]
+		if (key in UnprivPackets) or client.logged_in:
 			return False
-		if(data[0] > 9):
+		else:
 			return True
 
 	def special_chars(self, data):
