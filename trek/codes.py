@@ -22,7 +22,7 @@ ControlCodes = {
     # Both reserved for client => bridge directives
     "REGISTER":2,
     "LOGIN":3,
-    "VERSION_CHECK":4,   # This is for the client not up to date response , See response codes. VERSION_* must be the second byte of packet
+    "REQ_SECURE_SESSION":4,
     "WELCOME":5,
     
     # GAMEPLAY
