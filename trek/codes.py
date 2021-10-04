@@ -40,14 +40,21 @@ ControlCodes = {
     "GET_ENGINE_MAXIMUMS":24,
     "ENGINE_SETSPEED":25,
     
-    # File Streaming: 90 - 91
-    "GFX_REQ_UPDATE":90,
-    "GFX_FRAME_START":91,
-    "GFX_FRAME_IN":92,
-    "GFX_FRAME_NEXT":93,
-    "GFX_FRAME_DONE":94,
-    "GFX_SKIP":95,
-    "PRGMUPDATE":96,
+    # File Streaming: 0xe*
+    "GFX_REQ_UPDATE":0xe0,
+    "GFX_FRAME_START":0xe1,
+    "GFX_FRAME_IN":0xe2,
+    "GFX_FRAME_NEXT":0xe3,
+    "GFX_FRAME_DONE":0xe4,
+    "GFX_SKIP":0xe5,
+    
+    "MAIN_REQ_UPDATE":0xe6,
+    "MAIN_FRAME_START":0xe7,
+    "MAIN_FRAME_IN":0xe8,
+    "MAIN_FRAME_NEXT":0xe9,
+    "MAIN_FRAME_DONE":0xea,
+    "MAIN_FRAME_SKIP":0xeb,
+    
     
     # DEBUG: 0xf*
     "PING":0xfc,
