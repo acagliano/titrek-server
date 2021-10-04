@@ -136,21 +136,6 @@ class Client:
 				elif data[0]==ControlCodes["PING"]:
 						self.server.log("Ping? Pong!")
 						self.send([ControlCodes["PING"]])
-				elif data[0]==ControlCodes["PRGMUPDATE"]:
-						gfx_hash = sum([data[x+1]*(2**(8*(x-1))) for x in range(4)])
-						paths = []
-						for root,dirs,files in os.walk("cli-versions/prgm/",topdown=False):
-							for d in dirs:
-								paths.append(d)
-						paths = sorted(paths,reverse=True)
-						try:
-							with open(f"downloads/prgm/{paths[0]}/TITREK.bin",'rb') as f:
-								program_data = bytearray(f.read())
-							for i in range(0,len(program_data),1020):
-								self.send(bytes([ControlCodes["PRGMUPDATE"]])+program_data[i:min(i+1020,len(program_data))])
-								time.sleep(1/4)
-						except:
-							self.elog(f"Could not find one or more required files in folder","cli-versions/prgm/{paths[0]}")
 				elif self.logged_in:
 					if data[0]==ControlCodes["GFX_REQ_UPDATE"]:
 						self.init_gfx_transfer(data)
