@@ -441,7 +441,7 @@ outputs:
 			del self.client_side_sha256
 			return
 		if self.client_curr >= self.client_len:
-			self.send([ControlCodes['MAIN_FRAME_DONE']]+list(self.gfx_hash))
+			self.send([ControlCodes['MAIN_FRAME_DONE']]+list(self.client_hash))
 			self.log("client download complete")
 			del self.client_bin
 			del self.client_len
