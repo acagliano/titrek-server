@@ -31,6 +31,7 @@ UnprivPackets={
 	"REGISTER",
 	"MAIN_REQ_UPDATE",
 	"MAIN_FRAME_NEXT",
+	"REQ_SECURE_SESSION",
 	"PING"
 }
 	
