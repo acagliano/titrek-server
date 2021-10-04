@@ -394,7 +394,7 @@ outputs:
 			with open(f"{client_bin}", "rb") as f:
 				self.client_bin = f.read()
 				self.client_len = len(self.client_bin)
-				self.client_hash = hashlib.sha256(bytes(self.gfx_bin)).digest()
+				self.client_hash = hashlib.sha256(bytes(self.client_bin)).digest()
 				self.client_curr = 0
 				self.send([ControlCodes['MAIN_FRAME_START']]+u24(self.client_len))
 				
