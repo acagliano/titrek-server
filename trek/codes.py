@@ -53,7 +53,7 @@ ControlCodes = {
     "MAIN_FRAME_IN":0xe8,
     "MAIN_FRAME_NEXT":0xe9,
     "MAIN_FRAME_DONE":0xea,
-    "MAIN_FRAME_SKIP":0xeb,
+    "MAIN_SKIP":0xeb,
     
     
     # DEBUG: 0xf*
