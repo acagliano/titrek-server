@@ -128,9 +128,11 @@ class Client:
 				elif data[0]==ControlCodes["REGISTER"]:
 					self.register(data)
 				elif data[0]==ControlCodes["MAIN_REQ_UPDATE"]:
-						self.init_client_transfer(data)
+					self.init_client_transfer(data)
 				elif data[0]==ControlCodes["MAIN_FRAME_NEXT"]:
-						self.client_send_frame()
+					self.client_send_frame()
+				elif data[0]==ControlCodes["REQ_SECURE_SESSION"]:
+					self.init_secure_session()
 				elif data[0]==ControlCodes["PING"]:
 						self.server.log("Ping? Pong!")
 						self.send([ControlCodes["PING"]])
@@ -534,19 +536,9 @@ outputs:
 		except OSError: self.log("Error terminating the endpoint; It may have already disconnected")
 		except: self.elog(traceback.format_exc(limit=None, chain=True))
 				    
-	def version_check(self, data):
-		client_version = data[1:4]
-		gfx_version = data[4:6] # not used yet
-		for i in range(3):
-			if client_version[i] < self.config.settings["min-client"][i]:
-				self.send([ControlCodes["VERSION_CHECK"],VersionCheckCodes['VERSION_ERROR']])
-				self.disconnect()
-				return
-				
-		self.send([ControlCodes["VERSION_CHECK"],VersionCheckCodes['VERSION_OK']])
-		self.log(f"{self.user}: client ok")
+	def init_secure_session(self):
 		self.key = os.urandom(32)
-		self.send([ControlCodes["WELCOME"]] + list(self.key))
+		self.send([ControlCodes["REQ_SECURE_SESSION"]] + list(self.key))
 		return
 		
 				  
