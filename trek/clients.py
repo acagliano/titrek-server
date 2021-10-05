@@ -81,6 +81,9 @@ class Client:
 				j=self.modules.load_module(m['file'], m['level'])
 				for k in j.keys():
 					m[k]=j[k]
+		except KeyError:
+			print("ship save corrupted - resetting")
+			self.create_new_game()
 		except:
 			self.elog(traceback.format_exc(limit=None, chain=True))
 
