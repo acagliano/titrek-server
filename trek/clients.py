@@ -84,6 +84,7 @@ class Client:
 		except KeyError:
 			print("ship save corrupted - resetting")
 			self.create_new_game()
+			self.load_modules()
 		except:
 			self.elog(traceback.format_exc(limit=None, chain=True))
 
