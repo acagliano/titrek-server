@@ -1,5 +1,5 @@
 import socket,threading,ctypes,hashlib,json,os,sys,time,math,ssl,traceback,subprocess,logging,gzip,re,ipaddress
-import requests
+import wget
 
 from trek.utils.logging import *
 from trek.utils.filter import *
@@ -163,7 +163,7 @@ class Server:
 			servinfo={"server":{
 				"version": version,
 				"numclients":len(self.clients),
-				"minversion":delim.join([str(item) for item in self.config.settings["min-client"]]),
+				"reqversion":delim.join([str(item) for item in self.config.settings["client-required"]]),
 				"max_clients":self.config.settings["max-players"],
 				"online":self.online}}
 			json.dump(servinfo, f)
