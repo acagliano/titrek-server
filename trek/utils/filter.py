@@ -18,6 +18,7 @@ from trek.utils.logging import TrekLogging
 logging.FILTER=60
 
 PacketSizes={
+    "RSA_SEND_SESSION_KEY":128,
     "LOGIN":128+16+16,
     "GET_ENGINE_MAXIMUMS":0,
     "MODULE_STATE_CHANGE":2,
@@ -32,6 +33,7 @@ UnprivPackets={
 	"MAIN_REQ_UPDATE",
 	"MAIN_FRAME_NEXT",
 	"REQ_SECURE_SESSION",
+	"RSA_SEND_SESSION_KEY",
 	"PING"
 }
 	
