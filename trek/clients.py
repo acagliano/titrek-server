@@ -532,8 +532,11 @@ outputs:
 	def init_secure_session(self):
 		try:
 			self.rsa_key = RSA.generate(1024)
+			self.rsa_key2 = RSA.generate(1024)
 			pubkey_bytes = bytes(self.rsa_key.publickey().exportKey('DER'))
+			pubkey2_bytes = bytes(self.rsa_key2.publickey().exportKey('DER'))
 			print(f"{pubkey_bytes}\n{len(pubkey_bytes)}")
+			print(f"{pubkey2_bytes}\n{len(pubkey2_bytes)}")
 			self.send([ControlCodes["REQ_SECURE_SESSION"]] + list(pubkey_bytes))
 			return
 		except: self.elog(traceback.format_exc(limit=None, chain=True))
