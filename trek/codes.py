@@ -23,6 +23,7 @@ ControlCodes = {
     "REGISTER":2,
     "LOGIN":3,
     "REQ_SECURE_SESSION":4,
+    "RSA_SEND_SESSION_KEY":5,
     "WELCOME":5,
     
     # GAMEPLAY
