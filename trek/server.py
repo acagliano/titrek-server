@@ -1,4 +1,5 @@
 import socket,threading,ctypes,hashlib,json,os,sys,time,math,ssl,traceback,subprocess,logging,gzip,re,ipaddress
+import requests
 
 from trek.utils.logging import *
 from trek.utils.filter import *
@@ -33,6 +34,7 @@ class Server:
 			self.generator = Generator()
 			self.space = Space(self.server_root, self.logger, self.config.settings["space"])
 			self.modules=TrekModules("data/modules/")
+			self.fetch_required()
 		
 			self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)         # Create a socket object
 			self.sock.settimeout(None)
@@ -44,7 +46,21 @@ class Server:
 		except:
 			self.elog(traceback.format_exc(limit=None, chain=True))
 
-		
+	
+	def fetch_required():
+		try:
+			target_version = self.config.settings["client-required"])
+			#verify not earlier than 0.0.104
+			tva = target_version.split(".")
+			if not (tva[0] >= 0 and tva[1]>=0 and tva[2]>=104):
+				self.elog("Indicated client version too old. Setting to minimum allowed.")
+				target_version = "0.0.104"
+			target_url = f"https://titrek.us/common/downloads/prgm/{target_version}/TITREK.bin"
+			wget.download(target_url, '/home/services/trek/server/data/bins/TITREK.bin')
+		except:
+			self.elog(traceback.format_exc(limit=None, chain=True))
+			
+	
 	def loadbans(self):
 		try:
 			with open("bans.txt") as f:
