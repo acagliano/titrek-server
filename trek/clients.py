@@ -541,7 +541,7 @@ outputs:
 	def setup_aes_session(self, data):
 		try:
 			cipher = PKCS1_OAEP.new(self.rsa_key)
-			self.aes_key = cipher.decrypt(data[1:])
+			self.aes_key = cipher.decrypt(bytes(data[1:]))
 			del self.rsa_key
 			self.send([ControlCodes["RSA_SEND_SESSION_KEY"]])
 			return
