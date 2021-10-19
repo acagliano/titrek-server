@@ -2,6 +2,7 @@ import os,traceback,json,logging,socket,hashlib,re,bcrypt
 from Cryptodome.Cipher import AES
 from Cryptodome.Cipher import PKCS1_OAEP
 from Cryptodome.PublicKey import RSA
+from Cryptodome.Hash import SHA256
 import hmac
 
 from trek.codes import *
@@ -543,7 +544,7 @@ outputs:
 		
 	def setup_aes_session(self, data):
 		try:
-			cipher = PKCS1_OAEP.new(self.rsa_key, hashAlgo=Cryptodome.Hash.SHA256)
+			cipher = PKCS1_OAEP.new(self.rsa_key, hashAlgo=SHA256)
 			self.aes_key = cipher.decrypt(bytes(data[1:]))
 			del self.rsa_key
 			self.send([ControlCodes["RSA_SEND_SESSION_KEY"]])
