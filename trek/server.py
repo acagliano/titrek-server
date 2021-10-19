@@ -47,7 +47,7 @@ class Server:
 			self.elog(traceback.format_exc(limit=None, chain=True))
 
 	
-	def fetch_required():
+	def fetch_required(self):
 		try:
 			target_version = self.config.settings["client-required"]
 			#verify not earlier than 0.0.104
