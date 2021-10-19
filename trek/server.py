@@ -52,7 +52,7 @@ class Server:
 			target_version = self.config.settings["client-required"]
 			#verify not earlier than 0.0.104
 			tva = target_version.split(".")
-			if not (tva[0] >= 0 and tva[1]>=0 and tva[2]>=104):
+			if not (int(tva[0]) >= 0 and int(tva[1])>=0 and int(tva[2])>=104):
 				self.elog("Indicated client version too old. Setting to minimum allowed.")
 				target_version = "0.0.104"
 			target_url = f"https://titrek.us/common/downloads/prgm/{target_version}/TITREK.bin"
