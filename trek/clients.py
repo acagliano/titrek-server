@@ -1,5 +1,7 @@
 import os,traceback,json,logging,socket,hashlib,re,bcrypt
 from Cryptodome.Cipher import AES
+from Cryptodome.Cipher import PKCS1_OAEP
+from Cryptodome.PublicKey import RSA
 import hmac
 
 from trek.codes import *
@@ -137,6 +139,8 @@ class Client:
 					self.client_send_frame()
 				elif data[0]==ControlCodes["REQ_SECURE_SESSION"]:
 					self.init_secure_session()
+				elif data[0]==ControlCodes["RSA_SEND_SESSION_KEY"]:
+					self.setup_aes_session(data)
 				elif data[0]==ControlCodes["PING"]:
 						self.server.log("Ping? Pong!")
 						self.send([ControlCodes["PING"]])
@@ -482,7 +486,7 @@ outputs:
 		try:
 			iv = bytes(data[1:17])
 			ct = bytes(data[17:])
-			cipher = AES.new(self.key, AES.MODE_CBC, iv=iv)
+			cipher = AES.new(self.aes_key, AES.MODE_CBC, iv=iv)
 			padded_key = cipher.decrypt(ct)
 			padding = padded_key[len(padded_key)-1]
 			key = padded_key[0:-padding]
@@ -526,10 +530,22 @@ outputs:
 		except: self.elog(traceback.format_exc(limit=None, chain=True))
 				    
 	def init_secure_session(self):
-		self.key = os.urandom(32)
-		self.send([ControlCodes["REQ_SECURE_SESSION"]] + list(self.key))
-		return
+		try:
+			self.rsa_key = RSA.generate(1024)
+			pubkey_bytes = bytes(self.rsa_key.publickey().exportKey('DER'))
+			print(f"{pubkey_bytes}")
+			self.send([ControlCodes["REQ_SECURE_SESSION"]] + pubkey_bytes)
+			return
+		except: self.elog(traceback.format_exc(limit=None, chain=True))
 		
+	def setup_aes_session(self, data):
+		try:
+			cipher = PKCS1_OAEP.new(self.rsa_key)
+			self.aes_key = cipher.decrypt(data[1:])
+			del self.rsa_key
+			self.send([ControlCodes["RSA_SEND_SESSION_KEY"]])
+			return
+		except: self.elog(traceback.format_exc(limit=None, chain=True))
 				  
 			
 				   
