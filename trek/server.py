@@ -49,7 +49,7 @@ class Server:
 	
 	def fetch_required():
 		try:
-			target_version = self.config.settings["client-required"])
+			target_version = self.config.settings["client-required"]
 			#verify not earlier than 0.0.104
 			tva = target_version.split(".")
 			if not (tva[0] >= 0 and tva[1]>=0 and tva[2]>=104):
