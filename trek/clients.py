@@ -533,7 +533,6 @@ outputs:
 	def init_secure_session(self):
 		try:
 			self.rsa_key = RSA.generate(1024)
-			self.rsa_key2 = RSA.generate(1024)
 			pubkey_bytes = bytes(self.rsa_key.publickey().exportKey('DER'))[29:29+128]
 			self.send([ControlCodes["REQ_SECURE_SESSION"]] + list(pubkey_bytes))
 			return
