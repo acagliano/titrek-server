@@ -17,6 +17,9 @@ class Config:
 					except ImportError:
 						self.logger.log(logging.INFO, "Package discord-webhook not installed")
 						pass
+				if (self.settings["rsa-key-size"] < 1024) or (self.settings["rsa-key-size"] > 2048):
+					self.logger.log(logging.ERROR, 'RSA key size not within acceptable bounds. Must be in range 1024-2048.')
+					exit(1)
 				self.firewall=TrekFilter(server)
 				self.logger.log(logging.INFO, "Server config loaded!")
 		except:
