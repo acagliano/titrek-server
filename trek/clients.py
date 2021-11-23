@@ -4,6 +4,7 @@ from Cryptodome.Cipher import PKCS1_OAEP
 from Cryptodome.PublicKey import RSA
 from Cryptodome.Hash import SHA256
 import hmac
+import ssl,OpenSSL
 
 from trek.codes import *
 from trek.server import *
@@ -45,14 +46,11 @@ class Client:
 		
 	def init_pubkey(self):
 		if not Client.pubkey:
-			hostname = 'https://play.titrek.us'
-			ctx = ssl.create_default_context()
-			s = ctx.wrap_socket(socket.socket(), server_hostname=hostname)
-			s.connect((hostname, 443))
-			der = s.getpeercert(binary_form=True)
-			cert = x509.Certificate.load(der)
-			pubkey = cert.public_key.unwrap()
-			print(pubkey["modulus"].native)
+			addr = ('https://play.titrek.us', 443)
+			cert = ssl.get_server_certificate((hostname, port))
+			certObj = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_PEM, cert)
+			pk = certObj.get_pubkey()
+			print(pk)
 
 
 	def load_player(self):
