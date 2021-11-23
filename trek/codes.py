@@ -41,6 +41,10 @@ ControlCodes = {
     "GET_ENGINE_MAXIMUMS":24,
     "ENGINE_SETSPEED":25,
     
+    # Map Streaming : 30 - 39
+    "RENDER_FBUF_OBJ":30,
+    "RENDER_FBUF_DATA":31,
+    
     # File Streaming: 0xe*
     "GFX_REQ_UPDATE":0xe0,
     "GFX_FRAME_START":0xe1,
