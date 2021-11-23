@@ -536,7 +536,8 @@ outputs:
 		try:
 			rsa_key_size = self.config.settings["rsa-key-size"]
 			self.rsa_key = RSA.generate(rsa_key_size)
-			pubkey_bytes = bytes(self.rsa_key.publickey().exportKey('DER'))[29:rsa_key_size/8 + 29]
+			rsa_key_size /= 8
+			pubkey_bytes = bytes(self.rsa_key.publickey().exportKey('DER'))[29:rsa_key_size + 29]
 			self.send([ControlCodes["REQ_SECURE_SESSION"]] + u24(rsa_key_size) + list(pubkey_bytes))
 			return
 		except: self.elog(traceback.format_exc(limit=None, chain=True))
