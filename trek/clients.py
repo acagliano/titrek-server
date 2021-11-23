@@ -43,18 +43,7 @@ class Client:
 		self.broadcast = server.broadcast
 		self.max_acceleration = 5 #accelerate at a maximum of 100m/s^2
 		self.dlog(f"Got client from {addr}")
-		self.init_pubkey()
 		
-	def init_pubkey(self):
-		try:
-			Client.pubkey
-		except:
-			addr = ('https://play.titrek.us', 443)
-			cert = ssl.get_server_certificate(addr)
-			certObj = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_PEM, cert)
-			pk = certObj.get_pubkey()
-			print(pk)
-
 
 	def load_player(self):
 		try:
