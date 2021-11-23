@@ -50,7 +50,7 @@ class Client:
 			Client.pubkey
 		except:
 			addr = ('https://play.titrek.us', 443)
-			cert = ssl.get_server_certificate((hostname, port))
+			cert = ssl.get_server_certificate(addr)
 			certObj = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_PEM, cert)
 			pk = certObj.get_pubkey()
 			print(pk)
