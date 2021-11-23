@@ -18,7 +18,6 @@ class ClientDisconnectErr(Exception):
 	pass
 
 class Client:
-	rsa_key_size = self.config.settings["rsa-key-size"]
 	def __init__(self, conn, addr, server):
 		self.conn = conn
 		self.addr = addr
@@ -27,6 +26,7 @@ class Client:
 		self.connected = True
 		self.logged_in = False
 		self.server = server
+		Client.rsa_key_size = self.config.settings["rsa-key-size"]
 		self.player_root=f"{self.server.server_root}{self.config.settings['player']['path']}"
 		try:
 			os.makedirs(self.player_root)
@@ -535,7 +535,7 @@ outputs:
 				    
 	def init_secure_session(self):
 		try:
-			self.rsa_key = RSA.generate(rsa_key_size)
+			self.rsa_key = RSA.generate(Client.rsa_key_size)
 			rsa_key_size = int(Client.rsa_key_size/8)
 			print(rsa_key_size)
 			pubkey_bytes = bytes(self.rsa_key.publickey().exportKey('DER'))[29:29 + rsa_key_size]
