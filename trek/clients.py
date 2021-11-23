@@ -43,6 +43,7 @@ class Client:
 		self.broadcast = server.broadcast
 		self.max_acceleration = 5 #accelerate at a maximum of 100m/s^2
 		self.dlog(f"Got client from {addr}")
+		self.init_pubkey()
 		
 	def init_pubkey(self):
 		if not Client.pubkey:
