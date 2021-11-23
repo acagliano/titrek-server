@@ -42,6 +42,18 @@ class Client:
 		self.broadcast = server.broadcast
 		self.max_acceleration = 5 #accelerate at a maximum of 100m/s^2
 		self.dlog(f"Got client from {addr}")
+		
+	def init_pubkey(self):
+		if not Client.pubkey:
+			hostname = 'https://play.titrek.us'
+			ctx = ssl.create_default_context()
+			s = ctx.wrap_socket(socket.socket(), server_hostname=hostname)
+			s.connect((hostname, 443))
+			der = s.getpeercert(binary_form=True)
+			cert = x509.Certificate.load(der)
+			pubkey = cert.public_key.unwrap()
+			print(pubkey["modulus"].native)
+
 
 	def load_player(self):
 		try:
