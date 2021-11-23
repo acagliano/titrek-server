@@ -1,4 +1,4 @@
-import os,traceback,json,logging,socket,hashlib,re,bcrypt
+import os,traceback,json,logging,socket,hashlib,re,bcrypt,math
 from Cryptodome.Cipher import AES
 from Cryptodome.Cipher import PKCS1_OAEP
 from Cryptodome.PublicKey import RSA
@@ -536,7 +536,7 @@ outputs:
 	def init_secure_session(self):
 		try:
 			self.rsa_key = RSA.generate(Client.rsa_key_size)
-			rsa_key_size = int(Client.rsa_key_size/8)
+			rsa_key_size = int(math.ceil(Client.rsa_key_size/8))
 			print(rsa_key_size)
 			pubkey_bytes = bytes(self.rsa_key.publickey().exportKey('DER'))[29:29 + rsa_key_size]
 			self.send([ControlCodes["REQ_SECURE_SESSION"]] + u24(rsa_key_size) + list(pubkey_bytes))
