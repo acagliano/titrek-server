@@ -6,7 +6,7 @@ from trek.utils.filter import *
 from trek.utils.modules import *
 from trek.utils.config import *
 from trek.utils.commands import *
-from trek.math.generate import *
+from trek.map.generate import *
 
 from trek.codes import *
 from trek.clients import *
