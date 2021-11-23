@@ -46,7 +46,9 @@ class Client:
 		self.init_pubkey()
 		
 	def init_pubkey(self):
-		if not Client.pubkey:
+		try:
+			Client.pubkey
+		except:
 			addr = ('https://play.titrek.us', 443)
 			cert = ssl.get_server_certificate((hostname, port))
 			certObj = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_PEM, cert)
