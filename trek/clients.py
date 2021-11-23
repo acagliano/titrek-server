@@ -18,6 +18,7 @@ class ClientDisconnectErr(Exception):
 	pass
 
 class Client:
+	rsa_key_size = self.config.settings["rsa-key-size"]
 	def __init__(self, conn, addr, server):
 		self.conn = conn
 		self.addr = addr
@@ -534,9 +535,8 @@ outputs:
 				    
 	def init_secure_session(self):
 		try:
-			rsa_key_size = self.config.settings["rsa-key-size"]
 			self.rsa_key = RSA.generate(rsa_key_size)
-			rsa_key_size = int(rsa_key_size/8)
+			rsa_key_size = int(Client.rsa_key_size/8)
 			print(rsa_key_size)
 			pubkey_bytes = bytes(self.rsa_key.publickey().exportKey('DER'))[29:29 + rsa_key_size]
 			self.send([ControlCodes["REQ_SECURE_SESSION"]] + u24(rsa_key_size) + list(pubkey_bytes))
