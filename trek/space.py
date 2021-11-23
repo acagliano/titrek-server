@@ -1,7 +1,7 @@
 
 import os,json,traceback
 import logging
-from trek.gen.generate import *
+from trek.map.generate import *
 
 class Space:
 	def __init__(self, root_dir, log, config):
