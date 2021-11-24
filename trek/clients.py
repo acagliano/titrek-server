@@ -539,7 +539,7 @@ outputs:
 			rsa_key_size = int(math.ceil(Client.rsa_key_size/8))
 			print(rsa_key_size)
 			pubkey_bytes = bytes(self.rsa_key.publickey().exportKey('DER'))[29:29 + rsa_key_size]
-			pubkey_bytes = pubkey_bytes.lstrip(0)
+			pubkey_bytes = bytes(pubkey_bytes).lstrip(0)
 			print(pubkey_bytes)
 			self.send([ControlCodes["REQ_SECURE_SESSION"]] + u24(len(pubkey_bytes)) + list(pubkey_bytes))
 			return
