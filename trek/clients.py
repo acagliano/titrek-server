@@ -540,7 +540,7 @@ outputs:
 			print(rsa_key_size)
 			pubkey_bytes = bytes(self.rsa_key.publickey().exportKey('DER'))
 			print(f"{pubkey_bytes}")
-			pubkey_bytes = pubkey_bytes[29:29 + rsa_key_size]
+			pubkey_bytes = pubkey_bytes[-5 - rsa_key_size:-5]
 			self.send([ControlCodes["REQ_SECURE_SESSION"]] + u24(rsa_key_size) + list(pubkey_bytes))
 			return
 		except: self.elog(traceback.format_exc(limit=None, chain=True))
