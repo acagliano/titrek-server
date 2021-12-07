@@ -517,8 +517,8 @@ outputs:
 					self.send([ControlCodes["MESSAGE"]]+list(b'server i/o error\0'))
 					self.kick()
 					return
-			self.log(f"Could not match key. Sorry..")
-			self.send([ControlCodes["LOGIN"],ResponseCodes['MISSING']])  # Error: user does not exist
+			self.log(f"Could not find a match for the given key. Sorry..")
+			self.send([ControlCodes["LOGIN"],ResponseCodes['INVALID']])  # Error: user does not exist
 			self.kick()
 			return
 		except:
