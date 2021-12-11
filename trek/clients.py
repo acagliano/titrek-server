@@ -530,6 +530,7 @@ outputs:
 		try:
 			self.connected=False
 			self.conn.shutdown(socket.SHUT_WR)
+			self.log(f"{self.user} has been kicked.")
 		except OSError: self.log("Error terminating the endpoint; It may have already disconnected")
 		except: self.elog(traceback.format_exc(limit=None, chain=True))
 				    
