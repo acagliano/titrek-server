@@ -56,7 +56,8 @@ class Server:
 				self.elog("Indicated client version too old. Setting to minimum allowed.")
 				target_version = "0.0.104"
 			target_url = f"https://play.titrek.us/common/downloads/prgm/{target_version}/TITREK.bin"
-			print(target_url)
+			self.log(f"Downloading client binary from {target_url}.")
+			os.remove(f"{self.server_root}data/bins/TITREK.bin") 
 			wget.download(target_url, f"{self.server_root}data/bins/TITREK.bin")
 		except:
 			self.elog(traceback.format_exc(limit=None, chain=True))
