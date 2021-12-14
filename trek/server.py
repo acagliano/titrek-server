@@ -165,7 +165,7 @@ class Server:
 			servinfo={"server":{
 				"version": version,
 				"numclients":len(self.clients),
-				"reqversion":delim.join([str(item) for item in self.config.settings["client-required"]]),
+				"reqversion":self.config.settings["client-required"]]),
 				"max_clients":self.config.settings["max-players"],
 				"online":self.online}}
 			json.dump(servinfo, f)
