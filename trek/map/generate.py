@@ -1,3 +1,46 @@
+# MAP STRUCTURE
+#
+# data/space/..
+# 	galaxy##/	foreach galaxy in map, where ## is a number from 00 to 99 (or ff if we need more)
+# 		galaxy.dat	metadata for galactic center
+#		sys00.dat	metadata for sys00
+#		sys01.dat	metadata for sys01
+#		...
+#		sys99.dat	metadata for sys99
+#
+#	In galaxy.dat:
+#	json = {"name":<name>, "radius":<size>, "coords":{"x":<x>,"y":<y>,"z":<z>},"motion":{"dx":<x>,"dy":<y>,"dz":<z>}}
+#	* if the map contains multiple galaxies, each galaxy will need coordinates of its own relative to universe origin.
+#
+#	In sys00.dat:
+#	json = {"name":<name>, "coords":{"x":<x>,"y":<y>,"z":<z>}, "motion":{"dx":<x>,"dy":<y>,"dz":<z>}, "bodies":[<arr of objects>]}
+#	foreach(<arr of objects>):
+#		json={"name":<name>, "type":<type>, "radius":<radius>, "mass":mass",
+#			coords:"coords":{"x":<x>,"y":<y>,"z":<z>}, "motion":{"dx":<x>,"dy":<y>,"dz":<z>}
+#			...}
+#
+#	## Relative positioning system ##
+#	If top-level is universe, then
+#		(1) set universe origin to (0,0,0)
+#		(2) generate galaxies with origins at offsets from universe origin (use relative coordinates in json)
+#			Ex: galaxy00's (0,0,0) point may occur at (-23000000, 320000, 120000000) from universe origin.
+#		(3) generate systems with origins at offsets from galaxy origin (use relative coordinates in json)
+#			Ex: sys00's (0,0,0) point may occur at (141000, -10000, 320000) from galaxy00's origin.
+#			This also places it at the absolute coord (-22859000, 310000, 120320000) relative to universe origin.
+#			Use relative coords to make the math less intensive.
+#		(4) generate system objects (planets, stars, black holes, etc) at offsets from system origin
+#		(5) An object's absolute position is universe_origin + galaxy_origin + system_origin + object_coords
+#		(6) Universe Generation (per galaxy) (if multi-galaxy support) should continue with somewhat of a random
+#			distribution of galaxies being placed at coordinates progressively further from the universe origin
+#			until the target map radius is hit.
+#		(7) Galaxy Generation (per galaxy) should continue with somewhat of a center-weighted distribution of systems 
+#			being placed at coordinates progressively further from the galaxy origin until the galaxy target radius is hit.
+#		(8) System Generation (per system) should continue with a distribution of planets, stars, asteroids, and black holes
+#			being placed at coordinates progressively further from the system origin until the system target radius is hit.
+#	If top-level is galaxy, then skip universe origin step and set galaxy origin to (0,0,0). Continue normally.
+#	Even if not planning to support multi-galaxy in present release, still create the galaxy## directory, for forward compat.
+#	
+
 import os,json,math,random,time,traceback
 from trek.math.npcs import *
 from trek.math.vec3 import *
