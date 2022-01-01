@@ -38,7 +38,7 @@
 #		(8) System Generation (per system) should continue with a distribution of planets, stars, asteroids, and black holes
 #			being placed at coordinates progressively further from the system origin until the system target radius is hit.
 #	If top-level is galaxy, then skip universe origin step and set galaxy origin to (0,0,0). Continue normally.
-#	Even if not planning to support multi-galaxy in present release, still create the galaxy## directory, for forward compat.
+#	Even if not planning to support multi-galaxy in present release, still create the galaxy00 directory, for forward compat.
 #	** The system generator should select what to place where from a table of weighted options (based on distance from origin??).
 #	** The universe/galaxy generator should use some sort of noise generation algorithm to place galaxies/systems.
 
