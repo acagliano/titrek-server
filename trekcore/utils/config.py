@@ -1,5 +1,5 @@
 import ssl,traceback,os,logging,json
-from trek.utils.filter import *
+from trekcore.utils.filter import *
 SUPPORTS_SSL=False
 
 class Config:
