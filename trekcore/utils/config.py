@@ -6,7 +6,7 @@ class Config:
 	def __init__(self, log, server):
 		try:
 			self.logger=log
-			with open(f'config.json', 'r') as f:
+			with open(f'configs/server.conf', 'r') as f:
 				self.settings=json.load(f)
 				self.settings["packet-size"]=max(4096, self.settings["packet-size"])
 				self.settings["gamedata"]="data/"
