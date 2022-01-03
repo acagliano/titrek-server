@@ -6,7 +6,7 @@ from trekcore.utils.filter import *
 from trekcore.utils.modules import *
 from trekcore.utils.config import *
 from trekcore.utils.commands import *
-from trekcore.map.generate import *
+from trekcore.generate import *
 
 from trekcore.codes import *
 from trekcore.clients import *
