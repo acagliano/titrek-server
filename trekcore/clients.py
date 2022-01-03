@@ -6,13 +6,13 @@ from Cryptodome.Hash import SHA256
 import hmac
 import ssl,OpenSSL
 
-from trek.codes import *
-from trek.server import *
-from trek.utils.logging import *
-from trek.utils.filter import *
-from trek.utils.modules import *
-from trek.math.vec3 import *
-from trek.utils.util import *
+from trekcore.codes import *
+from trekcore.server import *
+from trekcore.utils.logging import *
+from trekcore.utils.filter import *
+from trekcore.utils.modules import *
+from trekcore.math.vec3 import *
+from trekcore.utils.util import *
 
 class ClientDisconnectErr(Exception):
 	pass
