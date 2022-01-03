@@ -1,6 +1,6 @@
 import logging,os,json,traceback
 
-from trek.server import *
+from trekcore.server import *
 
 class ConsoleException(Exception):
 	pass
