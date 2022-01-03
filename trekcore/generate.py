@@ -43,10 +43,10 @@
 #	** The universe/galaxy generator should use some sort of noise generation algorithm to place galaxies/systems.
 
 import os,json,math,random,time,traceback
-from trek.math.npcs import *
-from trek.math.vec3 import *
-from trek.codes import *
-from trek.math.constants import *
+from trekcore.math.npcs import *
+from trekcore.math.vec3 import *
+from trekcore.codes import *
+from trekcore.math.constants import *
 
 class Generator:
 	def __init__(self):
