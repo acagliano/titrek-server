@@ -58,12 +58,15 @@ class TrekFilter:
 			self.server.log(f"Checking packet {data[0]} from {client.addr[0]}")
 			if self.invalid_size(data):
 				self.server.logger.log(logging.FILTER, f"Suspect packet from {client.addr[0]} intercepted. Reason: invalid size")
+				client.send([ControlCodes["DEBUG"]]+list(bytes("Packet size err. ID:"+data[0]+'\0', 'UTF-8')))
 				return False
 			if self.restricted_ids(client, data):
 				self.server.logger.log(logging.FILTER, f"Suspect packet from {client.addr[0]} intercepted. Reason: unpriviledged client attempting to use priviledged packet IDs")
+				client.send([ControlCodes["DEBUG"]]+list(bytes("Packet permission err. ID:"+data[0]+'\0', 'UTF-8')))
 				return False
 			if self.special_chars(data):
 				self.server.logger.log(logging.FILTER, f"Suspect packet from {client.addr[0]} intercepted. Reason: non-text characters in text-only data segment")
+				client.send([ControlCodes["DEBUG"]]+list(bytes("Packet invalid text field err. ID:"+data[0]+'\0', 'UTF-8')))
 				return False
 
 			return True
