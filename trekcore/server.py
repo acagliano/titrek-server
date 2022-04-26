@@ -1,5 +1,5 @@
 import socket,threading,ctypes,hashlib,json,os,sys,time,math,ssl,traceback,subprocess,logging,gzip,re,ipaddress
-import wget
+import requests
 
 from trekcore.utils.logging import *
 from trekcore.utils.filter import *
@@ -56,12 +56,13 @@ class Server:
 				self.elog("Indicated client version too old. Setting to minimum allowed.")
 				target_version = "0.0.104"
 			target_url = f"https://github.com/acagliano/titrek-calc/releases/download/v{target_version}/TITREK.bin"
+			local_file = f"{self.server_root}data/bins/TITREK.bin"
 			self.log(f"Downloading client binary from {target_url}.")
-			try:
-				os.remove(f"{self.server_root}data/bins/TITREK.bin") 
-			except IOError:
-				pass
-			wget.download(target_url, f"{self.server_root}data/bins/TITREK.bin")
+			r = requests.get(target_url)
+    			with open(local_file, 'wb') as f:
+   				for chunk in r.iter_content(chunk_size=8192): 
+        			if chunk: # filter out keep-alive new chunks
+          				f.write(chunk)
 		except:
 			self.elog(traceback.format_exc(limit=None, chain=True))
 			
