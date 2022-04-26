@@ -57,7 +57,10 @@ class Server:
 				target_version = "0.0.104"
 			target_url = f"https://play.titrek.us/common/downloads/prgm/{target_version}/TITREK.bin"
 			self.log(f"Downloading client binary from {target_url}.")
-			os.remove(f"{self.server_root}data/bins/TITREK.bin") 
+			try:
+				os.remove(f"{self.server_root}data/bins/TITREK.bin") 
+			except IOError:
+				pass
 			wget.download(target_url, f"{self.server_root}data/bins/TITREK.bin")
 		except:
 			self.elog(traceback.format_exc(limit=None, chain=True))
