@@ -55,7 +55,7 @@ class Server:
 			if not (int(tva[0]) >= 0 and int(tva[1])>=0 and int(tva[2])>=104):
 				self.elog("Indicated client version too old. Setting to minimum allowed.")
 				target_version = "0.0.104"
-			target_url = f"https://play.titrek.us/common/downloads/prgm/{target_version}/TITREK.bin"
+			target_url = f"https://github.com/acagliano/titrek-calc/releases/tag/v{target_version}/TITREK.bin"
 			self.log(f"Downloading client binary from {target_url}.")
 			try:
 				os.remove(f"{self.server_root}data/bins/TITREK.bin") 
