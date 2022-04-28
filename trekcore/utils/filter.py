@@ -56,6 +56,10 @@ class TrekFilter:
 	def filter_packet(self,client,data):
 		try:
 			self.server.log(f"Checking packet {data[0]} from {client.addr[0]}")
+			if not data[0] in ControlCodes:
+				self.server.logger.log(logging.FILTER, f"Suspect packet from {client.addr[0]} intercepted. Reason: unregistered packet type")
+				client.send([ControlCodes["DEBUG"]]+list(bytes("Unregistered packet. ID:"+data[0]+'\0', 'UTF-8')))
+				return False
 			if self.invalid_size(data):
 				self.server.logger.log(logging.FILTER, f"Suspect packet from {client.addr[0]} intercepted. Reason: invalid size")
 				client.send([ControlCodes["DEBUG"]]+list(bytes("Packet size err. ID:"+data[0]+'\0', 'UTF-8')))
