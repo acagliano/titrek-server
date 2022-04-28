@@ -114,8 +114,11 @@ class Client:
 	def send(self,data):
 		if data[0] in self.config.settings["debug"]:
 			self.log(data)
+		if (len(data)+3) > self.config.settings["packet-size"]:
+			elf.elog("Error: Packet buffer overflow. Failed to send packet!")
+			return
 		try:
-			bytes_sent = self.conn.send(bytes(data[0:min(len(data), self.config.settings["packet-size"])]))
+			bytes_sent = self.conn.send(u24(len(data)) + bytes(data[0:min(len(data), self.config.settings["packet-size"])]))
 			if not bytes_sent:
 				raise Exception("packet transmission error")
 			print(f"Sent packet id {data[0]}; Packet length: {bytes_sent}")
@@ -423,7 +426,7 @@ outputs:
 			del self.gfx_hash
 			del self.client_side_sha256
 			return
-		data_offset = min(self.config.settings["packet-size"]-1, self.gfx_len - self.gfx_curr)
+		data_offset = min(self.config.settings["packet-size"]-4, self.gfx_len - self.gfx_curr)
 		data_to_send = self.gfx_bin[self.gfx_curr:self.gfx_curr+data_offset]
 		print(f"Length of data to send (outer): {len(data_to_send)}\n")
 		data_sent = self.send([ControlCodes['GFX_FRAME_IN']]+list(data_to_send))
@@ -448,7 +451,7 @@ outputs:
 			del self.client_hash
 			del self.client_side_sha256
 			return
-		data_offset = min(self.config.settings["packet-size"]-1, self.client_len - self.client_curr)
+		data_offset = min(self.config.settings["packet-size"]-4, self.client_len - self.client_curr)
 		data_to_send = self.client_bin[self.client_curr:self.client_curr+data_offset]
 		data_sent = self.send([ControlCodes['MAIN_FRAME_IN']]+list(data_to_send))
 		self.client_curr += (data_sent - 1)
