@@ -131,7 +131,7 @@ class Client:
 		self.conn.settimeout(self.config.settings["idle-timeout"])
 		while self.server.online:
 			try:
-				self.data += list(self.conn.recv(self.config.settings["packet-size"]))
+				self.data.append(list(self.conn.recv(self.config.settings["packet-size"])))
 				
 				# check if data_size is unset, if it is, read size
 				if not self.data_size:
