@@ -150,8 +150,8 @@ class Client:
 				data = list(self.data_stream)
 				
 				# reset data size and advance the internal data block
-				self.data_size = 0
 				self.data_stream = self.data_stream[self.data_size:]
+				self.data_size = 0
 				
 				if not data or not self.connected:
 					raise ClientDisconnectErr(f"{self.user} disconnected!")
