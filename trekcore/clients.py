@@ -132,7 +132,7 @@ class Client:
 		while self.server.online:
 			try:
 				self.data_stream += bytes(list(self.conn.recv(self.config.settings["packet-size"])))
-				
+				print("we got here")
 				# check if data_size is unset, if it is, read size
 				if not self.data_size:
 					if len(self.data_stream) < 3: return
