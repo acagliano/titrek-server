@@ -121,7 +121,7 @@ class Client:
 			return
 		try:
 			to_send = bytes(u24(len(data)))
-			bytes_out = bytes(data[0:min(len(data), self.config.settings["packet-size"])])))
+			bytes_out = bytes(data[0:min(len(data), self.config.settings["packet-size"])])
 					
 			bytes_sent = self.conn.send(to_send + bytes_out)
 			if not bytes_sent:
