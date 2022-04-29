@@ -120,7 +120,10 @@ class Client:
 			elf.elog("Error: Packet buffer overflow. Failed to send packet!")
 			return
 		try:
-			bytes_sent = self.conn.send(bytes(u24(len(data)) + data[0:min(len(data), self.config.settings["packet-size"])]))
+			to_send = bytes(u24(len(data)))
+			bytes_out = bytes(data[0:min(len(data), self.config.settings["packet-size"])])))
+					
+			bytes_sent = self.conn.send(to_send + bytes_out)
 			if not bytes_sent:
 				raise Exception("packet transmission error")
 			print(f"Sent packet id {data[0]}; Packet length: {bytes_sent}")
