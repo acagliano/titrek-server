@@ -453,7 +453,7 @@ outputs:
 		data_to_send = self.gfx_bin[self.gfx_curr:self.gfx_curr+data_offset]
 		print(f"Length of data to send (outer): {len(data_to_send)}\n")
 		data_sent = self.send([ControlCodes['GFX_FRAME_IN']]+list(data_to_send))
-		self.gfx_curr += (data_sent - 1)
+		self.gfx_curr += (data_sent - 4)
 	
 	def client_send_frame(self):
 		if hmac.compare_digest(self.client_side_sha256, self.client_hash):
@@ -477,7 +477,7 @@ outputs:
 		data_offset = min(self.config.settings["packet-size"]-4, self.client_len - self.client_curr)
 		data_to_send = self.client_bin[self.client_curr:self.client_curr+data_offset]
 		data_sent = self.send([ControlCodes['MAIN_FRAME_IN']]+list(data_to_send))
-		self.client_curr += (data_sent - 1)
+		self.client_curr += (data_sent - 4)
 
 
 	def fromControlCode(self,code):
