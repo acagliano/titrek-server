@@ -136,7 +136,7 @@ class Client:
 				# check if data_size is unset, if it is, read size
 				if not self.data_size:
 					if len(self.data_stream) < 3: return
-					self.data_size = int.from_bytes(self.data_stream[0:3], "big")
+					self.data_size = int.from_bytes(self.data_stream[0:3], "little")
 					self.data_stream = self.data_stream[3:]
 				
 				print("we also got here")
