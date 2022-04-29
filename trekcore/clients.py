@@ -144,7 +144,7 @@ class Client:
 					return
 				
 				# duplicate data for internal use
-				data = self.data_stream
+				data = list(self.data_stream)
 				
 				# reset data size and advance the internal data block
 				self.data_size = 0
