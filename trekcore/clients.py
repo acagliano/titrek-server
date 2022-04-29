@@ -140,6 +140,7 @@ class Client:
 					self.data_stream = self.data_stream[3:]
 				
 				print("we also got here")
+				print(f"{self.data_size} bytes reqd, stream size {len(self.data_stream)} bytes")
 				# if length of data is unsufficient, return
 				if len(self.data_stream) < self.data_size:
 					return
