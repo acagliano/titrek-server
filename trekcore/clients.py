@@ -139,10 +139,12 @@ class Client:
 					self.data_size = int.from_bytes(self.data_stream[0:3], "big")
 					self.data_stream = self.data_stream[3:]
 				
+				print("we also got here")
 				# if length of data is unsufficient, return
 				if len(self.data_stream) < self.data_size:
 					return
 				
+				print("then we got here")
 				# duplicate data for internal use
 				data = list(self.data_stream)
 				
