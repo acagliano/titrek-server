@@ -26,7 +26,7 @@ class Client:
 		self.connected = True
 		self.logged_in = False
 		self.server = server
-		self.data = b''
+		self.data_stream = b''
 		self.data_size = 0
 		Client.rsa_key_size = self.config.settings["rsa-key-size"]
 		self.player_root=f"{self.server.server_root}{self.config.settings['player']['path']}"
@@ -131,24 +131,24 @@ class Client:
 		self.conn.settimeout(self.config.settings["idle-timeout"])
 		while self.server.online:
 			try:
-				self.data += bytes(list(self.conn.recv(self.config.settings["packet-size"])))
+				self.data_stream += bytes(list(self.conn.recv(self.config.settings["packet-size"])))
 				
 				# check if data_size is unset, if it is, read size
 				if not self.data_size:
-					if len(self.data) < 3: return
-					self.data_size = int.from_bytes(self.data[0:3], "big")
-					self.data = self.data[3:]
+					if len(self.data_stream) < 3: return
+					self.data_size = int.from_bytes(self.data_stream[0:3], "big")
+					self.data_stream = self.data_stream[3:]
 				
 				# if length of data is unsufficient, return
-				if len(self.data) < self.data_size:
+				if len(self.data_stream) < self.data_size:
 					return
 				
 				# duplicate data for internal use
-				data = self.data
+				data = self.data_stream
 				
 				# reset data size and advance the internal data block
 				self.data_size = 0
-				self.data = self.data[self.data_size:]
+				self.data_stream = self.data_stream[self.data_size:]
 				
 				if not data or not self.connected:
 					raise ClientDisconnectErr(f"{self.user} disconnected!")
