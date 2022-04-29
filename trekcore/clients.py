@@ -26,7 +26,7 @@ class Client:
 		self.connected = True
 		self.logged_in = False
 		self.server = server
-		self.data = []
+		self.data = b''
 		self.data_size = 0
 		Client.rsa_key_size = self.config.settings["rsa-key-size"]
 		self.player_root=f"{self.server.server_root}{self.config.settings['player']['path']}"
@@ -131,7 +131,7 @@ class Client:
 		self.conn.settimeout(self.config.settings["idle-timeout"])
 		while self.server.online:
 			try:
-				self.data.append(list(self.conn.recv(self.config.settings["packet-size"])))
+				self.data += bytes(list(self.conn.recv(self.config.settings["packet-size"])))
 				
 				# check if data_size is unset, if it is, read size
 				if not self.data_size:
