@@ -28,12 +28,23 @@ class Server:
 		try:
 			self.setup_loggers()
 			self.config=Config(self.logger, self)
+			for directory in [
+				self.config.settings["gamedata"],
+				f"{self.config.settings["gamedata"]}/assets",
+				f"{self.config.settings["gamedata"]}/players",
+				f"{self.config.settings["gamedata"]}/client-binaries",
+				f"{self.config.settings["gamedata"]}/bans",
+				f"{self.config.settings["gamedata"]}/bin",
+				f"{self.config.settings["gamedata"]}/space"]:
+				try:
+					os.makedirs(directory)
+				except: pass
 			self.loadbans()
 #			self.init_binaries()
 			self.fw=self.config.firewall
 			self.generator = Generator()
 			self.space = Space(self.server_root, self.logger, self.config.settings["space"])
-			self.modules=TrekModules("data/modules/")
+			self.modules=TrekModules(f"{self.config.settings["gamedata"]}/assets/modules")
 			self.fetch_required()
 		
 			self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)         # Create a socket object
@@ -56,7 +67,7 @@ class Server:
 				self.elog("Indicated client version too old. Setting to minimum allowed.")
 				target_version = "0.0.104"
 			target_url = f"https://github.com/acagliano/titrek-calc/releases/download/v{target_version}/TITREK.bin"
-			local_file = f"{self.server_root}data/bins/TITREK.bin"
+			local_file = f"{self.config.settings["gamedata"]}/bin/TITREK.bin"
 			self.log(f"Downloading client binary from {target_url}.")
 			r = requests.get(target_url)
 			with open(local_file, 'wb') as f:
