@@ -59,10 +59,10 @@ class Server:
 			local_file = f"{self.server_root}data/bins/TITREK.bin"
 			self.log(f"Downloading client binary from {target_url}.")
 			r = requests.get(target_url)
-    			with open(local_file, 'wb') as f:
-   				for chunk in r.iter_content(chunk_size=8192): 
-        			if chunk: # filter out keep-alive new chunks
-          				f.write(chunk)
+			with open(local_file, 'wb') as f:
+				for chunk in r.iter_content(chunk_size=8192): 
+					if chunk: # filter out keep-alive new chunks
+						f.write(chunk)
 		except:
 			self.elog(traceback.format_exc(limit=None, chain=True))
 			
