@@ -6,7 +6,7 @@ class Config:
 	def __init__(self, log, server):
 		try:
 			self.logger=log
-			with open(f'configs/server.conf', 'r') as f:
+			with open(f'config/server.conf', 'r') as f:
 				self.settings=json.load(f)
 				self.settings["packet-size"]=max(4096, self.settings["packet-size"])
 				if self.settings["enable-discord-link"]:
