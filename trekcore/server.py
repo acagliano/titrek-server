@@ -43,7 +43,7 @@ class Server:
 #			self.init_binaries()
 			self.fw=self.config.firewall
 			self.generator = Generator()
-			self.space = Space(self.server_root, self.logger, self.config.settings["space"])
+			self.space = Space(self.server_root, self.logger, f"{self.config.settings['gamedata']}/space")
 			self.modules=TrekModules(f"{self.config.settings['gamedata']}/assets/modules")
 			self.fetch_required()
 		
