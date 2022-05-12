@@ -67,7 +67,7 @@ class Server:
 				self.elog("Indicated client version too old. Setting to minimum allowed.")
 				target_version = "0.0.104"
 			target_url = f"https://github.com/acagliano/titrek-calc/releases/download/v{target_version}/TITREK.bin"
-			local_file = f"{self.config.settings["gamedata"]}/bin/TITREK.bin"
+			local_file = f"{self.config.settings['gamedata']}/bin/TITREK.bin"
 			self.log(f"Downloading client binary from {target_url}.")
 			r = requests.get(target_url)
 			with open(local_file, 'wb') as f:
