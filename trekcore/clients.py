@@ -415,7 +415,7 @@ outputs:
 	def init_client_transfer(self, data):
 		try:
 			self.log("Loading client binary")
-			client_bin = f"data/bins/TITREK.bin"
+			client_bin = f"data/client-binaries/TITREK.bin"
 			self.client_side_sha256 = bytes(data[1:])
 			with open(f"{client_bin}", "rb") as f:
 				self.client_bin = f.read()
