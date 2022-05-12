@@ -44,7 +44,7 @@ class Server:
 			self.fw=self.config.firewall
 			self.generator = Generator()
 			self.space = Space(self.server_root, self.logger, self.config.settings["space"])
-			self.modules=TrekModules(f"{self.config.settings["gamedata"]}/assets/modules")
+			self.modules=TrekModules(f"{self.config.settings['gamedata']}/assets/modules")
 			self.fetch_required()
 		
 			self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)         # Create a socket object
