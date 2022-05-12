@@ -29,7 +29,7 @@ class Client:
 		self.data_stream = b''
 		self.data_size = 0
 		Client.rsa_key_size = self.config.settings["rsa-key-size"]
-		self.player_root=f"{self.server.server_root}{self.config.settings['player']['path']}"
+		self.player_root=f"{self.server.server_root}{self.config.settings['player']}/players/"
 		try:
 			os.makedirs(self.player_root)
 		except:
@@ -100,7 +100,7 @@ class Client:
 
 	def save_player(self):
 		try:
-			os.makedirs(f"{self.config['path']}{self.user}")
+			os.makedirs(f"{self.player_root}{self.user}")
 		except:
 			pass
 		for k in ['x','y','z']:
