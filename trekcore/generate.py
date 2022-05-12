@@ -130,9 +130,9 @@ def PlanetoidSystem(seed,pos):
 
 
 
-StandardPlanetList = LoadJsonFile("data/planetoids/planets.json")["data"]
-StandardStarList = LoadJsonFile("data/planetoids/stars.json")["data"]
-Materials = LoadJsonFile("data/materials/materials.json")["data"]
+StandardPlanetList = LoadJsonFile("data/assets/planetoids/planets.json")["data"]
+StandardStarList = LoadJsonFile("data/assets/planetoids/stars.json")["data"]
+Materials = LoadJsonFile("data/assets/materials/materials.json")["data"]
 
 #if __name__=='__main__':
 	#do some tests
