@@ -9,7 +9,6 @@ class Config:
 			with open(f'configs/server.conf', 'r') as f:
 				self.settings=json.load(f)
 				self.settings["packet-size"]=max(4096, self.settings["packet-size"])
-				self.settings["gamedata"]="data/"
 				if self.settings["enable-discord-link"]:
 					try:
 						import discord_webhook
