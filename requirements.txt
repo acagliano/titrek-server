@@ -1,3 +1,6 @@
 discord-webhook>=0.11.0
 pyOpenSSL>=19.0.0
+<<<<<<< HEAD
 astropy>=4.3
+=======
+>>>>>>> e77b091b03e732b41575f1b535c9851916c8f38d
