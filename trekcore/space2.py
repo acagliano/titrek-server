@@ -14,7 +14,7 @@ class Space:
 			self.logger.log(logging.INFO, f"Loading map.")
 			with open(f"{self.path}/universe.meta", "r") as f:
 				universe_meta = json.load(f)
-			galaxies = [ item for item in os.listdir(self.path) if os.path.isdir(os.path.join(root, item)) ]
+			galaxies = [ item for item in os.listdir(self.path) if os.path.isdir(os.path.join(self.path, item)) ]
 			for galaxy in galaxies:
 				self.map.append(CelestialObject(f"{self.path}/{galaxy}"))
 				
