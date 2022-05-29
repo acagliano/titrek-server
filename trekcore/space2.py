@@ -44,3 +44,19 @@ class Space:
 	def map_to_octree(self):
 	# converts the multi-d json array to octree for optimized proximity checking
 	# call this after loading the map
+	
+	
+class CelestialObject:
+	def __init__(self):
+		
+		
+class Galaxy(CelestialObject):
+	
+	
+class System(CelestialObject):
+	
+
+class Planetoid(CelestialObject):
+	
+	
+class Stellar(CellestialObject):
