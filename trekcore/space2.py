@@ -69,9 +69,13 @@ class Galaxy(CelestialObject):
 			self.generate()
 		
 	def load(self):
-		systems = [ item for item in os.listdir(self.path) if os.path.isfile(os.path.join(self.path, item)) ]
-		for s in systems:
-			self.contains.append(System(f"{self.path}/{s}", INIT_MODE_LOAD))
+		try:
+			systems = [ item for item in os.listdir(self.path) if os.path.isfile(os.path.join(self.path, item)) ]
+			for s in systems:
+				self.contains.append(System(f"{self.path}/{s}", INIT_MODE_LOAD))
+		
+		except:
+			self.logger.log(logging.ERROR, traceback.print_exc(limit=None, file=None, chain=True))
 			
 		
 	def generate(self):
@@ -95,8 +99,11 @@ class System(CelestialObject):
 			self.identifier = self.path
 			with open(self.path, "r") as f:
 				systemjson = json.load(f)
-				for x in systemjson["bodies"]:
-					self.contains.append(SystemBody(), INIT_MODE_LOAD)
+				for sb in systemjson["system-bodies"]:
+					self.contains.append(SystemBody(sb), INIT_MODE_LOAD)
+					
+		except:
+			self.logger.log(logging.ERROR, traceback.print_exc(limit=None, file=None, chain=True))
 		
 		
 		
@@ -107,7 +114,13 @@ class System(CelestialObject):
 	
 
 class SystemBody(CelestialObject):
+	def __init__(self, filepath, mode):
+		self.source = filepath
+		self.identifier = self.source
+		
+		
 	def load(self):
+		try:
 		
 	def generate(self):
 		
