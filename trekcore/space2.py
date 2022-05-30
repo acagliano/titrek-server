@@ -1,5 +1,6 @@
 import json,os,sys,logging,traceback
 from pathlib import Path
+from abc import ABC, abstractmethod
 
 INIT_MODE_LOAD = 0
 INIT_MODE_GENERATE = 1
@@ -51,7 +52,7 @@ class Space:
 	# call this after loading the map
 	
 	
-class CelestialObject:
+class CelestialObject(ABC):
 	def __init__(self, filepath, mode):
 		self.path = filepath
 		self.contains = {}
