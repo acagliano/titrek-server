@@ -1,4 +1,5 @@
 import json,os,sys,logging,traceback
+from pathlib import Path
 
 INIT_MODE_LOAD = 0
 INIT_MODE_GENERATE = 1
@@ -53,7 +54,7 @@ class Space:
 class CelestialObject:
 	def __init__(self, filepath, mode):
 		self.path = filepath
-		self.identifier = os.path.basename(filepath).split('.')[0])
+		self.identifier = Path(self.path).stem
 		self.contains = {}
 		if mode==INIT_MODE_LOAD:
 			self.load()
@@ -69,7 +70,7 @@ class Galaxy(CelestialObject):
 			
 		
 	def generate(self):
-		for x in <num of systems>:
+	#	for x in <num of systems>:
 			
 	def save(self)
 	
