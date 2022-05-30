@@ -54,7 +54,6 @@ class Space:
 class CelestialObject:
 	def __init__(self, filepath, mode):
 		self.path = filepath
-		self.identifier = Path(self.path).stem
 		self.contains = {}
 		if mode==INIT_MODE_LOAD:
 			self.load()
@@ -64,6 +63,7 @@ class CelestialObject:
 		
 class Galaxy(CelestialObject):
 	def load(self):
+		self.identifier = Path(self.path).stem
 		systems = [ item for item in os.listdir(self.path) if os.path.isfile(os.path.join(self.path, item)) ]
 		for s in systems:
 			self.contains.append(System(f"{self.path}/{s}", INIT_MODE_LOAD))
@@ -77,6 +77,8 @@ class Galaxy(CelestialObject):
 	
 class System(CelestialObject):
 	def load(self):
+		self.identifier = self.path
+		
 		
 	def generate(self):
 		
