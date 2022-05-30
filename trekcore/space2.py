@@ -53,18 +53,22 @@ class Space:
 	
 	
 class CelestialObject(ABC):
+	@abstractmethod
 	def __init__(self, filepath, mode):
-		self.path = filepath
-		self.contains = {}
+		pass
+		
+		
+class Galaxy(CelestialObject):
+	def __init__(self, filepath, mode):
+		self.source = filepath
+		self.identifier = Path(self.source).name
+		self.contains={}
 		if mode==INIT_MODE_LOAD:
 			self.load()
 		elif mode==INIT_MODE_GENERATE:
 			self.generate()
 		
-		
-class Galaxy(CelestialObject):
 	def load(self):
-		self.identifier = Path(self.path).stem
 		systems = [ item for item in os.listdir(self.path) if os.path.isfile(os.path.join(self.path, item)) ]
 		for s in systems:
 			self.contains.append(System(f"{self.path}/{s}", INIT_MODE_LOAD))
@@ -77,8 +81,23 @@ class Galaxy(CelestialObject):
 	
 	
 class System(CelestialObject):
+	def __init__(self, filepath, mode):
+		self.source = filepath
+		self.identifier = Path(self.source).stem
+		self.contains={}
+		if mode==INIT_MODE_LOAD:
+			self.load()
+		elif mode==INIT_MODE_GENERATE:
+			self.generate()
+	
 	def load(self):
-		self.identifier = self.path
+		try:
+			self.identifier = self.path
+			with open(self.path, "r") as f:
+				systemjson = json.load(f)
+				for x in systemjson["bodies"]:
+					self.contains.append(SystemBody(), INIT_MODE_LOAD)
+		
 		
 		
 	def generate(self):
