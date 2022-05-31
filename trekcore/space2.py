@@ -7,28 +7,35 @@ INIT_MODE_GENERATE = 1
 
 class Space:
 	def __init__(self, dir, log, config)
-		self.config=config
-		self.logger=log
-		self.path=dir
-		self.map={}
-		
-		
-	def load(self):
-	# this will determine if a map has already been created and load it
-	# or it will create a new map
 		try:
-			with open(f"{self.path}/universe.meta", "r") as f:
-				universe_meta = json.load(f)
-			galaxies = [ item for item in os.listdir(self.path) if os.path.isdir(os.path.join(self.path, item)) ]
-			self.logger.log(logging.INFO, f"Loading map save.")
-			for g in galaxies:
-				self.map.append(Galaxy(f"{self.path}/{g}", INIT_MODE_LOAD))
-				
+			self.logger=log
+			self.path=Path(dir)
+			self.config_path=Path(config)
+			with self.config_path.open() as cf:
+				self.config = json.load(cf)
+			self.map={}
+			self.path.mkdir(exist_ok=True)
+			if any(self.path.iterdir()):
+				self.load_map()
+			else: 
+				self.generate_map()
+			
 		except IOError:
-			self.logger.log(logging.INFO, f"Universe meta file not found. Generating new map.")
-			self.generate_map()
-		except:
-			self.logger.log(logging.ERROR, traceback.print_exc(limit=None, file=None, chain=True))
+			self.logger.log(logging.ERROR, f"There was an error loading the map configuration.")
+		except: self.logger.log(logging.ERROR, traceback.print_exc(limit=None, file=None, chain=True))
+			
+	
+	def load_map(self):
+		try:
+			self.logger.log(logging.ERROR, f"A map already exists. Loading it.")
+			for galaxy in self.path.iterdir():
+				if galaxy.is_dir():
+					self.map.append(Galaxy(galaxy))
+		except: self.logger.log(logging.ERROR, traceback.print_exc(limit=None, file=None, chain=True))
+			
+		
+		
+	
 	
 	
 	def generate_map(self):
@@ -52,27 +59,31 @@ class Space:
 	# call this after loading the map
 	
 	
-class CelestialObject(ABC):
-	@abstractmethod
+class MapObject(ABC):
 	def __init__(self, filepath, mode):
+		self.path = Path(filepath)
 		pass
+
 		
+class Galaxy(MapObject):
+	def __init__(self, filepath):
+		try:
+			self.path = filepath
+			self.identifier = self.path.name
+			self.systems={}
+			if self.path.exists() and any(self.path.iterdir()):
+				self.load()
+			else:
+				self.generate()
+				
+		except: self.logger.log(logging.ERROR, traceback.print_exc(limit=None, file=None, chain=True))
 		
-class Galaxy(CelestialObject):
-	def __init__(self, filepath, mode):
-		self.source = filepath
-		self.identifier = Path(self.source).name
-		self.contains={}
-		if mode==INIT_MODE_LOAD:
-			self.load()
-		elif mode==INIT_MODE_GENERATE:
-			self.generate()
 		
 	def load(self):
 		try:
-			systems = [ item for item in os.listdir(self.path) if os.path.isfile(os.path.join(self.path, item)) ]
-			for s in systems:
-				self.contains.append(System(f"{self.path}/{s}", INIT_MODE_LOAD))
+			for system in self.path.iterdir():
+				if system.is_file():
+					self.systems.append(System(system))
 		
 		except:
 			self.logger.log(logging.ERROR, traceback.print_exc(limit=None, file=None, chain=True))
@@ -84,15 +95,15 @@ class Galaxy(CelestialObject):
 	def save(self)
 	
 	
-class System(CelestialObject):
+class System(MapObject):
 	def __init__(self, filepath, mode):
-		self.source = filepath
-		self.identifier = Path(self.source).stem
-		self.contains={}
-		if mode==INIT_MODE_LOAD:
-			self.load()
-		elif mode==INIT_MODE_GENERATE:
-			self.generate()
+		try:
+			self.path = filepath
+			self.identifier = self.path.stem
+			self.systembodies={}
+			
+				
+		except: self.logger.log(logging.ERROR, traceback.print_exc(limit=None, file=None, chain=True))
 	
 	def load(self):
 		try:
@@ -113,7 +124,7 @@ class System(CelestialObject):
 	
 	
 
-class SystemBody(CelestialObject):
+class SystemBody(MapObject):
 	def __init__(self, filepath, mode):
 		self.source = filepath
 		self.identifier = self.source
