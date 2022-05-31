@@ -21,7 +21,7 @@ class Space:
 				self.generate_map()
 			
 		except IOError:
-			self.logger.log(logging.ERROR, f"There was an error loading the map configuration.")
+			self.logger.log(logging.ERROR, f"There was an error loading the map configuration file.")
 		except: self.logger.log(logging.ERROR, traceback.print_exc(limit=None, file=None, chain=True))
 			
 	
@@ -60,6 +60,7 @@ class Space:
 	
 	
 class MapObject(ABC):
+	@abstractmethod
 	def __init__(self, filepath, mode):
 		self.path = Path(filepath)
 		pass
@@ -110,8 +111,9 @@ class System(MapObject):
 			self.identifier = self.path
 			with open(self.path, "r") as f:
 				systemjson = json.load(f)
+				self.systemjson = systemjson
 				for sb in systemjson["system-bodies"]:
-					self.contains.append(SystemBody(sb), INIT_MODE_LOAD)
+					self.contains.append(SystemBody(sb))
 					
 		except:
 			self.logger.log(logging.ERROR, traceback.print_exc(limit=None, file=None, chain=True))
@@ -125,8 +127,8 @@ class System(MapObject):
 	
 
 class SystemBody(MapObject):
-	def __init__(self, filepath, mode):
-		self.source = filepath
+	def __init__(self, jsondata):
+		self.source = jsondata
 		self.identifier = self.source
 		
 		
