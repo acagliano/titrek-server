@@ -163,7 +163,7 @@ class System(MapObject):
 				js = json.load(f)
 				sb_json = {}
 				for s in self.systembodies:
-					sb_json.append(s.save())
+					sb_json.append(s.serialize())
 				js["system-bodies"] = sb_json
 				json.dump(js, f)
 				
@@ -187,9 +187,6 @@ class SystemBody(MapObject):
 		
 		
 	def generate(self):
-		
-		
-	def save(self):
 		
 		
 	def serialize(self):
