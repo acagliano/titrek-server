@@ -135,7 +135,7 @@ class Galaxy(MapObject):
 	
 	
 class System(MapObject):
-	def __init__(self, filepath, mode):
+	def __init__(self, filepath):
 		try:
 			self.path = filepath
 			self.identifier = self.path.stem
