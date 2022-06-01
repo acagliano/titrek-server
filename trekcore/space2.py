@@ -5,6 +5,40 @@ from abc import ABC, abstractmethod
 INIT_MODE_LOAD = 0
 INIT_MODE_GENERATE = 1
 
+GalaxyTypes = {
+	"Spiral":0,
+	"Elliptical":1,
+	"Irregular":2
+}
+
+StarTypes = {
+	"MainSequence":0,
+	"RedGiant":1,
+	"WhiteDwarf":2,
+	"BlackDwarf":3,
+	"Neutron":4,
+	"Supernova":5,
+	"BlackHole":6
+}
+
+PlanetoidTypes = {
+	"Terrestrial":0,
+	"Jovian":1,
+	"Asteroid":2
+}
+
+SaveAttributes = [
+	# list of SystemBody attributes to serialize
+	"id",
+	"name",
+	"type",
+	"position",
+	"radius",
+	"mass",
+	"composition",
+	"logistics"
+]
+
 class Space:
 	def __init__(self, dir, log, config)
 		try:
@@ -128,15 +162,23 @@ class System(MapObject):
 
 class SystemBody(MapObject):
 	def __init__(self, jsondata):
-		self.source = jsondata
-		self.identifier = self.source
 		
 		
-	def load(self):
-		try:
+	def load(self, jsondata):
+		for var in jsondata:
+			setattr(self, var, jsondata[var])
+		
 		
 	def generate(self):
 		
+		
 	def save(self):
+		
+		
+	def serialize(self):
+		# create dict from class vars
+		for var in dir() if var in SaveAttributes:
+			j[var] = getattr(self, var)
+		return j
 	
 
