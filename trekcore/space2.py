@@ -97,8 +97,7 @@ class Space:
 	
 class MapObject(ABC):
 	@abstractmethod
-	def __init__(self, filepath, mode):
-		self.path = Path(filepath)
+	def __init__(self, filepath):
 		pass
 
 		
@@ -174,7 +173,12 @@ class System(MapObject):
 	
 
 class SystemBody(MapObject):
-	def __init__(self, jsondata):
+	def __init__(self, jsondata=None):
+		if jsondata==None:
+			self.generate()
+		else:
+			self.load()
+			
 		
 		
 	def load(self, jsondata):
