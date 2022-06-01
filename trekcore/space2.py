@@ -81,6 +81,8 @@ class Space:
 	def save(self):
 	# this will save all map objects to disk.
 	# call this on server setdown and every 5 or 10 minutes
+		for m in self.map:
+			m.save()
 	
 	
 	def generate_path(self, objCenter, objSelf):
@@ -127,7 +129,9 @@ class Galaxy(MapObject):
 	def generate(self):
 	#	for x in <num of systems>:
 			
-	def save(self)
+	def save(self):
+		for s in self.systems:
+			s.save()
 	
 	
 class System(MapObject):
@@ -163,6 +167,8 @@ class System(MapObject):
 					sb_json.append(s.save())
 				js["system-bodies"] = sb_json
 				json.dump(js, f)
+				
+		except: self.logger.log(logging.ERROR, traceback.print_exc(limit=None, file=None, chain=True))
 			
 	
 	
