@@ -142,12 +142,10 @@ class System(MapObject):
 	
 	def load(self):
 		try:
-			self.identifier = self.path
-			with open(self.path, "r") as f:
+			with self.path.open() as f:
 				systemjson = json.load(f)
-				self.systemjson = systemjson
 				for sb in systemjson["system-bodies"]:
-					self.contains.append(SystemBody(sb))
+					self.systembodies.append(SystemBody(sb))
 					
 		except:
 			self.logger.log(logging.ERROR, traceback.print_exc(limit=None, file=None, chain=True))
@@ -157,6 +155,15 @@ class System(MapObject):
 	def generate(self):
 		
 	def save(self):
+		try:
+			with self.path.open("r+") as f:
+				js = json.load(f)
+				sb_json = {}
+				for s in self.systembodies:
+					sb_json.append(s.save())
+				js["system-bodies"] = sb_json
+				json.dump(js, f)
+			
 	
 	
 
@@ -177,6 +184,7 @@ class SystemBody(MapObject):
 		
 	def serialize(self):
 		# create dict from class vars
+		j={}
 		for var in dir() if var in SaveAttributes:
 			j[var] = getattr(self, var)
 		return j
