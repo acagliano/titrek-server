@@ -1,4 +1,4 @@
-import ssl,traceback,os,logging,json
+import ssl,traceback,os,logging,json,yaml
 from trekcore.utils.filter import *
 SUPPORTS_SSL=False
 
@@ -6,8 +6,8 @@ class Config:
 	def __init__(self, log, server):
 		try:
 			self.logger=log
-			with open(f'config/server.conf', 'r') as f:
-				self.settings=json.load(f)
+			with open(f'config/server.yml', 'r') as f:
+				self.settings=yaml.safe_load(f)
 				self.settings["packet-size"]=max(4096, self.settings["packet-size"])
 				if self.settings["enable-discord-link"]:
 					try:
