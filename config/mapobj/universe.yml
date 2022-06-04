@@ -60,4 +60,19 @@ star:
             weight: 0.9
         giant:
             weight: 0.1
+            
+remnant:
+    spawn-potentials:
+        white-dwarf:
+            weight: 0.5
+        neutron-star:
+            weight: 0.25
+            mass:
+                min: 1.1
+                max: 2.1
+        black-hole:
+            weight: 0.25
+            mass:
+                min: 5
+                max: 35
            
