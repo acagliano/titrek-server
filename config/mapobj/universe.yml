@@ -1,0 +1,63 @@
+universe:
+    spawn-rogue-objects: true
+    realistic-physics: true
+    radius:
+        min: 2.3
+        max: 4.6
+    unit: 10e9 ly
+    
+galaxy:
+    unit: ??
+    spawn-density:
+        min: 1
+        max: 50
+    spawn-potentials:
+        spiral:
+            weight: 0.75
+            radius:
+                min: 16
+                max: 350
+            rotation: sqrt(GM/r)
+            sys-spawn-distr: random
+        elliptical:
+            weight: 0.2
+            radius:
+                min: 3
+                max: 700
+            rotation: false
+            sys-spawn-distr: random
+        irregular:
+            weight: 0.05
+            radius:
+                min: 18
+                max: 25
+            rotation: false
+            sys-spawn-distr: cluster
+            
+system:
+    radius:
+        min: ??
+        max: ??
+    bodies:
+        min: 1
+        max: 10
+    unit: 
+    central-body-spawn-potentials:
+        star:
+            weight: 0.8
+        remnant:
+            weight: 0.2
+            
+star:
+    mass:
+        min: 0.5
+        max: 100
+    radius:
+        min: ??
+        max: ??
+    spawn-potentials:
+        main-sequence:
+            weight: 0.9
+        giant:
+            weight: 0.1
+           
