@@ -1,4 +1,4 @@
-import json,os,sys,logging,traceback
+import json,os,sys,logging,traceback,yaml
 from pathlib import Path
 from abc import ABC, abstractmethod
 
@@ -46,7 +46,7 @@ class Space:
 			self.path=Path(dir)
 			self.config_path=Path(config)
 			with self.config_path.open() as cf:
-				self.config = json.load(cf)
+				self.config = yaml.safe_load(cf)
 			self.map={}
 			self.path.mkdir(exist_ok=True)
 			if any(self.path.iterdir()):
