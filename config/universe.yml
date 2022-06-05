@@ -85,6 +85,7 @@ planetoid:
     orbital-period: 2*pi*sqrt(a^3/GM)
     spawn-potentials:
         terrestrial:
+            weight: 0.6
             mass:
                 min: 0.1 M_earth
                 max: 10 M_earth
@@ -95,6 +96,7 @@ planetoid:
                 min: 20h
                 max: 60d
         gas-giant:
+            weight: 0.2
             mass:
                 min: 75 M_earth
                 max: 13 M_jupiter
@@ -105,6 +107,7 @@ planetoid:
                 min: 8h
                 max: 20h
         ice-giant:
+            weight: 0.2
             mass:
                 min: 10 M_earth
                 max: 25 M_earth
