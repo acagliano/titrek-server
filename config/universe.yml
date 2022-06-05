@@ -49,6 +49,7 @@ system:
             weight: 0.2
     orbiting-body-spawn-potentials:
         
+        
             
 star:
     mass:
@@ -60,8 +61,14 @@ star:
     spawn-potentials:
         main-sequence:
             weight: 0.9
+            orbiting-body-spawn-potentials:
+                planetoid:
+                    weight: 1
         giant:
             weight: 0.1
+            orbiting-body-spawn-potentials:
+                planetoid:
+                    weight: 1
             
 remnant:
     spawn-potentials:
