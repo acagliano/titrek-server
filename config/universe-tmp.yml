@@ -47,28 +47,36 @@ system:
             weight: 0.8
         remnant:
             weight: 0.2
-    orbiting-body-spawn-potentials:
         
         
             
 star:
-    mass:
-        min: 0.5
-        max: 100
-    radius:
-        min: ??
-        max: ??
     spawn-potentials:
         main-sequence:
-            weight: 0.9
-            orbiting-body-spawn-potentials:
+            weight: 0.99
+            mass:
+                min: 0.5 M_solar
+                max: 8 M_solar
+            radius:
+                min: ??
+                max: ??
+            companion-spawn-potentials:
                 planetoid:
                     weight: 1
-        giant:
-            weight: 0.1
-            orbiting-body-spawn-potentials:
-                planetoid:
-                    weight: 1
+            first-companion-spawn-weight: 1.0
+            nth-companion-spawn-weight: 0.25
+            stellar-companion-spawn-weight: 0.45
+        main-sequence-large:
+            weight: 0.01
+            mass:
+                min: 8 M_solar
+                max: 100 M_solar
+            radius:
+                min: ??
+                max: ??
+            companion-spawn-potentials:
+            
+       
             
 remnant:
     spawn-potentials:
