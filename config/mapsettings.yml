@@ -10,4 +10,5 @@ map:
     max: 4.6
   gameplay:
     spawn-hostile-ai: true
+    gravity-affects-players: true
   
