@@ -1,0 +1,13 @@
+map:
+  scale: 1
+  realistic-physics:
+    enable-rogue-objects: true
+    enable-systembody-pathing: true
+    enable-system-pathing: true
+    enable-tick-events: true
+  radius:
+    min: 2.3
+    max: 4.6
+  gameplay:
+    spawn-hostile-ai: true
+  
