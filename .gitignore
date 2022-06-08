@@ -1,12 +1,9 @@
 /backups
 /cache
 /bans
-/filter
 /ssl
 /logs
-/players
-/space
-/downloads
+/data
 /data/promos.json
 */__pycache__
 /.idea
