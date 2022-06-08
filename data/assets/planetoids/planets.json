@@ -1,9 +1,0 @@
-{
-	"data":[
-		{"type": "planet","living": true, "mass": 6e24, "radius": 6e3, "sprite": "earthlike-planet.png"},
-		{"type": "planet","living": false,"mass": 6e23, "radius": 3e3, "sprite": "marslike-planet.png"},
-		{"type": "planet","living": false,"mass": 5e24, "radius": 6e3, "sprite": "venuslike-planet.png"},
-		{"type": "planet","living": false,"mass": 2e27, "radius": 7e4, "sprite": "jupiterlike-planet.png"},
-		{"type": "planet","living": false,"mass": 3e23, "radius": 2e3, "sprite": "mercurylike-planet.png"}
-	]
-}
