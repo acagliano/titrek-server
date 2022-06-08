@@ -20,7 +20,6 @@ class Server:
 			self.server_root,
 			f"{self.server_root}logs",
 			f"{self.server_root}cache",
-			f"{self.server_root}bans"]:
 			try:
 				os.makedirs(directory)
 			except:
@@ -43,7 +42,7 @@ class Server:
 			self.fw=self.config.firewall
 			self.generator = Generator()
 			self.space = Space(self.server_root, self.logger, f"{self.config.settings['gamedata']}/space")
-			self.modules=TrekModules(f"{self.config.settings['gamedata']}/assets/modules")
+			self.modules=TrekModules(f"trekcore/defaults/modules")
 			self.fetch_required()
 		
 			self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)         # Create a socket object
