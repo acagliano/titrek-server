@@ -391,7 +391,7 @@ outputs:
 		try:
 			self.log("Loading graphics for client")
 			user_gfx_dir = f"{self.playerdir}gfx/"
-			default_gfx_dir = f"data/assets/ui/"
+			default_gfx_dir = f"trekcore/defaults/ui/"
 			selected_gfx_dir = default_gfx_dir
 			self.client_side_sha256 = bytes(data[1:])
 			if os.path.isdir(user_gfx_dir):
