@@ -30,7 +30,6 @@ class Server:
 			self.config=Config(self.logger, self)
 			for directory in [
 				self.config.settings["gamedata"],
-				f"{self.config.settings['gamedata']}/assets",
 				f"{self.config.settings['gamedata']}/players",
 				f"{self.config.settings['gamedata']}/client-binaries",
 				f"{self.config.settings['gamedata']}/bans",
