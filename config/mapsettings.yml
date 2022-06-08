@@ -1,14 +1,20 @@
 map:
+
   scale: 1
-  realistic-physics:
-    enable-rogue-objects: true
-    enable-systembody-pathing: true
-    enable-system-pathing: true
-    enable-tick-events: true
-  radius:
+  
+  map-radius:
     min: 2.3
     max: 4.6
+  
+  realistic-physics:
+    object-pathing:
+      system-members: true
+      systems: true
+    tick-events:
+      enable-rogue-objects: true
+      enable-stellar-lifecycle: true
+      gravity-affects-players: true
+    
   gameplay:
     spawn-hostile-ai: true
-    gravity-affects-players: true
   
