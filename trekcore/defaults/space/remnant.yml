@@ -1,0 +1,17 @@
+remnant:
+    spawn-potentials:
+        white-dwarf:
+            weight: 0.5
+            mass:
+                min: 0.15
+                max: 1.4
+        neutron-star:
+            weight: 0.25
+            mass:
+                min: 1.1
+                max: 2.1
+        black-hole:
+            weight: 0.25
+            mass:
+                min: 5
+                max: 35
