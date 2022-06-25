@@ -9,3 +9,5 @@
 /.idea
 *.pyc
 *.pyo
+
+.DS_Store
