@@ -527,8 +527,10 @@ outputs:
 					self.dlog(f"Attempting to match key to user {dir}")
 					with open(f"{self.player_root}{dir}/account.json", 'r') as f:
 						account = json.load(f)
-						hashed_pw=hashlib.sha512(bytes(key)).hexdigest()
-						if hmac.compare_digest(hashed_pw, account['pubkey']):
+						saved_hash = account['pubkey'][:-16]
+						saved_salt = account['pubkey'][-16:]
+						hashed_pw=hmac.new(bytes(saved_salt), bytes(key), 'sha512').hexdigest()
+						if hmac.compare_digest(hashed_pw, saved_hash):
 							self.user = dir
 							self.logged_in = True
 							self.log(f"Key match for user {self.user}!")
