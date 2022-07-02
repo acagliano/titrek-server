@@ -493,7 +493,7 @@ outputs:
 		except:
 			pass
 		try:
-			with open(f"{self.modules.path}defaults.json","r") as f:
+			with open(f"{self.modules.path}/defaults.json","r") as f:
 				self.data["ships"]=json.load(f)
 				
 			with open(self.shipfile,"w") as f:
