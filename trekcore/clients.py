@@ -527,10 +527,10 @@ outputs:
 					self.dlog(f"Attempting to match key to user {dir}")
 					with open(f"{self.player_root}{dir}/account.json", 'r') as f:
 						account = json.load(f)
-						saved_hash = account['pubkey'][:-16]
-						saved_salt = account['pubkey'][-16:]
-						hashed_pw=hmac.new(bytes(saved_salt), bytes(key), 'sha512').hexdigest()
-						if hmac.compare_digest(hashed_pw, saved_hash):
+						saved_hash = account["pubkey"]
+						saved_salt = account["pubkey-salt"]
+						hashed_pw=hmac.new(bytes.fromhex(saved_salt), key, hashlib.sha512).digest()
+						if hmac.compare_digest(hashed_pw, bytes.fromhex(saved_hash)):
 							self.user = dir
 							self.logged_in = True
 							self.log(f"Key match for user {self.user}!")
@@ -541,6 +541,8 @@ outputs:
 							self.shipfile = f"{self.playerdir}ships.json"
 							self.load_player()
 							return
+				except KeyError:
+					continue
 				except IOError:
 					self.dlog(f"Error reading account file for {user}")
 					self.send([ControlCodes["MESSAGE"]]+list(b'server i/o error\0'))
