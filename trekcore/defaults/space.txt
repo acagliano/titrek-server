@@ -1,0 +1,21 @@
+Miscellaneous info for space generation
+
+#   spiral:
+#        radius:
+#            min: 16
+#            max: 350
+#        rotation: sqrt(GM/r)
+#        sys-spawn-distr: random    
+#    elliptical:
+#        radius:
+#            min: 3
+#            max: 700
+#        rotation: false
+#        sys-spawn-distr: random
+#    irregular:
+#        radius:
+#            min: 18
+#            max: 25
+#        rotation: false
+#        sys-spawn-distr: cluster
+            
