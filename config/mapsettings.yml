@@ -2,10 +2,6 @@ map:
 
   scale: 1
   
-  map-radius:
-    min: 2.3
-    max: 4.6
-  
   realistic-physics:
     object-pathing:
       system-members: true
