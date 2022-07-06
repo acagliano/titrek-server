@@ -1,6 +1,5 @@
 # configuration for galaxy generation
 galaxy:
-    unit: ??
     spawn-potentials:
         spiral: 0.75
         elliptical: 0.2
@@ -11,7 +10,6 @@ galaxy:
 
 # configuration for system generation
 system:
-    unit: ??
     central-body:
         spawn-potentials:
             star: 0.8
@@ -35,7 +33,10 @@ star:
         
 # configuration for remnant generation
 remnant:
-    
+    spawn-potentials:
+        white-dwarf: 0.5
+        neutron-star: 0.25
+        black-hole: 0.25
     
 
 # configuration for planetoid generation
