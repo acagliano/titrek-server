@@ -8,7 +8,17 @@ galaxy:
     system-density:
         min: 1
         max: 50
-    
+
+# configuration for system generation
+system:
+    unit: ??
+    central-body-spawn-potentials:
+        star: 0.8
+        remnant: 0.2
+    bodies:
+        min: 1
+        max: 10
+
 # configuration for planetoid generation
 planetoid:
     unit: ??
