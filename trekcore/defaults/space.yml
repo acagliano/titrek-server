@@ -1,9 +1,10 @@
-# configuration for galaxy generation
+# configuration for universe generation
 universe:
     size:
         min: 2.3
         max: 4.6
 
+# configuration for galaxy generation
 galaxy:
     spawn-potentials:
         spiral: 0.75
