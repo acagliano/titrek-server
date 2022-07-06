@@ -12,12 +12,31 @@ galaxy:
 # configuration for system generation
 system:
     unit: ??
-    central-body-spawn-potentials:
-        star: 0.8
-        remnant: 0.2
+    central-body:
+        spawn-potentials:
+            star: 0.8
+            remnant: 0.2
+        companions:
+            spawn-weight:
+                first-companion: 1.0
+                nth-companion: 0.25
+                stellar-companion: 0.45
+            spawn-potentials:
+                planetoid: 1    
     bodies:
         min: 1
         max: 10
+
+# configuration for star generation
+star:
+    spawn-potentials:
+        main-sequence: 0.99
+        main-sequence-large: 0.01
+        
+# configuration for remnant generation
+remnant:
+    
+    
 
 # configuration for planetoid generation
 planetoid:
