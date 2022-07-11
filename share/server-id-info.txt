@@ -1,0 +1,11 @@
+
+The recommended nomenclature for generating keyfiles for users with custom server instances is as follows:
+
+A generic name part, identifying the file: TrekId
+A 2-character enumerator that differs from any other server: XX.
+Ex: TrekId23
+This means that your hosted instance of the server will generate keyfiles by this name for every user.
+Below you will see a list of servers and what 2-character numerical ID they use.
+
+_Established Server IDs_
+play.titrek.us: 00
