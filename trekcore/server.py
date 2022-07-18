@@ -42,7 +42,7 @@ class Server:
 			self.fw=self.config.firewall
 			self.generator = Generator()
 			self.space = Space(self.server_root, self.logger, f"{self.config.settings['gamedata']}/space")
-			self.modules=TrekModules(f"trekcore/defaults/modules")
+			self.modules=TrekModules(f"trekcore/defaults/modules.yml")
 			self.fetch_required()
 		
 			self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)         # Create a socket object
