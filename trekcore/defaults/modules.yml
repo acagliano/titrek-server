@@ -16,15 +16,15 @@ powercore:
     name: "pwrcore"
     desc: "Source of power for your ship systems."
     stats:
-		health:
-			current: 50
-			max: 50
-		power:
-			draw: 0
-			required: 0
-			reserve:
-				current: 0
-				max: 50
+        health:
+            current: 50
+            max: 50
+        power:
+            draw: 0
+            required: 0
+            reserve:
+                current: 0
+                max: 50
 
 hull:
     type: 2
@@ -32,42 +32,42 @@ hull:
     name: "hull"
     desc: "Holds your ship together."
     stats:
-		health:
-			current: 50
-			max: 50
-		power:
-			draw: 1
-			required: 1
+        health:
+            current: 50
+            max: 50
+        power:
+            draw: 1
+            required: 1
 
 engine:
-	type: 2
-	status: true
-	name: "engine"
-	desc: "Allows for movement over distances in space."
-	stats:
-		health:
-			current: 50
-			max: 50
-		power:
-			draw: 1
-			required: 1
-		speed:
-			current: ??
-			max: ??
-			max-acceleration: ??
+    type: 2
+    status: true
+    name: "engine"
+    desc: "Allows for movement over distances in space."
+    stats:
+        health:
+            current: 50
+            max: 50
+        power:
+            draw: 1
+            required: 1
+        speed:
+            current: ??
+            max: ??
+            max-acceleration: ??
 			
 laser:
-	type: 3
-	status: false
-	name: "laser"
-	desc: "Low-yield energy-based combat system."
-	stats:
-		health:
-			current: 50
-			max: 50
-		power:
-			draw: 1
-			required: 1
-		damage: 2
+    type: 3
+    status: false
+    name: "laser"
+    desc: "Low-yield energy-based combat system."
+    stats:
+        health:
+            current: 50
+            max: 50
+        power:
+            draw: 1
+            required: 1
+        damage: 2
+    
 	
-  #i need to do a thing
