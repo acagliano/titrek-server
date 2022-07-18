@@ -1,4 +1,75 @@
+# SYS_EMPTY = 0
+# SYS_POWER = 1
+# SYS_MAIN = 2
+# SYS_WEAPON = 3
+# SYS_DEFENSE = 4
+# SYS_MISC = 5
+# SYS_SLOT_UNAVAILABLE = 0xff
+
+
 defaults:
-  modules-installed: ["hull", "powercore", "engine", ]
-  
-  
+	modules: ["hull","powercore","engine","laser"]
+
+
+powercore:
+	type: 1
+	status: true
+	name: "pwrcore"
+	desc: "Source of power for your ship systems."
+	stats:
+		health:
+			current: 50
+			max: 50
+		power:
+			draw: 0
+			required: 0
+			reserve:
+				current: 0
+				max: 50
+
+hull:
+	type: 2
+	status: true
+	name: "hull"
+	desc: "Holds your ship together."
+	stats:
+		health:
+			current: 50
+			max: 50
+		power:
+			draw: 1
+			required: 1
+
+engine:
+	type: 2
+	status: true
+	name: "engine"
+	desc: "Allows for movement over distances in space."
+	stats:
+		health:
+			current: 50
+			max: 50
+		power:
+			draw: 1
+			required: 1
+		speed:
+			current: ??
+			max: ??
+			max-acceleration: ??
+			
+laser:
+	type: 3
+	status: false
+	name: "laser"
+	desc: "Low-yield energy-based combat system."
+	stats:
+		health:
+			current: 50
+			max: 50
+		power:
+			draw: 1
+			required: 1
+		damage: 2
+			
+	
+	
