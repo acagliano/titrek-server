@@ -7,16 +7,15 @@
 # SYS_SLOT_UNAVAILABLE = 0xff
 
 
-defaults:
-	modules: ["hull","powercore","engine","laser"]
+defaults:modules: ["hull","powercore","engine","laser"]
 
 
 powercore:
-	type: 1
-	status: true
-	name: "pwrcore"
-	desc: "Source of power for your ship systems."
-	stats:
+    type: 1
+    status: true
+    name: "pwrcore"
+    desc: "Source of power for your ship systems."
+    stats:
 		health:
 			current: 50
 			max: 50
@@ -28,11 +27,11 @@ powercore:
 				max: 50
 
 hull:
-	type: 2
-	status: true
-	name: "hull"
-	desc: "Holds your ship together."
-	stats:
+    type: 2
+    status: true
+    name: "hull"
+    desc: "Holds your ship together."
+    stats:
 		health:
 			current: 50
 			max: 50
