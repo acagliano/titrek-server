@@ -1,0 +1,4 @@
+defaults:
+  modules-installed: ["hull", "powercore", "engine", ]
+  
+  
