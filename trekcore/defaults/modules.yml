@@ -70,6 +70,4 @@ laser:
 			draw: 1
 			required: 1
 		damage: 2
-			
-	
 	
