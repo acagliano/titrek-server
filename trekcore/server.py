@@ -41,7 +41,7 @@ class Server:
 #			self.init_binaries()
 			self.fw=self.config.firewall
 			self.generator = Generator()
-			self.space = Space(self.server_root, self.logger, f"{self.config.settings['gamedata']}/space")
+			#self.space = Space(self.server_root, self.logger, f"{self.config.settings['gamedata']}/space")
 			self.modules=TrekModules(f"trekcore/defaults/modules.yml")
 			self.fetch_required()
 		
