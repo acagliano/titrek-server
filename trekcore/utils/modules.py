@@ -3,14 +3,13 @@ import traceback,logging,os,json
 class TrekModules:
 	def __init__(self,path):
 		self.path=path
+		with open(path, 'r') as f:
+			self.modules=yaml.safe_load(f)
+			self.defaults = self.data["defaults"]
 	
-	def load_module(self, name, level):
+	def load_module(self, name):
 		try:
-			level-=1
-			module_path=f"{self.path}/{name}.json"
-			with open(module_path) as f:
-				modules_data=json.load(f)
-			return modules_data["module"][level]
+			return self.modules["name"]
 		except:
 			print(traceback.format_exc(limit=None, chain=True))
     
