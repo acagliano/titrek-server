@@ -40,7 +40,7 @@ environmental-control:
     type: 2
     status: true
     name: "envctl"
-    desc: "Holds your ship together."
+    desc: "Supports a liveable environment on ship."
     stats:
         health:
             current: 50
