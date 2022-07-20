@@ -48,6 +48,7 @@ environmental-control:
         power:
             draw: 1
             required: 1
+        current-personnel: 50
         max-personnel: 50
 
 powercore:
