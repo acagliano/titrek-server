@@ -1,9 +1,22 @@
-# SYS_EMPTY = 0
-# SYS_POWER = 1
-# SYS_MAIN = 2
-# SYS_WEAPON = 3
-# SYS_DEFENSE = 4
-# SYS_MISC = 5
+# module enumations
+# SYS_NO_SYS,     // empty (0x00)
+    
+# // core systems (0x01 => 0x3f)
+# SYS_HULL,
+# SYS_POWER,
+# SYS_ENVCTL,
+# SYS_ENGINE,
+
+# // offensive systems (0x40 => 0x7f)
+# SYS_LASER = 0x40,
+    
+# // defensive systems (0x80 => 0xbf)
+# SYS_ARMOR = 0x80,
+# SYS_SHIELD = 0x81,
+    
+# // miscellaneous systems (0xc0 => 0xef)
+    
+# // special cases (0xf*)
 # SYS_SLOT_UNAVAILABLE = 0xff
 
 
@@ -12,7 +25,7 @@ defaults:
 
 
 powercore:
-    type: 1
+    type: 2
     status: true
     name: "pwrcore"
     desc: "Source of power for your ship systems."
@@ -28,7 +41,7 @@ powercore:
                 max: 50
 
 hull:
-    type: 2
+    type: 1
     status: true
     name: "hull"
     desc: "Holds your ship together."
@@ -41,7 +54,7 @@ hull:
             required: 1
 
 engine:
-    type: 2
+    type: 4
     status: true
     name: "engine"
     desc: "Allows for movement over distances in space."
@@ -58,7 +71,7 @@ engine:
             max-acceleration: ??
             
 laser:
-    type: 3
+    type: 64
     status: false
     name: "laser"
     desc: "Low-yield energy-based combat system."
