@@ -3,8 +3,8 @@
     
 # // core systems (0x01 => 0x3f)
 # SYS_HULL,
-# SYS_POWER,
 # SYS_ENVCTL,
+# SYS_POWER,
 # SYS_ENGINE,
 
 # // offensive systems (0x40 => 0x7f)
@@ -35,24 +35,6 @@ hull:
         power:
             draw: 1
             required: 1
-
-powercore:
-    type: 2
-    status: true
-    name: "pwrcore"
-    desc: "Source of power for your ship systems."
-    stats:
-        health:
-            current: 50
-            max: 50
-        power:
-            draw: 0
-            required: 0
-            reserve:
-                current: 0
-                max: 50
-        requires:
-            crew: 10
             
 environmental-control:
     type: 2
@@ -68,6 +50,23 @@ environmental-control:
             required: 1
         max-personnel: 50
 
+powercore:
+    type: 3
+    status: true
+    name: "pwrcore"
+    desc: "Source of power for your ship systems."
+    stats:
+        health:
+            current: 50
+            max: 50
+        power:
+            draw: 0
+            required: 0
+            reserve:
+                current: 0
+                max: 50
+        requires:
+            crew: 10
 
 engine:
     type: 4
