@@ -21,8 +21,20 @@
 
 
 defaults:
-    modules: ["hull","powercore","engine","laser"]
+    modules: ["hull","environmental-control","powercore","engine","laser"]
 
+hull:
+    type: 1
+    status: true
+    name: "hull"
+    desc: "Holds your ship together."
+    stats:
+        health:
+            current: 50
+            max: 50
+        power:
+            draw: 1
+            required: 1
 
 powercore:
     type: 2
@@ -39,11 +51,13 @@ powercore:
             reserve:
                 current: 0
                 max: 50
-
-hull:
-    type: 1
+        requires:
+            crew: 10
+            
+environmental-control:
+    type: 2
     status: true
-    name: "hull"
+    name: "envctl"
     desc: "Holds your ship together."
     stats:
         health:
@@ -52,6 +66,8 @@ hull:
         power:
             draw: 1
             required: 1
+        max-personnel: 50
+
 
 engine:
     type: 4
@@ -65,10 +81,11 @@ engine:
         power:
             draw: 1
             required: 1
-        speed:
-            current: ??
-            max: ??
-            max-acceleration: ??
+        requires:
+            crew: 5
+        current-speed: ??
+        max-speed: ??
+        max-acceleration: ??
             
 laser:
     type: 64
@@ -82,4 +99,6 @@ laser:
         power:
             draw: 1
             required: 1
+        requires:
+            crew: 5
         damage: 2
