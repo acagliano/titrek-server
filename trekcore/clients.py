@@ -415,8 +415,7 @@ outputs:
 		except:
 			pass
 		try:
-			for m in self.modules.defaults:
-				print(m)
+			for m in self.modules.defaults["modules"]:
 				self.data["ships"][0][m] = self.modules.module_data[m]
 			
 			with open(self.shipfile,"w") as f:
