@@ -245,7 +245,7 @@ class Client:
 					  tosend = f.read()
 			else:
 				with open("convimg.yaml",'w') as convf:
-				convf.write(f"""
+					convf.write(f"""
 converts:
     - name: tmpimg
       palette: xlibc
