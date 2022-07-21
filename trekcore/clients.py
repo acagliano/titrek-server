@@ -341,6 +341,14 @@ outputs:
 				self.client_bin = f.read()
 				self.client_len = len(self.client_bin)
 				self.client_hash = hashlib.sha256(bytes(self.client_bin)).digest()
+				if hmac.compare_digest(self.client_side_sha256, self.client_hash):
+					self.send([ControlCodes['MAIN_SKIP']])
+					self.log("Hash match for binary. Skipping download.")
+					del self.client_bin
+					del self.client_len
+					del self.client_hash
+					del self.client_side_sha256
+					return
 				self.client_curr = 0
 				self.send([ControlCodes['MAIN_FRAME_START']]+u24(self.client_len))
 				
@@ -377,15 +385,6 @@ outputs:
 		self.gfx_curr += (data_sent - 4)
 	
 	def client_send_frame(self):
-		if hmac.compare_digest(self.client_side_sha256, self.client_hash):
-			self.send([ControlCodes['MAIN_SKIP']])
-			self.log("Hash match for binary. Skipping download.")
-			del self.client_bin
-			del self.client_len
-			del self.client_curr
-			del self.client_hash
-			del self.client_side_sha256
-			return
 		if self.client_curr >= self.client_len:
 			self.send([ControlCodes['MAIN_FRAME_DONE']]+list(self.client_hash))
 			self.log("client download complete")
