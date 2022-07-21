@@ -4,7 +4,6 @@ from Crypto.Cipher import PKCS1_OAEP
 from Crypto.PublicKey import RSA
 from Crypto.Hash import SHA256
 import hmac
-import ssl,OpenSSL
 
 from trekcore.codes import *
 from trekcore.server import *
