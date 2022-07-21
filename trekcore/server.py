@@ -117,8 +117,9 @@ class Server:
 		try:
 			self.online = True
 			self.writeinfo()
+			self.threads = []
 			#self.threads = [threading.Thread(target=self.autoSaveHandler)]
-			self.threads[0].start()
+			#self.threads[0].start()
 			self.main_thread = threading.Thread(target=self.main)
 			self.main_thread.start()
 			self.log(f"Server running on port {self.config.settings['port']}")
