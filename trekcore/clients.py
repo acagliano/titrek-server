@@ -265,7 +265,7 @@ outputs:
 				os.system("convimg")
 				with open(tmpfile_search_path,'rb') as f:
 					tosend = f.read())
-			os.remove("convimg.yaml")
+				os.remove("convimg.yaml")
 			return list(tosend.ljust(66, chr(0))
 					  
 				
