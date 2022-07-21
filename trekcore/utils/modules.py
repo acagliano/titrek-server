@@ -3,6 +3,7 @@ import traceback,logging,os,json
 class TrekModules:
 	def __init__(self,path):
 		self.path=path
+		self.internal_gfx_path = f"{os.path.dirname(path)}/assets/modules"
 		with open(path, 'r') as f:
 			self.modules=yaml.safe_load(f)
 			self.defaults = self.data["defaults"]
