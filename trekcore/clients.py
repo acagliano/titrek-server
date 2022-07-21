@@ -415,7 +415,7 @@ outputs:
 		except:
 			pass
 		try:
-			self.data["ships"] = []
+			self.data["ships"] = {}
 			self.data["ships"].append("ship0")
 			for m in self.modules.defaults["modules"]:
 				self.data["ships"]["ship0"].append(self.modules.module_data[m])
