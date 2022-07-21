@@ -28,6 +28,7 @@ hull:
     status: true
     name: "hull"
     desc: "Holds your ship together."
+    icon: "hull.png"
     stats:
         health:
             current: 50
@@ -41,6 +42,7 @@ environmental-control:
     status: true
     name: "envctl"
     desc: "Supports a liveable environment on ship."
+    icon: "environmental-control.png"
     stats:
         health:
             current: 50
@@ -56,6 +58,7 @@ powercore:
     status: true
     name: "pwrcore"
     desc: "Source of power for your ship systems."
+    icon: "powercore.png"
     stats:
         health:
             current: 50
@@ -74,6 +77,7 @@ engine:
     status: true
     name: "engine"
     desc: "Allows for movement over distances in space."
+    icon: "engine.png"
     stats:
         health:
             current: 50
@@ -91,6 +95,7 @@ laser:
     type: 64
     status: false
     name: "laser"
+    icon: "laser.png"
     desc: "Low-yield energy-based combat system."
     stats:
         health:
