@@ -234,7 +234,7 @@ class Client:
 					  [ord(c) for c in module_name]+
 					  [u8(m["health"]["current"]), u8(m["health"]["max"])]+
 					  [u8(m["power"]["draw"]), u8(m["power"]["required"])]+
-					  self.load_module_sprite(m["icon"])]
+					  self.load_module_sprite(m["icon"])
 					  
 	def load_module_sprite(self, iconfilename):
 		default_search_path = f"{self.modules.internal_gfx_path}/{iconfilename}"
