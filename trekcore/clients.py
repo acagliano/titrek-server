@@ -416,7 +416,7 @@ outputs:
 			pass
 		try:
 			for m in self.modules.defaults:
-				printf(m)
+				print(m)
 				self.data["ships"][0][m] = self.modules.module_data[m]
 			
 			with open(self.shipfile,"w") as f:
