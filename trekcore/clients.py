@@ -416,6 +416,7 @@ outputs:
 			pass
 		try:
 			self.data["ships"] = []
+			self.data["ships"].append()
 			for m in self.modules.defaults["modules"]:
 				self.data["ships"][0].append(self.modules.module_data[m])
 			
