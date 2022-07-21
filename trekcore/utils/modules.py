@@ -6,7 +6,7 @@ class TrekModules:
 		self.internal_gfx_path = f"{os.path.dirname(path)}/assets/modules"
 		with open(path, 'r') as f:
 			self.module_data=yaml.safe_load(f)
-			print(json.dumps(self.module_data, indent=2))
+			#print(json.dumps(self.module_data, indent=2))
 			self.defaults = self.module_data["defaults"]
 	
 	def load_module(self, name):
