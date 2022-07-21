@@ -418,7 +418,7 @@ outputs:
 			self.data["ships"] = {}
 			self.data["ships"]["ship0"] = {}
 			for m in self.modules.defaults["modules"]:
-				self.data["ships"]["ship0"] = self.modules.module_data[m]
+				self.data["ships"]["ship0"][m] = self.modules.module_data[m]
 			
 			with open(self.shipfile,"w") as f:
 				json.dump(self.data["ships"],f)
