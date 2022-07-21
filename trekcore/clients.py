@@ -330,8 +330,9 @@ outputs:
 					del self.gfx_hash
 					del self.client_side_sha256
 					return
-				self.gfx_curr = 0
-				self.send([ControlCodes['GFX_FRAME_START']]+u24(self.gfx_len))
+				else:
+					self.gfx_curr = 0
+					self.send([ControlCodes['GFX_FRAME_START']]+u24(self.gfx_len))
 		except IOError:
 			output = list(bytes(f'error loading ui assets\0','UTF-8'))
 			self.send([ControlCodes['MESSAGE']]+output)
@@ -357,14 +358,17 @@ outputs:
 					del self.client_hash
 					del self.client_side_sha256
 					return
-				self.client_curr = 0
-				self.send([ControlCodes['MAIN_FRAME_START']]+u24(self.client_len))
+				else: 
+					self.client_curr = 0
+					self.send([ControlCodes['MAIN_FRAME_START']]+u24(self.client_len))
 				
 		except IOError:
 			output = list(bytes(f'error loading client bin\0','UTF-8'))
 			self.send([ControlCodes['MESSAGE']]+output)
 			self.elog("File IO Error: [client_bin]")
-			return		
+			return
+		except:
+			self.elog(traceback.format_exc(limit=None, chain=True))
 		
 		
 	def gfx_send_frame(self):
