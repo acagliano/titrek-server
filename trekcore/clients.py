@@ -229,8 +229,47 @@ class Client:
 				    
 		
 	def load_shipmodule(self,m):
-		padded_string=PaddedString(m["name"], 11, chr(0))+"\0"
-		return [m[type], m[status]]+[ord(c) for c in padded_string]+[m["health"]["current"], m["health"]["max"], m["power"]["draw"], m["power"]["required"]]
+		module_name = m["name"].ljust(11, chr(0))
+		return [u8(m["type"]), u8(m["status"]]+
+					  [ord(c) for c in module_name]+
+					  [u8(m["health"]["current"]), u8(m["health"]["max"])]+
+					  [u8(m["power"]["draw"]), u8(m["power"]["required"])]+
+					  self.load_module_sprite(m["icon"])]
+					  
+	def load_module_sprite(self, iconfilename):
+		default_search_path = f"{self.modules.internal_gfx_path}/{iconfilename}"
+		try:
+			os.makedirs("/tmp/titrek/gfx/modules")
+		except: pass
+		try:
+			tmpfile_search_path = f"/tmp/titrek/gfx/modules/{iconfilename}.bin"
+			tosend=[]
+			if(os.path.exists(tmpfile_search_path)):
+				with open(tmpfile_search_path, "rb") as f:
+					  tosend = f.read()
+			else:
+				with open("convimg.yaml",'w') as convf:
+				convf.write(f"""
+converts:
+    - name: tmpimg
+      palette: xlibc
+      images:
+        - {default_search_path}
+outputs:
+    - type: bin
+      converts:
+        - tmpimg
+      include-file: {iconfilename}.bin
+      directory: /tmp/titrek/gfx/modules/
+""")
+				os.system("convimg")
+				with open(tmpfile_search_path,'rb') as f:
+					tosend = f.read())
+			os.remove("convimg.yaml")
+			return list(tosend)
+					  
+				
+					  
 
 	def getSpriteID(self,sprite):
 		if sprite not in self.sprite_ids:
