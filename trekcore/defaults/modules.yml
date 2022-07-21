@@ -21,7 +21,12 @@
 
 
 defaults:
-    modules: ["hull","environmental-control","powercore","engine","laser"]
+    modules:
+        - hull
+        - environmental-control
+        - powercore
+        - engine
+        - laser
 
 hull:
     type: 1
