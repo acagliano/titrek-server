@@ -80,7 +80,7 @@ class Client:
 		
 	def load_modules(self):
 		try:
-			for m in self.data["ships"][0]:
+			for m in self.data["ships"]["ship0"]:
 				j=self.modules.load_module(m)
 				for k in j.keys():
 					m[k]=j[k]
@@ -184,7 +184,7 @@ class Client:
 							self.log(f"{self.user}: {msg}")    # send a message to the server
 					elif data[0]==ControlCodes["LOAD_SHIP"]:
 						odata = []
-						for m in self.data["ships"][0]:
+						for m in self.data["ships"]["ship0"]:
 							odata.extend(self.load_shipmodule(m))
 						self.send(bytes([ControlCodes["LOAD_SHIP"]]+odata))
 					elif data[0]==ControlCodes["NEW_GAME_REQUEST"]:
@@ -416,9 +416,9 @@ outputs:
 			pass
 		try:
 			self.data["ships"] = []
-			self.data["ships"].append()
+			self.data["ships"].append("ship0")
 			for m in self.modules.defaults["modules"]:
-				self.data["ships"][0].append(self.modules.module_data[m])
+				self.data["ships"]["ship0"].append(self.modules.module_data[m])
 			
 			with open(self.shipfile,"w") as f:
 				json.dump(self.data["ships"],f)
