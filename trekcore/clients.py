@@ -311,14 +311,14 @@ outputs:
 		try:
 			self.log("Loading graphics for client")
 			user_gfx_dir = f"{self.playerdir}gfx/"
-			default_gfx_dir = f"trekcore/defaults/ui/"
+			default_gfx_dir = f"trekcore/defaults/assets/uxassets.bin"
 			selected_gfx_dir = default_gfx_dir
 			self.client_side_sha256 = bytes(data[1:])
 			if os.path.isdir(user_gfx_dir):
 				if os.path.isfile(f"{user_gfx_dir}uiassets.bin"):
 					self.log("Loading custom graphics")
 					selected_gfx_dir = user_gfx_dir
-			with open(f"{selected_gfx_dir}uiassets.bin", "rb") as f:
+			with open(f"{selected_gfx_dir}uxassets.bin", "rb") as f:
 				self.gfx_bin = f.read()
 				self.gfx_len = len(self.gfx_bin)
 				self.gfx_hash = hashlib.sha256(bytes(self.gfx_bin)).digest()
