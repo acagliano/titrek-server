@@ -10,7 +10,7 @@ class TrekModules:
 	
 	def load_module(self, name):
 		try:
-			return self.modules["name"]
+			return self.modules[name]
 		except:
 			print(traceback.format_exc(limit=None, chain=True))
     
