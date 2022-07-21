@@ -322,6 +322,14 @@ outputs:
 				self.gfx_bin = f.read()
 				self.gfx_len = len(self.gfx_bin)
 				self.gfx_hash = hashlib.sha256(bytes(self.gfx_bin)).digest()
+				if hmac.compare_digest(self.client_side_sha256, self.gfx_hash):
+					self.send([ControlCodes['GFX_SKIP']])
+					self.log("Hash match for graphics. Skipping download.")
+					del self.gfx_bin
+					del self.gfx_len
+					del self.gfx_hash
+					del self.client_side_sha256
+					return
 				self.gfx_curr = 0
 				self.send([ControlCodes['GFX_FRAME_START']]+u24(self.gfx_len))
 		except IOError:
@@ -360,15 +368,6 @@ outputs:
 		
 		
 	def gfx_send_frame(self):
-		if hmac.compare_digest(self.client_side_sha256, self.gfx_hash):
-			self.send([ControlCodes['GFX_SKIP']])
-			self.log("Hash match for graphics. Skipping download.")
-			del self.gfx_bin
-			del self.gfx_len
-			del self.gfx_curr
-			del self.gfx_hash
-			del self.client_side_sha256
-			return
 		if self.gfx_curr >= self.gfx_len:
 			self.send([ControlCodes['GFX_FRAME_DONE']]+list(self.gfx_hash))
 			self.log("gfx download complete")
