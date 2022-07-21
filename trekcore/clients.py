@@ -415,8 +415,9 @@ outputs:
 		except:
 			pass
 		try:
+			self.data["ships"] = []
 			for m in self.modules.defaults["modules"]:
-				self.data["ships"][0][m] = self.modules.module_data[m]
+				self.data["ships"][0].append(self.modules.module_data[m])
 			
 			with open(self.shipfile,"w") as f:
 				json.dump(self.data["ships"],f)
