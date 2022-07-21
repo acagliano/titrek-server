@@ -20,6 +20,7 @@ class Server:
 			self.server_root,
 			f"{self.server_root}logs",
 			f"{self.server_root}cache",
+		]:
 			try:
 				os.makedirs(directory)
 			except:
@@ -116,7 +117,7 @@ class Server:
 		try:
 			self.online = True
 			self.writeinfo()
-			self.threads = [threading.Thread(target=self.autoSaveHandler)]
+			#self.threads = [threading.Thread(target=self.autoSaveHandler)]
 			self.threads[0].start()
 			self.main_thread = threading.Thread(target=self.main)
 			self.main_thread.start()
