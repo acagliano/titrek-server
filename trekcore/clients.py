@@ -416,7 +416,8 @@ outputs:
 			pass
 		try:
 			for m in self.modules.defaults:
-				self.data["ships"][0][m] = self.modules.modules[m]
+				printf(m)
+				self.data["ships"][0][m] = self.modules.module_data[m]
 			
 			with open(self.shipfile,"w") as f:
 				json.dump(self.data["ships"],f)
