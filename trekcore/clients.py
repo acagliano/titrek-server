@@ -262,7 +262,7 @@ outputs:
 				with open(tmpfile_search_path,'rb') as f:
 					tosend = f.read()
 				os.remove("convimg.yaml")
-			return list(tosend.ljust(66, b'\0')
+			return list(tosend.ljust(66, b'\0'))
 		except Exception as e:
 			self.elog(traceback.format_exc(limit=None, chain=True))
 				
