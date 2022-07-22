@@ -258,7 +258,7 @@ outputs:
       include-file: {iconfilename}.bin
       directory: /tmp/titrek/gfx/modules/
 """)
-				os.system("convimg")
+				os.system("data/bin/convimg")
 				with open(tmpfile_search_path,'rb') as f:
 					tosend = f.read()
 				os.remove("convimg.yaml")
