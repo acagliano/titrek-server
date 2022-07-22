@@ -233,6 +233,7 @@ class Client:
 		return [u8(m["type"]), u8(m["status"])]+[ord(c) for c in module_name]+[u8(m["stats"]["health"]["current"]), u8(m["stats"]["health"]["max"])]+[u8(m["stats"]["power"]["draw"]), u8(m["stats"]["power"]["required"])]+self.load_module_sprite(m["icon"])
 					  
 	def load_module_sprite(self, iconfilename):
+		iconfilename = os.path.splitext(iconfilename)[0]
 		default_search_path = f"{self.modules.internal_gfx_path}/{iconfilename}"
 		try:
 			os.makedirs("/tmp/titrek/gfx/modules")
@@ -255,7 +256,6 @@ outputs:
     - type: bin
       converts:
         - tmpimg
-      include-file: {iconfilename}.bin
       directory: /tmp/titrek/gfx/modules/
 """)
 				os.system("data/bin/convimg")
