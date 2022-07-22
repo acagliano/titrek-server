@@ -185,7 +185,7 @@ class Client:
 						odata = []
 						for m in self.data["ships"]["ship0"]:
 							odata.extend(self.load_shipmodule(m))
-						self.send(bytes([ControlCodes["LOAD_SHIP"]]+odata))
+						self.send(bytes([ControlCodes["LOAD_SHIP"]]+[odata]))
 					elif data[0]==ControlCodes["NEW_GAME_REQUEST"]:
 						self.create_new_game()
 					elif data[0]==ControlCodes["GET_ENGINE_MAXIMUMS"]:
@@ -255,6 +255,7 @@ outputs:
     - type: bin
       converts:
         - tmpimg
+      include-file: /dev/null
       directory: /tmp/titrek/gfx/modules/
 """)
 				os.system("data/bin/convimg")
