@@ -82,8 +82,7 @@ class Client:
 		try:
 			for m in self.data["ships"]["ship0"]:
 				j=self.modules.load_module(m)
-				for k in j.keys():
-					m[k]=j[k]
+				
 		except KeyError:
 			print("ship save corrupted - resetting")
 			self.create_new_game()
