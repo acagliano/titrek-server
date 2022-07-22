@@ -185,7 +185,7 @@ class Client:
 						odata = []
 						for m in self.data["ships"]["ship0"]:
 							odata.extend(self.load_shipmodule(m))
-						self.send(bytes([ControlCodes["LOAD_SHIP"]]+[odata]))
+						self.send(bytes([ControlCodes["LOAD_SHIP"]]+odata))
 					elif data[0]==ControlCodes["NEW_GAME_REQUEST"]:
 						self.create_new_game()
 					elif data[0]==ControlCodes["GET_ENGINE_MAXIMUMS"]:
@@ -227,9 +227,18 @@ class Client:
 				    
 		
 	def load_shipmodule(self,m):
+		rdata = []
 		m = self.data["ships"]["ship0"][m]
 		module_name = m["name"].encode('ascii').ljust(11, b'\0')
-		return [u8(m["type"]), u8(m["status"])]+list(module_name)+[u8(m["stats"]["health"]["current"]), u8(m["stats"]["health"]["max"])]+[u8(m["stats"]["power"]["draw"]), u8(m["stats"]["power"]["required"])]+self.load_module_sprite(m["icon"])
+		rdata.extend(u8(m["type"]))
+		rdata.extend(u8(m["status"]))
+		rdata.extend([x.decode("ascii") for x in module_name if len(module_name)])
+		rdata.extend(u8(m["stats"]["health"]["current"]))
+		rdata.extend(u8(m["stats"]["health"]["max"]))
+		rdata.extend(u8(m["stats"]["power"]["draw"]))
+		rdata.extend(u8(m["stats"]["power"]["required"]))
+		rdata.extend(self.load_module_sprite(m["icon"])
+		return rdata
 					  
 	def load_module_sprite(self, iconfilename):
 		iconfilename = os.path.splitext(iconfilename)[0]
