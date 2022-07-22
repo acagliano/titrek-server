@@ -237,7 +237,7 @@ class Client:
 		rdata.extend(u8(m["stats"]["health"]["max"]))
 		rdata.extend(u8(m["stats"]["power"]["draw"]))
 		rdata.extend(u8(m["stats"]["power"]["required"]))
-		rdata.extend(self.load_module_sprite(m["icon"])
+		rdata.extend(self.load_module_sprite(m["icon"])) # was missing a closing bracket here Cags :p
 		return rdata
 					  
 	def load_module_sprite(self, iconfilename):
@@ -271,7 +271,7 @@ outputs:
 				with open(tmpfile_search_path,'rb') as f:
 					tosend = f.read()
 				os.remove("convimg.yaml")
-			return list(tosend.ljust(66, b'\0'))
+			return list(tosend) + ([0]*(66-len(tosend)) if len(tosend) < 66)
 		except Exception as e:
 			self.elog(traceback.format_exc(limit=None, chain=True))
 				
