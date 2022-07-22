@@ -228,7 +228,7 @@ class Client:
 		
 	def load_shipmodule(self,m):
 		m = self.data["ships"]["ship0"][m]
-		module_name = m["name"].ljust(11, b'\0')
+		module_name = m["name"].encode('ascii').ljust(11, b'\0')
 		return [u8(m["type"]), u8(m["status"])]+[ord(c) for c in module_name]+[u8(m["stats"]["health"]["current"]), u8(m["stats"]["health"]["max"])]+[u8(m["stats"]["power"]["draw"]), u8(m["stats"]["power"]["required"])]+self.load_module_sprite(m["icon"])
 					  
 	def load_module_sprite(self, iconfilename):
