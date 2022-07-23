@@ -271,7 +271,7 @@ outputs:
 				with open(tmpfile_search_path,'rb') as f:
 					tosend = f.read()
 				os.remove("convimg.yaml")
-			return list(tosend) + ([0]*(66-len(tosend)) if len(tosend) < 66)
+			return list(tosend) + list(bytes(66-len(tosend)))
 		except Exception as e:
 			self.elog(traceback.format_exc(limit=None, chain=True))
 				
