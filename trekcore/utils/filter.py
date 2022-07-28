@@ -18,6 +18,7 @@ from trekcore.utils.logging import TrekLogging
 logging.FILTER=60
 
 PacketSizes={
+    "LOGIN":128+16+16,
     "GET_ENGINE_MAXIMUMS":0,
     "MODULE_STATE_CHANGE":2,
     "MODULE_INFO_REQUEST":1,
