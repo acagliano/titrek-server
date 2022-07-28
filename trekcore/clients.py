@@ -451,6 +451,7 @@ outputs:
 		try:
 			iv = bytes(data[1:17])
 			ct = bytes(data[17:])
+			printf(f"Nonce len: {len(iv}\n")
 			cipher = AES.new(self.aes_key, AES.MODE_CTR, nonce=iv)
 			decrypted_data = cipher.decrypt(ct)
 			credentials = decrypted_data.split("\0", maxsplit=1)
