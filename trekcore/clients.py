@@ -455,7 +455,7 @@ outputs:
 			cipher = AES.new(self.aes_key, AES.MODE_CTR, nonce=iv)
 			decrypted_data = cipher.decrypt(ct)
 			delim = decrypted_data.find(b'\0')
-			username = decrypted_data[:delim]
+			username = decrypted_data[:delim].decode('ascii')
 			key = decrypted_data[delim+1:]
 			print(f"{username}")
 			
