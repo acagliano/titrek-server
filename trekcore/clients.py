@@ -232,7 +232,7 @@ class Client:
 		module_name = m["name"].encode('ascii').ljust(11, b'\0')
 		rdata.extend(u8(m["type"]))
 		rdata.extend(u8(m["status"]))
-		rdata.extend(x.decode("ascii"))
+		rdata.extend(m['name'].decode("ascii"))
 		rdata.extend(u8(m["stats"]["health"]["current"]))
 		rdata.extend(u8(m["stats"]["health"]["max"]))
 		rdata.extend(u8(m["stats"]["power"]["draw"]))
