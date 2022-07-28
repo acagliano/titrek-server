@@ -449,20 +449,19 @@ outputs:
 
 	def log_in(self, data):
 		try:
-			iv = bytes(data[1:16])
-			ct = bytes(data[16:])
+			username_delim = data.find(b'\0')
+			username = data[1:delim]
+			keydata = data[delim+1:]
+			iv = bytes(keydata[:16])
+			ct = bytes(keydata[16:])
 			print(f"Nonce len: {len(iv)}\n")
-			cipher = AES.new(self.aes_key, AES.MODE_CTR, nonce=iv)
-			decrypted_data = cipher.decrypt(ct)
-			delim = decrypted_data.find(b'\0')
-			username = decrypted_data[:delim].decode('ascii')
-			key = decrypted_data[delim+1:]
+			cipher = AES.new(self.aes_key, AES.MODE_CBC, iv=iv)
+			key = cipher.decrypt(ct)
 			print(f"{len(key)}")
 			print(key.hex())
-			
-			#padded_key = credentials[1]
-			#padding = padded_key[len(padded_key)-1]
-			#key = padded_key[0:-padding]
+		
+			padding = key[len(key)-1]
+			key = key[0:-padding]
 			try:
 				self.dlog(f"Attempting to match key to user {username}")
 				with open(f"{self.player_root}{username}/account.json", 'r') as f:
