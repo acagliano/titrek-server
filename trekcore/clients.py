@@ -452,19 +452,15 @@ outputs:
 			iv = bytes(data[1:17])
 			ct = bytes(data[17:])
 			cipher = AES.new(self.aes_key, AES.MODE_CBC, iv=iv)
-			padded_key = cipher.decrypt(ct)
-			padding = padded_key[len(padded_key)-1]
-			key = padded_key[0:-padding]
+			key = cipher.decrypt(ct)
+			padding = key[len(key)-1]
+			key = key[0:-padding]
+			self.log(f"searching for user with matching key.")
 			for dir in os.listdir(self.player_root):
 				try:
-					
-					self.dlog(f"Attempting to match key to user {dir}")
-					with open(f"{self.player_root}{dir}/account.json", 'r') as f:
-						account = json.load(f)
-						saved_hash = account["pubkey"]
-						saved_salt = account["pubkey-salt"]
-						hashed_pw=hmac.new(bytes.fromhex(saved_salt), key, hashlib.sha512).digest()
-						if hmac.compare_digest(hashed_pw, bytes.fromhex(saved_hash)):
+					with open(f"{self.player_root}{dir}/TrekID00.8xv", 'rb') as f:
+						saved_key = f.read()[74:-2]
+						if hmac.compare_digest(key, saved_key):
 							self.user = dir
 							self.logged_in = True
 							self.log(f"Key match for user {self.user}!")
