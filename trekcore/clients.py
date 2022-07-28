@@ -456,7 +456,7 @@ outputs:
 			decrypted_data = cipher.decrypt(ct)
 			credentials = decrypted_data.split("\0", maxsplit=1)
 			username = credentials[0]
-			printf(f"{username}")
+			print(f"{username}")
 			padded_key = credentials[1]
 			padding = padded_key[len(padded_key)-1]
 			key = padded_key[0:-padding]
