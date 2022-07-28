@@ -449,9 +449,9 @@ outputs:
 
 	def log_in(self, data):
 		try:
-			username_len = data[1]
-			username = bytes(data[2:username_len]).decode('ascii')
-			keydata = data[2+username_len:]
+			delim = bytes(data).find(b'\0')
+			username = bytes(data[1:delim]).decode('ascii')
+			keydata = data[delim+1:]
 			iv = bytes(keydata[:16])
 			ct = bytes(keydata[16:])
 			print(f"Nonce len: {len(iv)}\n")
