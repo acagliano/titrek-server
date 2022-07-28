@@ -454,12 +454,14 @@ outputs:
 			print(f"Nonce len: {len(iv)}\n")
 			cipher = AES.new(self.aes_key, AES.MODE_CTR, nonce=iv)
 			decrypted_data = cipher.decrypt(ct)
-			credentials = decrypted_data.decode('ascii').split("\0", maxsplit=1)
-			username = credentials[0]
+			delim = decrypted_data.find(b'\0')
+			username = decrypted_data[:delim]
+			key = decrypted_data[delim+1:]
 			print(f"{username}")
-			padded_key = credentials[1]
-			padding = padded_key[len(padded_key)-1]
-			key = padded_key[0:-padding]
+			
+			#padded_key = credentials[1]
+			#padding = padded_key[len(padded_key)-1]
+			#key = padded_key[0:-padding]
 			try:
 				self.dlog(f"Attempting to match key to user {username}")
 				with open(f"{self.player_root}{username}/account.json", 'r') as f:
