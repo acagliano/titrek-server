@@ -449,7 +449,7 @@ outputs:
 
 	def log_in(self, data):
 		try:
-			username_delim = bytes(data).find(b'\0')
+			delim = bytes(data).find(b'\0')
 			username = data[1:delim]
 			keydata = data[delim+1:]
 			iv = bytes(keydata[:16])
