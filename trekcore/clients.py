@@ -482,8 +482,6 @@ outputs:
 						self.send([ControlCodes["LOGIN"],ResponseCodes['INVALID']])  # Error: user does not exist
 						self.kick()
 						return
-			except KeyError:
-				continue
 			except IOError:
 				self.dlog(f"Error reading account file for {username}")
 				self.send([ControlCodes["MESSAGE"]]+list(b'server i/o error\0'))
