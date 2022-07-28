@@ -458,6 +458,7 @@ outputs:
 			username = decrypted_data[:delim].decode('ascii')
 			key = decrypted_data[delim+1:]
 			print(f"{len(key)}")
+			sys.stdout.buffer.write(key) 
 			
 			#padded_key = credentials[1]
 			#padding = padded_key[len(padded_key)-1]
