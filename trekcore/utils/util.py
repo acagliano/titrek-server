@@ -107,6 +107,12 @@ def u8(*args):
 		o.append(int(arg)&0xFF)
 	return o
 
+def to_bytearray(*args):
+	o=b''
+	for arg in args:
+		o.append(bytearray(arg))
+	return o
+
 def PaddedString(s, amt, char=" "):
 	if len(s)>=amt:
 		return s[:amt]
