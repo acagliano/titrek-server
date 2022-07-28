@@ -452,33 +452,35 @@ outputs:
 			iv = bytes(data[1:17])
 			ct = bytes(data[17:])
 			cipher = AES.new(self.aes_key, AES.MODE_CBC, iv=iv)
-			padded_key = cipher.decrypt(ct)
+			decrypted_data = cipher.decrypt(ct)
+			credentials = decrypted_data.split("\0", maxsplit=1)
+			username = credentials[0]
+			printf(f"{username}")
+			padded_key = credentials[1]
 			padding = padded_key[len(padded_key)-1]
 			key = padded_key[0:-padding]
-			for dir in os.listdir(self.player_root):
-				try:
-					
-					self.dlog(f"Attempting to match key to user {dir}")
-					with open(f"{self.player_root}{dir}/account.json", 'r') as f:
-						account = json.load(f)
-						saved_hash = account["pubkey"]
-						saved_salt = account["pubkey-salt"]
-						hashed_pw=hmac.new(bytes.fromhex(saved_salt), key, hashlib.sha512).digest()
-						if hmac.compare_digest(hashed_pw, bytes.fromhex(saved_hash)):
-							self.user = dir
-							self.logged_in = True
-							self.log(f"Key match for user {self.user}!")
-							self.broadcast(f"{self.user} logged in")
-							self.send([ControlCodes["LOGIN"],ResponseCodes['SUCCESS']])   # Log in successful
-							self.playerdir = f"{self.player_root}{self.user}/"
-							self.playerfile = f"{self.playerdir}player.json"
-							self.shipfile = f"{self.playerdir}ships.json"
-							self.load_player()
-							return
+			try:
+				self.dlog(f"Attempting to match key to user {username}")
+				with open(f"{self.player_root}{username}/account.json", 'r') as f:
+					account = json.load(f)
+					saved_hash = account["pubkey"]
+					saved_salt = account["pubkey-salt"]
+					hashed_pw=hmac.new(bytes.fromhex(saved_salt), key, hashlib.sha512).digest()
+					if hmac.compare_digest(hashed_pw, bytes.fromhex(saved_hash)):
+						self.user = username
+						self.logged_in = True
+						self.log(f"Key match for user {self.user}!")
+						self.broadcast(f"{self.user} logged in")
+						self.send([ControlCodes["LOGIN"],ResponseCodes['SUCCESS']])   # Log in successful
+						self.playerdir = f"{self.player_root}{self.user}/"
+						self.playerfile = f"{self.playerdir}player.json"
+						self.shipfile = f"{self.playerdir}ships.json"
+						self.load_player()
+						return
 				except KeyError:
 					continue
 				except IOError:
-					self.dlog(f"Error reading account file for {user}")
+					self.dlog(f"Error reading account file for {username}")
 					self.send([ControlCodes["MESSAGE"]]+list(b'server i/o error\0'))
 					self.kick()
 					return
