@@ -477,17 +477,18 @@ outputs:
 						self.shipfile = f"{self.playerdir}ships.json"
 						self.load_player()
 						return
-				except KeyError:
-					continue
-				except IOError:
-					self.dlog(f"Error reading account file for {username}")
-					self.send([ControlCodes["MESSAGE"]]+list(b'server i/o error\0'))
-					self.kick()
-					return
-			self.log(f"Could not find a match for the given key. Sorry..")
-			self.send([ControlCodes["LOGIN"],ResponseCodes['INVALID']])  # Error: user does not exist
-			self.kick()
-			return
+					else:
+						self.log(f"Invalid key for user {username}.")
+						self.send([ControlCodes["LOGIN"],ResponseCodes['INVALID']])  # Error: user does not exist
+						self.kick()
+						return
+			except KeyError:
+				continue
+			except IOError:
+				self.dlog(f"Error reading account file for {username}")
+				self.send([ControlCodes["MESSAGE"]]+list(b'server i/o error\0'))
+				self.kick()
+				return
 		except:
 			self.elog(traceback.format_exc(limit=None, chain=True))
 		
