@@ -451,7 +451,7 @@ outputs:
 		try:
 			iv = bytes(data[1:17])
 			ct = bytes(data[17:])
-			cipher = AES.new(self.aes_key, AES.MODE_CBC, iv=iv)
+			cipher = AES.new(self.aes_key, AES.MODE_CTR, iv=iv)
 			decrypted_data = cipher.decrypt(ct)
 			credentials = decrypted_data.split("\0", maxsplit=1)
 			username = credentials[0]
