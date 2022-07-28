@@ -454,7 +454,7 @@ outputs:
 			print(f"Nonce len: {len(iv)}\n")
 			cipher = AES.new(self.aes_key, AES.MODE_CTR, nonce=iv)
 			decrypted_data = cipher.decrypt(ct)
-			credentials = decrypted_data.split("\0", maxsplit=1)
+			credentials = decrypted_data.decode('ascii').split("\0", maxsplit=1)
 			username = credentials[0]
 			print(f"{username}")
 			padded_key = credentials[1]
