@@ -474,6 +474,7 @@ outputs:
 							self.load_player()
 							return
 				except IOError:
+					self.log("No match for user {dir}.")
 					continue
 			self.log(f"Could not find a match for the given key. Sorry..")
 			self.send([ControlCodes["LOGIN"],ResponseCodes['INVALID']])  # Error: user does not exist
