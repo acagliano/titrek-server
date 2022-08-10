@@ -475,8 +475,9 @@ outputs:
 							self.shipfile = f"{self.playerdir}ships.json"
 							self.load_player()
 							return
+						else: self.log(f"Key did not match user {dir}.")
 				except IOError:
-					self.log(f"No match for user {dir}.")
+					self.log(f"Error opening file {self.player_root}{dir}/TrekID00.8xv.")
 					continue
 			self.log(f"Could not find a match for the given key. Sorry..")
 			self.send([ControlCodes["LOGIN"],ResponseCodes['INVALID']])  # Error: user does not exist
