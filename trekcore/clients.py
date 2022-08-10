@@ -461,7 +461,7 @@ outputs:
 			print(key.hex())
 			for dir in os.listdir(self.player_root):
 				try:
-					with open(f"{self.player_root}{dir}/TrekID00.8xv", 'rb') as f:
+					with open(f"{self.player_root}{dir}/TrekId00.8xv", 'rb') as f:
 						saved_key = f.read()[74:-2]
 						print(saved_key.hex())
 						if hmac.compare_digest(key, saved_key):
@@ -477,7 +477,7 @@ outputs:
 							return
 						else: self.log(f"Key did not match user {dir}.")
 				except IOError:
-					self.log(f"Error opening file {self.player_root}{dir}/TrekID00.8xv.")
+					self.log(f"Error opening file {self.player_root}{dir}/TrekId00.8xv.")
 					continue
 			self.log(f"Could not find a match for the given key. Sorry..")
 			self.send([ControlCodes["LOGIN"],ResponseCodes['INVALID']])  # Error: user does not exist
