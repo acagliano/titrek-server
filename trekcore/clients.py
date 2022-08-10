@@ -473,7 +473,6 @@ outputs:
 							self.shipfile = f"{self.playerdir}ships.json"
 							self.load_player()
 							return
-						else: self.log(f"Key did not match user {dir}.")
 				except IOError:
 					self.log(f"Error opening file {self.player_root}{dir}/TrekId00.8xv.")
 					continue
