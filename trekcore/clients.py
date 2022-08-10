@@ -458,12 +458,10 @@ outputs:
 			padding = key[len(key)-1]
 			key = key[0:-padding]
 			self.log(f"searching for user with matching key.")
-			print(key.hex())
 			for dir in os.listdir(self.player_root):
 				try:
 					with open(f"{self.player_root}{dir}/TrekId00.8xv", 'rb') as f:
 						saved_key = f.read()[74:-2]
-						print(saved_key.hex())
 						if hmac.compare_digest(key, saved_key):
 							self.user = dir
 							self.logged_in = True
