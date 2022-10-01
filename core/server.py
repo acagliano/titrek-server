@@ -17,6 +17,7 @@ class Server:
 	def __init__(self):
 		self.start_logging()
 		self.load_config()
+		self.prepare_rsa()
 	
 	
 	def start_logging(self):
@@ -60,6 +61,14 @@ class Server:
 					exit(1)
 		except:
 			self.log(logging.ERROR, traceback.format_exc(limit=None, chain=True))
+		
+		
+	def prepare_rsa(self):
+		try:
+			keylen = self.config["security"]["rsa_keylen"]
+			self.rsa_privkey = RSA.generate(keylen)
+			self.rsa_pubkey = self.rsa_privkey.publickey().exportKey('DER')[-5 - keylen: -5]
+			
 		
 	
 	
