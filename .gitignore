@@ -1,0 +1,14 @@
+/backups
+/cache
+/bans
+/ssl
+/logs
+/data
+/data/promos.json
+*/__pycache__
+/.idea
+*.pyc
+*.pyo
+
+.DS_Store
+.pycache
