@@ -6,7 +6,9 @@ from Crypto.Cipher import AES
 from Crypto.Cipher import PKCS1_OAEP
 from Crypto.PublicKey import RSA
 from Crypto.Hash import SHA256
-import hmac
+from core.clients import Client
+import hmac,asn1
+
 try:
 	import discord_webhook
 	from discord_webhook import DiscordWebhook,DiscordEmbed
@@ -18,11 +20,24 @@ class Server:
 		self.start_logging()
 		self.load_config()
 		self.prepare_rsa()
+		
+		# configure socket and bind service
+		self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		self.sock.settimeout(None)
+		self.port = self.config["port"]
+		self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+		self.sock.bind(('', self.port))
+		
+		# start listener thread
+		self.thread_listen = threading.Thread(target=self.listener)
+		self.thread_listen.start()
+		
 	
 	
 	def start_logging(self):
 		try:
-			server_log = f"log/server.log"
+			os.makedirs("logs")
+			server_log = f"logs/server.log"
 			log_name= os.path.basename(os.path.normpath(logpath))
 			self.log_handle = logging.getLogger(f"titrek.{log_name}")
 			formatter = logging.Formatter('%(levelname)s: %(asctime)s: %(message)s')
@@ -67,15 +82,28 @@ class Server:
 		try:
 			keylen = self.config["security"]["rsa_keylen"]
 			self.rsa_privkey = RSA.generate(keylen)
-			self.rsa_pubkey = self.rsa_privkey.publickey().exportKey('DER')[-5 - keylen: -5]
-			
-		
+			self.rsa_pubkey = self.rsa_privkey.publickey().exportKey('DER')[10:-5]
+			if not len(self.rsa_pubkey)==keylen:
+				raise Exception("Critical RSA error. Server dev is an ID10T. Shutting down server.")
+				exit(1)
+		except:
+			self.log(logging.ERROR, traceback.format_exc(limit=None, chain=True))
 	
 	
-# class to handle incoming client connections
-class Connection:
-	def __init__(self):
-		return
+	def listener(self):
+		self.online = True
+		self.clients = {}
+		self.log(logging.INFO, "Server is up and running.")
+		while self.online:
+			self.sock.listen(3)
+			conn, addr = self.sock.accept()
+			self.clients[conn] = client = Client(conn,addr,self)
+			try:
+				thread = threading.Thread(target=client.listener)
+				thread.start()
+			except:
+				self.elog(traceback.format_exc(limit=None, chain=True))
+			time.sleep(0.002)
 
 
 
