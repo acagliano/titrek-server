@@ -50,6 +50,8 @@ class Server:
 			console_handler.setFormatter(formatter)
 			self.log_handle.addHandler(console_handler)
 			
+			self.log_handle.setLevel(logging.DEBUG)
+			
 			# enable Discord output
 			if self.config["security"]["enable-discord-alerts"]:
 				try:
@@ -63,7 +65,6 @@ class Server:
 					self.log(logging.ERROR, "Error initializing Discord support. Proceeding with feature disabled.")
 		
 			# set defaults
-			self.log_handle.setLevel(logging.DEBUG)
 		except:
 			print(traceback.format_exc(limit=None, chain=True))
 
