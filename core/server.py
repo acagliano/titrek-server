@@ -7,7 +7,7 @@ from Crypto.Cipher import PKCS1_OAEP
 from Crypto.PublicKey import RSA
 from Crypto.Hash import SHA256
 from core.clients import Client
-import hmac,asn1
+import hmac
 
 try:
 	import discord_webhook
@@ -82,7 +82,7 @@ class Server:
 		try:
 			keylen = self.config["security"]["rsa_keylen"]
 			self.rsa_privkey = RSA.generate(keylen)
-			self.rsa_pubkey = self.rsa_privkey.publickey().exportKey('DER')[10:-5]
+			self.rsa_pubkey = self.rsa_privkey.publickey().exportKey('DER')[-5 - keylen:-5]
 			if not len(self.rsa_pubkey)==keylen:
 				raise Exception("Critical RSA error. Server dev is an ID10T. Shutting down server.")
 				exit(1)
