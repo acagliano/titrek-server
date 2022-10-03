@@ -36,11 +36,11 @@ class Server:
 	
 	def start_logging(self):
 		try:
-			os.makedirs("logs")
+			os.makedirs("logs", exist_ok=True)
 			server_log = f"logs/server.log"
 			log_name= os.path.basename(os.path.normpath(logpath))
 			self.log_handle = logging.getLogger(f"titrek.{log_name}")
-			formatter = logging.Formatter('%(levelname)s: %(asctime)s: %(message)s')
+			formatter = logging.Formatter('%(asctime)s: %(levelname)s: %(message)s')
 			
 			# set handler for default messages (debug/info)
 			file_handler = TimedRotatingFileHandler(server_log, when="midnight", interval=1, backupCount=5)
@@ -93,6 +93,8 @@ class Server:
 	def listener(self):
 		self.online = True
 		self.clients = {}
+		Client.server = self
+		Client.log_handle = self.log_handle
 		self.log(logging.INFO, "Server is up and running.")
 		while self.online:
 			self.sock.listen(3)
