@@ -53,7 +53,7 @@ class Server:
 			self.log_handle.setLevel(logging.DEBUG)
 			
 			# enable Discord output
-			if self.config["security"]["enable-discord-alerts"]:
+			if self.config["security"]["discord-alerts"]["enable"]:
 				try:
 					from discord_webhook import DiscordWebhook,DiscordEmbed
 					logging.addLevelName(logging.IDS_WARN, "IDS WARN")
@@ -135,7 +135,7 @@ class GZipRotator:
 # supporting class for discord output
 class DiscordHandler(Handler):
 	def __init__(self):
-		self.channel_url="https://discord.com/api/webhooks/804113006270218331/qZa6ebxDxYR69rDPSIhD77YGA3jLOEPPI50OVoeF07ZUS7E5KWisMLkCqfXhLOpNa_dG"
+		self.channel_url=f"https://discord.com/api/webhooks/{self.config['security']['discord-alerts']['channel-id']}"
 		self.level=logging.IDS_WARN
 		self.username="TI-Trek IDS Warning"
 		self.color=131724
