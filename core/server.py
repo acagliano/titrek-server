@@ -9,11 +9,7 @@ from Crypto.Hash import SHA256
 from core.clients import Client
 import hmac
 
-try:
-	import discord_webhook
-	from discord_webhook import DiscordWebhook,DiscordEmbed
-except:
-	pass
+logging.IDS_WARN=60
 
 class Server:
 	def __init__(self):
@@ -53,6 +49,18 @@ class Server:
 			console_handler = logging.StreamHandler()
 			console_handler.setFormatter(formatter)
 			self.log_handle.addHandler(console_handler)
+			
+			# enable Discord output
+			if self.config["security"]["enable-discord-alerts"]:
+				try:
+					from discord_webhook import DiscordWebhook,DiscordEmbed
+					logging.addLevelName(logging.IDS_WARN, "IDS WARN")
+					discord_handler=DiscordHandler()
+					discord_handler.setFormatter(formatter)
+					discord_handler.setLevel(logging.IDS_WARN)
+					self.log_handle.addHandler(discord_handler)
+				except:
+					self.log(logging.ERROR, "Error initializing Discord support. Proceeding with feature disabled.")
 		
 			# set defaults
 			self.log_handle.setLevel(logging.DEBUG)
@@ -122,3 +130,21 @@ class GZipRotator:
 			os.remove(dest)
 		except:
 			pass
+
+# supporting class for discord output
+class DiscordHandler(Handler):
+	def __init__(self):
+		self.channel_url="https://discord.com/api/webhooks/804113006270218331/qZa6ebxDxYR69rDPSIhD77YGA3jLOEPPI50OVoeF07ZUS7E5KWisMLkCqfXhLOpNa_dG"
+		self.level=logging.IDS_WARN
+		self.username="TI-Trek IDS Warning"
+		self.color=131724
+		Handler.__init__(self)
+
+	def emit(self, record):
+		if not record.levelno==self.level:
+			return False
+		msg=self.format(record)
+		webhook=DiscordWebhook(url=self.channel_url,username=self.username)
+		embed=DiscordEmbed(description=msg,color=self.color)
+		webhook.add_embed(embed)
+		return webhook.execute()
