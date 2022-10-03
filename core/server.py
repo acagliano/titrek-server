@@ -2,20 +2,20 @@ import os,yaml,logging,sys,gzip,datetime,traceback,socket,threading,ctypes,hashl
 from datetime import datetime
 from logging.handlers import TimedRotatingFileHandler
 from logging import Handler
-from Crypto.Cipher import AES
-from Crypto.Cipher import PKCS1_OAEP
-from Crypto.PublicKey import RSA
-from Crypto.Hash import SHA256
+from Cryptodome.PublicKey import RSA
 from core.clients import Client
-import hmac
 
 logging.IDS_WARN=60
 
 class Server:
 	def __init__(self):
+	
+		# no try/catch... if any of this fails, server should fail to start
 		self.start_logging()
 		self.load_config()
 		self.prepare_rsa()
+		self.load_metadata()
+		self.map = Space()
 		
 		# configure socket and bind service
 		self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -24,9 +24,38 @@ class Server:
 		self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 		self.sock.bind(('', self.port))
 		
+		# let's give Client access to server attributes, log handler, map, and metadata
+		Client.server = self
+		Client.log_handle = self.log_handle
+		Client.meta = self.meta
+		Client.map = self.map
+		
 		# start listener thread
 		self.thread_listen = threading.Thread(target=self.listener)
 		self.thread_listen.start()
+		self.online = True
+		
+		
+		# start console thread
+		self.start_console()
+		
+		
+		# console parsing
+	def start_console(self):
+		while self.online:
+			try:
+				line = input("")
+				self.log(logging.INFO, f"Command issued from console: {line}")
+				if " " in line:
+					line = line.split(" ", 1)
+				else:
+					line = [line]
+				self.commands.run(line)
+			except KeyboardInterrupt:
+				break
+			except Exception as e:
+				print(traceback.format_exc(limit=None, chain=True))
+		return
 		
 	
 	
@@ -54,17 +83,12 @@ class Server:
 			
 			# enable Discord output
 			if self.config["security"]["discord-alerts"]["enable"]:
-				try:
-					from discord_webhook import DiscordWebhook,DiscordEmbed
-					logging.addLevelName(logging.IDS_WARN, "IDS WARN")
-					discord_handler=DiscordHandler()
-					discord_handler.setFormatter(formatter)
-					discord_handler.setLevel(logging.IDS_WARN)
-					self.log_handle.addHandler(discord_handler)
-				except:
-					self.log(logging.ERROR, "Error initializing Discord support. Proceeding with feature disabled.")
-		
-			# set defaults
+				from discord_webhook import DiscordWebhook,DiscordEmbed
+				logging.addLevelName(logging.IDS_WARN, "IDS WARN")
+				discord_handler=DiscordHandler()
+				discord_handler.setFormatter(formatter)
+				discord_handler.setLevel(logging.IDS_WARN)
+				self.log_handle.addHandler(discord_handler)
 		except:
 			print(traceback.format_exc(limit=None, chain=True))
 
@@ -100,23 +124,29 @@ class Server:
 	
 	
 	def listener(self):
-		self.online = True
 		self.clients = {}
-		Client.server = self
-		Client.log_handle = self.log_handle
 		self.log(logging.INFO, "Server is up and running.")
 		while self.online:
-			self.sock.listen(3)
-			conn, addr = self.sock.accept()
-			self.clients[conn] = client = Client(conn,addr,self)
 			try:
+				self.sock.listen(3)
+				conn, addr = self.sock.accept()
+				self.clients[conn] = client = Client(conn,addr,self)
 				thread = threading.Thread(target=client.listener)
 				thread.start()
 			except:
-				self.elog(traceback.format_exc(limit=None, chain=True))
+				self.log(logging.ERROR, traceback.format_exc(limit=None, chain=True))
 			time.sleep(0.002)
 
-
+	def stop(self):
+		try:
+			self.log(logging.INFO, "Server shutdown signal received.")
+			self.broadcast(f"Server shutting down in 10s.")
+			self.saveall()
+			time.sleep(10)
+			self.online = False
+			self.sock.close()
+		except:
+			self.elog(traceback.format_exc(limit=None, chain=True))
 
 
 # supporting class for logging module
