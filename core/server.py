@@ -39,9 +39,15 @@ class Server:
 		# start console thread
 		self.start_console()
 		
-		
-		# console parsing
+	
+	def load_metadata(self):
+		# load packet id specs
+		with open(f'packets.spec', 'r') as f:
+				self.meta["packets"] = yaml.safe_load(f)
+				
+	
 	def start_console(self):
+	# console parsing
 		while self.online:
 			try:
 				line = input("")
@@ -124,6 +130,7 @@ class Server:
 	
 	
 	def listener(self):
+	# listens for new connections
 		self.clients = {}
 		self.log(logging.INFO, "Server is up and running.")
 		while self.online:
@@ -136,6 +143,11 @@ class Server:
 			except:
 				self.log(logging.ERROR, traceback.format_exc(limit=None, chain=True))
 			time.sleep(0.002)
+			
+	def broadcast(self):
+	# sends a message to all connected clients
+		for client in self.clients:
+			client.send
 
 	def stop(self):
 		try:

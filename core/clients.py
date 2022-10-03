@@ -14,6 +14,7 @@ class Client:
 	log_handle = None
 	meta = None
 	map = None
+	packets=None
 	
 	def __init__(self, conn, addr):
 		Client.count += 1
@@ -21,6 +22,7 @@ class Client:
 		self.addr = addr
 		self.ip = addr[0]
 		self.port = addr[1]
+		Client.packets = Client.meta["packets"]
 		return
 		
 		
