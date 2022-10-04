@@ -58,10 +58,9 @@ class Client:
 			return bytes_sent
 		except (BrokenPipeError, OSError):
 			self.log(logging.ERROR, "Send error, Packet id: {data[0]}. Connection invalid.")
+		except Exception as e:
+			self.log(logging.ERROR, e)
 			
-	def handle_connection(self):
-		except:
-			self.log(logging.ERROR, traceback.format_exc(limit=None, chain=True))
 	
 	
 	def listener(self):
