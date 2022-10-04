@@ -42,7 +42,7 @@ class Server:
 	
 	def load_metadata(self):
 		# load packet id specs
-		with open(f'packets.spec', 'r') as f:
+		with open(f'core/packets.spec', 'r') as f:
 				self.meta["packets"] = yaml.safe_load(f)
 				
 	

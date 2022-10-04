@@ -4,6 +4,11 @@ from Cryptodome.Cipher import PKCS1_OAEP
 from Cryptodome.Hash import SHA256
 import hmac
 
+class ClientDisconnect(Exception):
+	pass
+
+class PacketFilter(Exception):
+	pass
 
 # class to handle incoming client connections
 class Client:
@@ -25,7 +30,6 @@ class Client:
 		self.port = addr[1]
 		Client.packets = Client.meta["packets"]
 		Client.config = Client.server.config
-		return
 		
 		
 	def log(self, lvl, msg):
@@ -34,17 +38,17 @@ class Client:
 	
 	def listener(self):
 		self.data_size = 0
+		self.connected = True
+		self.logged_in = False
 		try:
 			self.conn.settimeout(Client.config["conn-timeo"])
-			while Client.server.online:
+			while Client.server.online and self.connected:
 			
 				# read at most packet-max bytes from socket
 				data = self.conn.recv(self.config["packet-max"])))
 				
-				if not data:
-					raise Exception(f"{self.addr} appears to have disconnected.")
-					# I remember reading that conn.recv returning null means conn closed
-					break
+				# I remember reading that conn.recv returning null means conn closed
+				if not data: break
 				
 				self.in_buf += data
 				
@@ -66,16 +70,35 @@ class Client:
 				# zero data size
 				self.in_buf = self.in_buf[self.data_size:]
 				self.data_size = 0
+			raise ClientDisconnect()
+			
+		except socket.timeout, ClientDisconnect:
+			self.log(logging.INFO, f"{self.ip} has disconnected.")
 			del Client.server.clients[self.conn]
 			return
-			
-		except socket.timeout:
-			raise Exception(f"{self.addr} timed out. Disconnecting.")
-			del Client.server.clients[self.conn]
+		except:
+			self.log(logging.ERROR, traceback.format_exc(limit=None, chain=True))
 			
 			
 	def parse_packet(self, data):
-		return
+		try:
+			for packet in Client.packets:
+				if data[0] == packet["id"]:
+					if ("req-login" in packet) and (packet["req-login"] == True):
+						if not self.logged_in:
+							raise PacketFilter(f"Priviledged packet from unpriviledged connection: {self.ip}")
+					func = getattr(self, packet["func"], None)
+					if not callable(func):
+						raise Exception("Packet parse error. Func spec for packet id {data[0]} invalid.")
+					func()
+					return
+			raise PacketFilter(f"Unknown packet from {self.ip}")
+		except PacketFilter as e:
+			self.log(logging.IDS_WARN, e)
+			return
+		except Exception as e
+			self.log(logging.ERROR, e)
+			return
 		
 		
 	def disconnect(self):
