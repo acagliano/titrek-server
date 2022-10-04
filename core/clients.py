@@ -56,7 +56,8 @@ class Client:
 			self.log(logging.DEBUG, f"Packet id: {data[0]}, len + prefix: {written}, Sent successfully.
 					
 			return bytes_sent
-		except (BrokenPipeError, OSError): self.elog("send() called on a closed connection. This is probably intended behavior, but worth double checking.")
+		except (BrokenPipeError, OSError):
+			self.log(logging.ERROR, "Send error, Packet id: {data[0]}. Connection invalid.")
 			
 	def handle_connection(self):
 		except:
