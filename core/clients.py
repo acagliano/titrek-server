@@ -53,7 +53,7 @@ class Client:
 				raise Exception(f"Send error, Packet id: {data[0]}: Bytes written did not match input")
 			
 			# if we make it this far, print successful send
-			self.log(logging.DEBUG, f"Packet id: {data[0]}, len + prefix: {written}, Sent successfully.
+			self.log(logging.DEBUG, f"Packet id: {data[0]}, len + prefix: {written}, Sent successfully.")
 					
 			return bytes_sent
 		except (BrokenPipeError, OSError):
