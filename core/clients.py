@@ -34,7 +34,34 @@ class Client:
 		
 	def log(self, lvl, msg):
 		Client.log_handle.log(lvl, msg)
+	
+	def send_bytes(self, data):
+		try:
 		
+			# catch buffer overflow
+			if (len(data)+3) > Client.config["packet-max"]:
+				raise Exception(f"Send error, Packet id: {data[0]}: Packet + size word exceeds packet max spec.")
+				
+			# data length to 3-byte size prefix
+			out = len(data).to_bytes(3, 'little')
+			out += data
+			
+			written = self.conn.send(out)
+			
+			# check if bytes written doesn't match length of input + prefix
+			if not written == (len(data)+3):
+				raise Exception(f"Send error, Packet id: {data[0]}: Bytes written did not match input")
+			
+			# if we make it this far, print successful send
+			self.log(logging.DEBUG, f"Packet id: {data[0]}, len + prefix: {written}, Sent successfully.
+					
+			return bytes_sent
+		except (BrokenPipeError, OSError): self.elog("send() called on a closed connection. This is probably intended behavior, but worth double checking.")
+			
+	def handle_connection(self):
+		except:
+			self.log(logging.ERROR, traceback.format_exc(limit=None, chain=True))
+	
 	
 	def listener(self):
 		self.data_size = 0
@@ -100,6 +127,11 @@ class Client:
 			self.log(logging.ERROR, e)
 			return
 		
+	### BEGIN PACKET HANDLERS
+	def rsa_send(self):
+		rsa_key = Client.server.rsa_pubkey
 		
+	
+	
 	def disconnect(self):
 		Client.count -= 1

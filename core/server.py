@@ -85,7 +85,10 @@ class Server:
 			console_handler.setFormatter(formatter)
 			self.log_handle.addHandler(console_handler)
 			
-			self.log_handle.setLevel(logging.DEBUG)
+			if self.config["debug-mode"] == True:
+				self.log_handle.setLevel(logging.DEBUG)
+			else:
+				self.log_handle.setLevel(logging.INFO)
 			
 			# enable Discord output
 			if self.config["security"]["discord-alerts"]["enable"]:
