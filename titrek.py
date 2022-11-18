@@ -12,8 +12,8 @@ logging.IDS_WARN=60
 
 PacketIds = {
 	"RSA_SETUP":0x03,
-	"AES_SECRET_ACK":04,
-	"LOGIN":05,
+	"AES_SECRET_ACK":0x04,
+	"LOGIN":0x05,
 	"LOAD_SHIP":0x10,
 	"GFXCACHE_INIT":0xe0,
 	"GFXCACHE_LOAD":0xe1,
@@ -271,7 +271,7 @@ class Client:
 			Client.count -= 1
 			raise ClientDisconnect()
 		
-		except socket.timeout, ClientDisconnect:
+		except (socket.timeout, ClientDisconnect):
 			self.log(logging.INFO, f"{self.ip}:{self.port} has disconnected.")
 			del Client.server.clients[self.conn]
 			return
@@ -294,6 +294,8 @@ class Client:
 				self.send_bytes(ctl)
 			elif data[0] == PacketIds["LOGIN"]:
 				self.login(data)
+		except:
+			self.log(logging.ERROR, traceback.format_exc(limit=None, chain=True))
 				
 				
 	def login(self, data):
