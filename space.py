@@ -10,8 +10,9 @@ class Space:
 		self.config_file = f"{self.path}/space.conf"
 		os.makedirs(self.path, exist_ok=True)
 		try:
-			self.config = configparser.ConfigParser()
-			self.config.read(self.config_file)
+			with open(self.config_file) as f:
+				self.config = configparser.ConfigParser()
+				self.config.read_file(f)
 			self.generate()
 			
 		except IOError:
@@ -21,8 +22,9 @@ class Space:
 			with open(self.config_file, 'wb') as f:
 				f.write(r.content)
 			
-			self.config = configparser.ConfigParser()
-			self.config.read(self.config_file)
+			with open(self.config_file) as f:
+				self.config = configparser.ConfigParser()
+				self.config.read_file(f)
 			self.generate()
 		
 		
@@ -53,7 +55,7 @@ class Space:
 # - System()
 # - Planetoid()
 # - Stellar()
-# - ext class CelestialObject()			  
+# - ext class CelestialObject()
 ###########################################
 
 class Galaxy(CelestialObject):
