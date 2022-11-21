@@ -8,7 +8,7 @@ from Cryptodome.Cipher import PKCS1_OAEP
 from Cryptodome.Hash import SHA256
 import hmac,asn1
 
-from util import *
+from space import *
 
 logging.IDS_WARN=60
 
