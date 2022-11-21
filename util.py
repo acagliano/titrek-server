@@ -15,10 +15,19 @@ class Space:
 			
 		except IOError:
 			yaml_string = """
-				map-size: 'single-galaxy'
-				map-scale: 1
+				map-size:
+					start: 0
+					end: ?
+					step: 5
+				scale-distances: 1
 				realistic-physics: false
 				rogue-objects: false
+				galaxies-per-unit:
+					min: 1
+					max: 3
+				systems-per-galaxy: 10
+					min: 10
+					max: 50
 			"""
 			self.config = yaml.safe_load(yaml_string)
 			with open(self.config_file, 'w') as f:
@@ -28,13 +37,50 @@ class Space:
 		
 	def generate(self):
 		# generate galaxies
+		self.realsize = 0
 		self.galaxies = []
-		if self.config["map-size"] == "single-galaxy":
-			self.galaxies[0] = self.generate_galaxy()
+		if self.config["map-size"] == 0:
+			self.galaxies[0] = galaxy = Galaxy(self.path)
+			galaxy.generate()
 		else:
-			generate_next = True
-			galaxy_idx = 0
-			while generate_next:
-				self.galaxies[galaxy_idx] = self.generate_galaxy()
-				if galaxy_origin_distance_map_origin > map-size:
-					generate_next = False
+			while self.realsize < self.config["map-size"]:
+				galaxies_to_generate = random.choice(range(self.config["min-galaxies-per-unit"], self.config["max-galaxies-per-unit"]))
+				for g in galaxies_to_generate:
+					self.galaxies[galaxy_idx] = galaxy = Galaxy(self.path)
+					galaxy.generate()
+				
+				
+	def generate_galaxy(self, single_galaxy=False):
+		# spawn galaxy center at random point on circle
+		# defined by a radius of self.realsize,
+		# centered on (0,0,0)
+		# all galaxy origin coordinates are relative to map origin
+		if single_galaxy==True:
+			return CelestialObject("galaxy", 0, 0, 0)
+			
+
+
+CelestialObjectTypes = {
+	"galaxy": 0,
+	"system": 1
+}
+
+class Galaxy(CelestialObject):
+	identifier = 0
+	def __init__(self, path):
+		self.id = Galaxy.identifier
+		self.path = f"{path}/galaxy{self.id}"
+		Galaxy.identifier += 1
+	def generate(self, dist_from_origin, min_systems, max_systems, single_galaxy=False):
+		# do stuff
+
+
+class CelestialObject:
+	identifier = 0
+	def __init__(self, path):
+		self.id = CelestialObject.identifier
+		self.path = f"{path}/galaxy{self.id}"
+		CelestialObject.identifier += 1
+		
+		
+		
