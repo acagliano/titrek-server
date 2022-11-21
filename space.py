@@ -49,11 +49,11 @@ class Space:
 ###########################################
 # Class Definitions for Celestial Objects #
 ###########################################
-# - Galaxy()							  #
-# - System()							  #
-# - Planetoid()							  #
-# - Stellar()							  #
-# - ext class CelestialObject()			  #
+# - Galaxy()
+# - System()
+# - Planetoid()
+# - Stellar()
+# - ext class CelestialObject()			  
 ###########################################
 
 class Galaxy(CelestialObject):
