@@ -1,4 +1,4 @@
-import os,random
+import os,random,requests
 import configparser
 
 # Space class for map data
@@ -10,26 +10,19 @@ class Space:
 		self.config_file = f"{self.path}/space.conf"
 		os.makedirs(self.path, exist_ok=True)
 		try:
-			with open(self.config_file, "r") as f:
-				self.config = yaml.safe_load(f)
+			self.config = configparser.ConfigParser()
+			self.config.read(self.config_file)
 			self.generate()
 			
 		except IOError:
-			config_string = """
-				
-				generation-rates:
-					galaxy: "fast"
-					system: "fast"
-				_comments:
-					map-size: "specifies initial size, amount to increase, interval to increase, and size to stop"
-					scale-distances: "Specifies ratio of emulated distance to real distance. 1 means exact scaling"
-					realistic-physics: "Determines whether to path celestial objects, tick star life cycles, compute gravity on dynamic entities, and spawn and path rogue objects like comets"
-					generation-rates: "Sets preconfigured spawn rates of galaxies per Mpc of map space and systems per galaxy. Supported options are 'fast' and 'normal'. Normal attempts to emulate spawning patterns consistent with real life"
-					
-			"""
-			self.config = yaml.safe_load(yaml_string)
-			with open(self.config_file, 'w') as f:
-				yaml.dump(self.config, f)
+			get_url = "https://raw.githubusercontent.com/acagliano/titrek-server/rewrite/space.conf"
+			r = requests.get(url, allow_redirects=True)
+			
+			with open(self.config_file, 'wb') as f:
+				f.write(r.content)
+			
+			self.config = configparser.ConfigParser()
+			self.config.read(self.config_file)
 			self.generate()
 		
 		
@@ -40,15 +33,28 @@ class Space:
 		galaxies_per = self.config["galaxies-per-Mpc"]
 		if self.config["map-size"] == 0:
 			self.galaxies[0] = galaxy = Galaxy(self.path)
-			galaxy.generate()
+			galaxy.generate(0)
 		else:
 			while self.realsize < self.config["map-size"]:
 				galaxies_to_generate = random.choice(range(galaxies_per["min"], galaxies_per["max"]))
 				for g in galaxies_to_generate:
 					self.galaxies[galaxy_idx] = galaxy = Galaxy(self.path)
 					galaxy.generate(self.realsize)
+					
+			
+	def tick(self):
+		return
 				
-
+				
+###########################################
+# Class Definitions for Celestial Objects #
+###########################################
+# - Galaxy()							  #
+# - System()							  #
+# - Planetoid()							  #
+# - Stellar()							  #
+# - ext class CelestialObject()			  #
+###########################################
 
 class Galaxy(CelestialObject):
 	identifier = 0
