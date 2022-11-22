@@ -1,5 +1,7 @@
 import os,random,requests
-import configparser
+import configparser import configparser
+
+from timeit import default_timer as timer
 
 # Space class for map data
 ######################################
@@ -11,7 +13,7 @@ class Space:
 		os.makedirs(self.path, exist_ok=True)
 		try:
 			with open(self.config_file) as f:
-				self.config = configparser.ConfigParser()
+				self.config = ConfigParser()
 				self.config.read_file(f)
 			self.generate()
 			
@@ -23,28 +25,47 @@ class Space:
 				f.write(r.content)
 			
 			with open(self.config_file) as f:
-				self.config = configparser.ConfigParser()
+				self.config = ConfigParser()
 				self.config.read_file(f)
 			self.generate()
 		
 		
 	def generate(self):
 		# generate galaxies
-		self.realsize = 0
-		self.galaxies = []
-		galaxies_per = self.config["galaxies-per-Mpc"]
-		if self.config["map-size"] == 0:
-			self.galaxies[0] = galaxy = Galaxy(self.path)
-			galaxy.generate(0)
+		self.target_size = config["mapconfig"].getint("starting-size")
+		self.current_size = 0		## SAVE ME
+		self.galaxies = []			## SAVE ME
+		self.galaxy_gen_preset = config["generationrates"]["galaxy"]
+		self.system_gen_preset = config["generationrates"]["system"]
+		galaxy_idx = 0
+		
+		if self.gen_preset == "fast":
+			self.galaxy_rates = (1, 3)
 		else:
-			while self.realsize < self.config["map-size"]:
-				galaxies_to_generate = random.choice(range(galaxies_per["min"], galaxies_per["max"]))
+			self.galaxy_rates = (5, 9)
+		
+		if self.target_size == 0:
+			self.galaxies[galaxy_idx] = galaxy = Galaxy(self.path)
+			galaxy.generate(self.current_size)
+		else:
+			while self.current_size < self.target_size:
+				galaxies_to_generate = random.choice(range(self.galaxy_rates[0], self.galaxy_rates[1]))
 				for g in galaxies_to_generate:
 					self.galaxies[galaxy_idx] = galaxy = Galaxy(self.path)
-					galaxy.generate(self.realsize)
+					galaxy.generate(self.current_size)
+					galaxy_idx += 1
+		
+		self.map_time = {}			## SAVE ME
+		self.map_time["start"] = self.map_time["last"] = timer()
+		self.map_time["current"] = None
+		
+		
+	def save(self):
+		return
 					
 			
 	def tick(self):
+		self.map_time["current"] = timer()
 		return
 				
 				

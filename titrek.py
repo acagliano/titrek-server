@@ -39,6 +39,9 @@ class Server:
 		self.space = Space()
 		self.load_graphics()
 		
+		# configure scheduler
+		self.scheduled = sched.scheduler(time.time, time.sleep)
+		
 		# configure socket and bind service
 		self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -59,14 +62,21 @@ class Server:
 		self.thread_listen.start()
 		self.online = True
 		
+		# start autosave handler
+		threading.Thread(target=self.autosave_handler).start()
+		
 		# start console thread
 		self.start_console()
 		
-	def load_space(self):
-		return
 		
 	def load_graphics(self):
 		return
+		
+	def autosave(self):
+		while self.online:
+			threading.Thread(target=self.space.save).start()
+			sleep(600)
+			
 	
 	def start_console(self):
 		# parse console
