@@ -5,6 +5,7 @@ from timeit import default_timer as timer
 
 
 
+
 class Space:
 
 	def __init__(self):
