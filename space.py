@@ -93,8 +93,8 @@ class System(CelestialObject):
 		System.identifier += 1
 
 
-##class CelestialObject:
-##	def __init__(self):
-##		return
-##		
-##	def generate(self, dist_from_origin):
+class CelestialObject:
+	def __init__(self):
+		return
+		
+	def generate(self, dist_from_origin):
