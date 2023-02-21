@@ -7,6 +7,9 @@ from Cryptodome.Cipher import AES
 from Cryptodome.Cipher import PKCS1_OAEP
 from Cryptodome.Hash import SHA256
 import hmac,asn1
+import time
+from discord_webhook import DiscordWebhook,DiscordEmbed
+import sched
 
 from space import *
 
@@ -75,7 +78,7 @@ class Server:
 	def autosave(self):
 		while self.online:
 			threading.Thread(target=self.space.save).start()
-			sleep(600)
+			time.sleep(600)
 			
 	
 	def start_console(self):
@@ -95,7 +98,7 @@ class Server:
 				self.log(traceback.format_exc(limit=None, chain=True))
 			
 	def start_logging(self):
-		os_makedirs("logs", exist_ok=True)
+		os.makedirs("logs", exist_ok=True)
 		server_log = f"logs/server.log"
 		log_name = os.path.basename(os.path.normalpath(server_log))
 		self.log_handle = logging.getLogger(f"titrek.{log_name}")
@@ -121,10 +124,9 @@ class Server:
 		# enable Discord output for IDS warnings
 		if self.config["security"]["discord-alerts"]["enable"] == True:
 			try:
-				from discord_webhook import DiscordWebhook,DiscordEmbed
 				logging.addLevelName(logging.IDS_WARN, "IDS Warning")
 				discord_handler = DiscordHandler()
-				dicord_handler.setFormatter(formatter)
+				discord_handler.setFormatter(formatter)
 				discord_handler.setLevel(logging.IDS_WARN)
 				self.log_handle.addHandler(discord_handler)
 			except:
