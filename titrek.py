@@ -318,9 +318,11 @@ class Client:
 				self.login(data)
 			elif self.logged_in == True:
 				if data[0] == PacketIds["GFXCACHE_INIT"]:
-					
+					print("Put something here")
 				elif data[0] == PacketIds["GFXCACHE_LOAD"]:
+					print("put something here")
 				elif data[0] == PacketIds["GFXCACHE_DONE"]:
+					print("put something here")
 		except:
 			self.log(logging.ERROR, traceback.format_exc(limit=None, chain=True))
 				
@@ -350,7 +352,7 @@ class Client:
 			with open(pem_file, "rb") as f:
 				privkey = f.read()
 			token_verify = pbkdf2_hmac('sha256', token, privkey[-16], 1000, dklen = 64)
-			if not hmac_compare_digest(token_verify, privkey[:-16])
+			if not hmac_compare_digest(token_verify, privkey[:-16]):
 				raise LoginError("Pubkey invalid.")
 					
 			self.user = username
@@ -366,7 +368,7 @@ class Client:
 					
 		except LoginError as e:
 			self.send_bytes(ctl + b"\x01" + e)
-			self.log(logging.ERROR, f{"Host {self.ip}:{self.port} failed to login, {e}."})
+			self.log(logging.ERROR, "Host " + str(self.ip) + ":" + str(self.port) + " failed to login, " + str(e) + ".")
 			return
 		except IOError:
 			self.send_bytes(ctl + b"\x01Unable to read private key.")
