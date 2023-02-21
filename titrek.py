@@ -250,7 +250,8 @@ class Client:
 				
 			# if we make it this far, print debug msg
 			self.log(logging.DEBUG, f"Packet ID {data[0]}: {written} bytes sent successfully.")
-			return bytes_sent
+			return written
+#			return bytes_sent
 			
 		except (BrokenPipeError, OSError):
 			self.log(logging.ERROR, "Send error, Packet ID {data[0]}: Connection invalid.")
@@ -353,7 +354,7 @@ class Client:
 			pem_file = f"{target_dir}/privkey.pem"
 			with open(pem_file, "rb") as f:
 				privkey = f.read()
-			token_verify = pbkdf2_hmac('sha256', token, privkey[-16], 1000, dklen = 64)
+			token_verify = hashlib.pbkdf2_hmac('sha256', token, privkey[-16], 1000, dklen = 64)
 			if not hmac_compare_digest(token_verify, privkey[:-16]):
 				raise LoginError("Pubkey invalid.")
 					
