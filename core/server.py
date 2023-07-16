@@ -9,6 +9,7 @@ import socket
 import threading
 import ctypes
 import hashlib
+import time
 from datetime import datetime
 from logging.handlers import TimedRotatingFileHandler
 from logging import Handler
@@ -46,6 +47,7 @@ class Server:
 
         # start listener thread
         self.thread_listen = threading.Thread(target=self.listener)
+        self.thread_listen.name = "ListenThread"
         self.thread_listen.start()
         self.online = True
 
@@ -155,6 +157,7 @@ class Server:
                 conn, addr = self.sock.accept()
                 self.clients[conn] = client = Client(conn, addr, self)
                 thread = threading.Thread(target=client.listener)
+                thread.name = "ListenerThread"
                 thread.start()
             except:
                 self.log(logging.ERROR, traceback.format_exc(

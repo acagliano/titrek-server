@@ -1,3 +1,4 @@
 discord_webhook==0.17.0
 pycryptodomex==3.15.0
 PyYAML==6.0
+asn1==2.7.0

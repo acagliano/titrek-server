@@ -1,8 +1,8 @@
-import os,yaml,logging,sys,gzip,datetime,traceback,socket,ctypes,hashlib
+import os, yaml, logging, sys, gzip, datetime, traceback, socket, ctypes, hashlib
 from Cryptodome.Cipher import AES
 from Cryptodome.Cipher import PKCS1_OAEP
 from Cryptodome.Hash import SHA256
-import hmac,asn1
+import hmac, asn1
 
 class ClientDisconnect(Exception):
 	pass
