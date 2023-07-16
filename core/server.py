@@ -33,9 +33,10 @@ class Server:
         # configure socket and bind service
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.settimeout(None)
+        self.bindaddress = self.config["bindaddress"]
         self.port = self.config["port"]
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.sock.bind(('', self.port))
+        self.sock.bind((self.bindaddress, self.port))
 
         # let's give Client access to server attributes, log handler, map, and metadata
         Client.server = self
