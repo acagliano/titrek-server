@@ -5,10 +5,11 @@ import configparser
 from timeit import default_timer as timer
 import json
 import math
+from PIL import Image, ImageDraw
 
 
-def calculate_distance(x, y):
-    distance = math.sqrt(x**2 + y**2)
+def calculate_distance(x, y, z):
+    distance = math.sqrt(x**2 + y**2 + z**2)
     return distance
 
 
@@ -19,13 +20,9 @@ class Space:
         os.makedirs(self.path, exist_ok=True)
         try:
             self.load_config()
-            self.load()
-            self.generate()
         except IOError:
             self.download_default_config()
             self.load_config()
-            self.load()
-            self.generate()
 
     def load_config(self):
         self.config = configparser.ConfigParser()
@@ -124,9 +121,42 @@ class Space:
 
     def tick(self):
         self.map_time["current"] = timer()
-        # Implement the logic to update the map based on game ticks
-        # You can add any additional functionality here
 
+    def generate_picture(self, x, y, z):
+        # Create a blank image with a white background
+        image = Image.new("RGB", (320, 240), "black")
+        draw = ImageDraw.Draw(image)
+
+        # Iterate over the galaxies, systems, and celestial objects
+        for galaxy in self.galaxies:
+            for system in galaxy.systems:
+                for celestial_object in system.celestial_objects:
+                    # Get the coordinates of the celestial object
+                    xpos = celestial_object.xpos
+                    ypos = celestial_object.ypos
+                    zpos = celestial_object.zpos
+
+                    # Calculate the distance from the given coordinates
+                    distance = calculate_distance(xpos - x, ypos - y, zpos - z)
+
+                    # If the distance is within a certain range, draw a red dot on the image
+                    if distance <= 10:
+                        # Scale the coordinates to fit the image size
+                        pixel_x = int(xpos * 4) + 160
+                        pixel_y = int(ypos * 4) + 120
+
+                        # Calculate the coordinates for the red dot
+                        dot_left = pixel_x - 20
+                        dot_top = pixel_y - 20
+                        dot_right = pixel_x + 20
+                        dot_bottom = pixel_y + 20
+
+                        # Draw a red dot for the planet using the calculated coordinates
+                        draw.ellipse([(dot_left, dot_top), (dot_right, dot_bottom)], fill="red")
+
+        # Save the image to the pictures folder
+        os.makedirs("data/space/images", exist_ok=True)
+        image.save(f"data/space/images/{x}-{y}-{z}.png")
 
 class CelestialObject:
     def __init__(self):
@@ -171,7 +201,7 @@ class System:
             celestial_object.ypos = random.uniform(-100, 100)
             celestial_object.zpos = random.uniform(-100, 100)
 
-            # Calculate the distance from the origin (0, 0)
+            # Calculate the distance from the origin (0, 0, 0)
             distance = math.sqrt(celestial_object.xpos**2 + celestial_object.ypos**2 + celestial_object.zpos**2)
 
             celestial_object.originDistance = distance
@@ -186,18 +216,19 @@ class Galaxy:
 
     def generate(self, galaxy_id, systems_per_galaxy):
         self.id = galaxy_id
-        # Generate a random number of systems
         for i in range(systems_per_galaxy):
             system = System(self.id)
             system.generate(i, galaxy_id)
             self.systems.append(system)
 
-
-# Usage example
 space = Space()
-space.generate()
-space.save()
+#space.generate()
+#space.save()
+space.load()
+space.generate_picture(0, 0, 0)
 
+#* No need to print everything, debug purposes
+'''
 for galaxy in space.galaxies:
     print(f"Galaxy ID: {galaxy.id}")
     for system in galaxy.systems:
@@ -212,3 +243,4 @@ for galaxy in space.galaxies:
             print(f"Size: {celestial_object.size}")
             print(f"Composition: {celestial_object.composition}")
             print(f"Atmosphere: {celestial_object.atmosphere}")
+'''
