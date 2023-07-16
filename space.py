@@ -71,10 +71,39 @@ class Space:
 
 class CelestialObject:
     def __init__(self):
-        return
+        pass
 
-    # TODO: finish the generate function
-    # def generate(self, dist_from_origin):
+    def generate(self, dist_from_origin):
+        # Generate the celestial object based on the distance from the origin
+        # and other parameters
+
+        # Example implementation:
+        # Assume the celestial object is a planet
+        self.name = "Planet"
+        self.distance_from_origin = dist_from_origin
+
+        # Generate other properties of the celestial object
+        # such as size, composition, atmosphere, etc.
+        self.size = self.generate_size()
+        self.composition = self.generate_composition()
+        self.atmosphere = self.generate_atmosphere()
+
+    def generate_size(self):
+        # Generate the size of the celestial object
+        # Example implementation:
+        return random.randint(1000, 10000)  # Random size between 1000 and 10000
+
+    def generate_composition(self):
+        # Generate the composition of the celestial object
+        # Example implementation:
+        compositions = ["Rocky", "Gaseous", "Icy"]
+        return random.choice(compositions)  # Random composition from the list
+
+    def generate_atmosphere(self):
+        # Generate the atmosphere of the celestial object
+        # Example implementation:
+        atmospheres = ["Thin", "Thick", "No atmosphere"]
+        return random.choice(atmospheres)  # Random atmosphere from the list
 
 
 class Galaxy(CelestialObject):
