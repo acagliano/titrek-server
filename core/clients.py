@@ -76,7 +76,7 @@ class Client:
 			while Client.server.online and self.connected:
 			
 				# read at most packet-max bytes from socket
-				data = self.conn.recv(self.config["packet-max"])))
+				data = self.conn.recv(self.config["packet-max"])
 				
 				# I remember reading that conn.recv returning null means conn closed
 				if not data: break
@@ -105,7 +105,7 @@ class Client:
 			Client.count -= 1
 			raise ClientDisconnect()
 			
-		except socket.timeout, ClientDisconnect:
+		except socket.timeout as ClientDisconnect:
 			self.log(logging.INFO, f"{self.ip} has disconnected.")
 			del Client.server.clients[self.conn]
 			return
@@ -129,7 +129,7 @@ class Client:
 		except PacketFilter as e:
 			self.log(logging.IDS_WARN, e)
 			return
-		except Exception as e
+		except Exception as e:
 			self.log(logging.ERROR, e)
 			return
 			

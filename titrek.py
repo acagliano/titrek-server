@@ -21,6 +21,7 @@ import asn1
 import time
 from discord_webhook import DiscordWebhook, DiscordEmbed
 import sched
+import secrets
 
 from space import *
 
@@ -44,11 +45,11 @@ PacketIds = {
 class Server:
     ######################################
     def __init__(self):
-        # intiate core stuff
-        # no try/catch... if any of this fails, server should fail to start
+        # initiate core stuff
+        # ! no try/catch... if any of this fails, server should fail to start
         random.seed()
-        self.start_logging()
         self.load_config()
+        self.start_logging()
         self.prepare_rsa()
         self.space = Space()
         self.load_graphics()
@@ -60,7 +61,7 @@ class Server:
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.sock.settimeout(None)
-        self.sock.bind('', self.config["port"])
+        self.sock.bind(self.config["bindaddress"], self.config["port"])
 
         # lets give Client global access to server attributes so i don't have to
         # pass it to each dang client
@@ -108,8 +109,8 @@ class Server:
 
     def start_logging(self):
         os.makedirs("logs", exist_ok=True)
-        server_log = f"logs/server.log"
-        log_name = os.path.basename(os.path.normalpath(server_log))
+        server_log = f"logs/server-{round(time.time())}.log"
+        log_name = os.path.basename(os.path.normpath(server_log))
         self.log_handle = logging.getLogger(f"titrek.{log_name}")
         formatter = logging.Formatter(
             '%(asctime)s: %(levelname)s: %(message)s')
@@ -149,16 +150,17 @@ class Server:
     def load_config(self):
         with open(f"server.properties", "r") as f:
             self.config = yaml.safe_load(f)
-            if self.config["security"]["rsa_keylen"] not in range(1024, 2048):
+            if self.config["security"]["rsa-keylen"] not in [1024, 2048]:
                 raise Exception(
                     "RSA key length invalid. Must be in range 1024-2048.")
-            if self.config["security"]["aes_keylen"] not in range(128, 256, 64):
+            if self.config["security"]["aes-keylen"] not in [64, 128, 256]:
                 raise Exception(
-                    "AES key length invalid. Must be 128, 192, or 256.")
+                    f"AES key length invalid. Must be 128, 192, or 256, not {self.config['security']['aes-keylen']}")
 
     def prepare_rsa(self):
-        keylen = self.config["security"]["rsa_keylen"]
+        keylen = self.config["security"]["rsa-keylen"]
         self.rsa_privkey = RSA.generate(keylen)
+        print("RSA PRIVKEY: " + self.rsa_privkey)
         self.rsa_pubkey = self.rsa_privkey.publickey(
         ).exportKey('DER')[-5 - keylen:-5]
         if not len(self.rsa_pubkey) == keylen:
@@ -245,7 +247,7 @@ class Client:
     packets = None
     path = "data/players"
 
-    def __init(self, conn, addr):
+    def __init__(self, conn, addr):
         Client.count += 1
         self.conn = conn
         self.addr = addr
@@ -370,8 +372,11 @@ class Client:
             ctl = PacketIds["LOGIN"].to_bytes(1, 'little')
 
             # authenticate message BEFORE decrypting. Reject immediately if fails.
-            hmac_verify = hmac_new(self.hmac_key, iv +
+            hmac_verify = hmac.HMAC(self.hmac_key, iv +
                                    ct, hashlib.sha256).digest()
+            hmac_key = secrets.token_hex(16)
+            hmac_digest = hmac.digest(key=hmac_key.encode(), msg=data.encode(), digest="sha3_256")
+
             if not hmac.compare_digest(hmac_digest, hmac_verify):
                 raise LoginError("HMAC validation error")
 
