@@ -52,6 +52,7 @@ class Server:
         self.start_logging()
         self.prepare_rsa()
         self.space = Space()
+        self.space.load()
         self.load_graphics()
 
         # configure scheduler

@@ -5,8 +5,12 @@ import configparser
 from timeit import default_timer as timer
 import json
 import math
-from PIL import Image, ImageDraw
+from PIL import Image
+import time
+import threading
+from tqdm import tqdm
 
+IMAGES_GENERATED = 0
 
 def calculate_distance(x, y, z):
     distance = math.sqrt(x**2 + y**2 + z**2)
@@ -80,12 +84,14 @@ class Space:
 
         if self.max_galaxies == 0:
             galaxy = Galaxy(self.path)
-            galaxy.generate(self.current_size, self.config["MAP CONFIG"].getint("systems-per-galaxy"))
+            galaxy.generate(
+                self.current_size, self.config["MAP CONFIG"].getint("systems-per-galaxy"))
             self.galaxies.append(galaxy)
         else:
             while self.current_size <= self.max_galaxies:
                 galaxy = Galaxy(self.path)
-                galaxy.generate(self.current_size, self.config["MAP CONFIG"].getint("systems-per-galaxy"))
+                galaxy.generate(
+                    self.current_size, self.config["MAP CONFIG"].getint("systems-per-galaxy"))
                 self.galaxies.append(galaxy)
                 galaxy_idx += 1
                 self.current_size += 1
@@ -123,40 +129,70 @@ class Space:
         self.map_time["current"] = timer()
 
     def generate_picture(self, x, y, z):
-        # Create a blank image with a white background
-        image = Image.new("RGB", (320, 240), "black")
-        draw = ImageDraw.Draw(image)
+        global IMAGES_GENERATED
+        os.makedirs("data/space/images", exist_ok=True)
+        image_size = self.calculate_map_size()
+        image = Image.new("RGBA", image_size, "black")
+        bezos_texture = Image.open("data/textures/bezos.png").convert("RGBA")
 
-        # Iterate over the galaxies, systems, and celestial objects
         for galaxy in self.galaxies:
             for system in galaxy.systems:
                 for celestial_object in system.celestial_objects:
-                    # Get the coordinates of the celestial object
                     xpos = celestial_object.xpos
                     ypos = celestial_object.ypos
                     zpos = celestial_object.zpos
+                    size = celestial_object.size
 
-                    # Calculate the distance from the given coordinates
-                    distance = calculate_distance(xpos - x, ypos - y, zpos - z)
+                    # Check if the celestial object is within the desired range
+                    if -100 <= xpos <= 100 and -100 <= ypos <= 100 and -100 <= zpos <= 100:
+                        # Calculate the scaling factor based on distance and size
+                        distance = calculate_distance(xpos - x, ypos - y, zpos - z)
+                        scaling_factor = 1 - (distance / 50)  # Adjust the denominator as needed
 
-                    # If the distance is within a certain range, draw a red dot on the image
-                    if distance <= 10:
-                        # Scale the coordinates to fit the image size
-                        pixel_x = int(xpos * 4) + 160
-                        pixel_y = int(ypos * 4) + 120
+                        # Adjust the scaling factor if the size exceeds a certain threshold
+                        max_size = 5000  # Adjust the maximum size as needed
+                        if size > max_size:
+                            scaling_factor *= max_size / size
 
-                        # Calculate the coordinates for the red dot
-                        dot_left = pixel_x - 20
-                        dot_top = pixel_y - 20
-                        dot_right = pixel_x + 20
-                        dot_bottom = pixel_y + 20
+                        # Calculate the adjusted size based on the scaling factor and object's size
+                        adjusted_size = int(size * scaling_factor)
 
-                        # Draw a red dot for the planet using the calculated coordinates
-                        draw.ellipse([(dot_left, dot_top), (dot_right, dot_bottom)], fill="red")
+                        # Check if the resized width and height are zero or negative
+                        if adjusted_size <= 0:
+                            continue  # Skip this celestial object
 
-        # Save the image to the pictures folder
-        os.makedirs("data/space/images", exist_ok=True)
-        image.save(f"data/space/images/{x}-{y}-{z}.png")
+                        # Resize the texture image based on the adjusted size
+                        resized_texture = bezos_texture.resize((adjusted_size, adjusted_size))
+
+                        # Calculate the adjusted position for the pasted image
+                        texture_width, texture_height = resized_texture.size
+                        adjusted_xpos = int((xpos + 100) / 200 * image_size[0]) - texture_width // 2
+                        adjusted_ypos = int((ypos + 100) / 200 * image_size[1]) - texture_height // 2
+                        adjusted_paste_coords = (adjusted_xpos, adjusted_ypos)
+
+                        # Paste the resized texture image onto the background image
+                        image.paste(resized_texture, adjusted_paste_coords, resized_texture)
+
+        image.save(f"data/space/images/{x}_{y}_{z}.png")
+        IMAGES_GENERATED += 1
+
+    def remove_old_map(self):
+        if os.path.exists("data/space/map.json"):
+            os.remove("data/space/map.json")
+        
+        map_folder = "data/space/images"
+        for filename in os.listdir(map_folder):
+            if filename.endswith(".png"):
+                os.remove(os.path.join(map_folder, filename))
+
+    def calculate_map_size(self):
+        max_galaxies = self.config["MAP CONFIG"].getint("max-galaxies")
+        # Adjust the scaling factor as needed
+        scaling_factor = 1 + (max_galaxies - 1) * 0.1
+        base_size = (320, 240)  # Adjust the base size as needed
+        map_size = (int(base_size[0] * scaling_factor), int(base_size[1] * scaling_factor))
+        return map_size
+
 
 class CelestialObject:
     def __init__(self):
@@ -172,7 +208,7 @@ class CelestialObject:
         self.atmosphere = self.generate_atmosphere()
 
     def generate_size(self):
-        return random.randint(1000, 10000)
+        return random.randint(2, 300)
 
     def generate_composition(self):
         compositions = ["Rocky", "Gaseous", "Icy"]
@@ -202,7 +238,8 @@ class System:
             celestial_object.zpos = random.uniform(-100, 100)
 
             # Calculate the distance from the origin (0, 0, 0)
-            distance = math.sqrt(celestial_object.xpos**2 + celestial_object.ypos**2 + celestial_object.zpos**2)
+            distance = math.sqrt(
+                celestial_object.xpos**2 + celestial_object.ypos**2 + celestial_object.zpos**2)
 
             celestial_object.originDistance = distance
             self.celestial_objects.append(celestial_object)
@@ -221,26 +258,68 @@ class Galaxy:
             system.generate(i, galaxy_id)
             self.systems.append(system)
 
-space = Space()
-#space.generate()
-#space.save()
-space.load()
-space.generate_picture(0, 0, 0)
 
-#* No need to print everything, debug purposes
-'''
-for galaxy in space.galaxies:
-    print(f"Galaxy ID: {galaxy.id}")
-    for system in galaxy.systems:
-        print(f"System ID: {system.id}")
-        for celestial_object in system.celestial_objects:
-            print(f"--- Celestial Object ---")
-            print(f"Name: {celestial_object.name}")
-            print(f"X Position: {celestial_object.xpos}")
-            print(f"Y Position: {celestial_object.ypos}")
-            print(f"Z Position: {celestial_object.zpos}")
-            print(f"Origin Distance: {celestial_object.originDistance}")
-            print(f"Size: {celestial_object.size}")
-            print(f"Composition: {celestial_object.composition}")
-            print(f"Atmosphere: {celestial_object.atmosphere}")
-'''
+if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--gen", action="store_true",
+                        help="Generate a new map")
+    parser.add_argument("--image", nargs=3, type=int, metavar=("x", "y", "z"),
+                        help="Generate an image based on the provided coordinates")
+    parser.add_argument("--galaxies", action="store_true",
+                        help="See how many galaxies there are in current map")
+    parser.add_argument("--fullrender", action="store_true",
+                        help="Render all map images")
+    args = parser.parse_args()
+
+    print("Loading space..")
+    space = Space()
+    space.load()
+    print("Loaded space!")
+
+    if args.gen:
+        print("Generating...")
+        start_time = time.time()
+        space.remove_old_map()
+        space.generate()
+        space.save()
+        space.load()
+        end_time = time.time()
+        took_time = round((end_time - start_time), 2)
+        print(f"Generated map in {took_time}s!")
+
+    if args.image:
+        x, y, z = args.image
+        space.generate_picture(x, y, z)
+
+    if args.fullrender:
+        print("FULLRENDER - high CPU usage!")
+        image_count_estimated = 0
+        for x in range(-100, 101):
+            for y in range(-100, 101):
+                for z in range(-100, 101):
+                    image_count_estimated += 1
+
+        progress_bar = tqdm(total=image_count_estimated, desc="Generating Images")
+
+        for x in range(-100, 101):
+            for y in range(-100, 101):
+                for z in range(-100, 101):
+                    thread = threading.Thread(target=space.generate_picture, args=(x, y, z))
+                    thread.name = f"picture-{x}_{y}_{z}-Thread"
+                    thread.start()
+                    time.sleep(0.1)
+
+                    # Update the progress bar
+                    progress_bar.update(1)
+
+                    # Check if the user cancelled the operation
+                    if progress_bar.n >= progress_bar.total:
+                        # Handle completion logic here
+                        break
+
+        progress_bar.close()
+
+    if args.galaxies:
+        print(f"Amount of galaxies in current map: {len(space.galaxies)}")
