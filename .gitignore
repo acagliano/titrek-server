@@ -10,3 +10,4 @@
 .DS_Store
 .pycache
 *.xcworkspace
+venv
