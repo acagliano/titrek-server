@@ -160,9 +160,10 @@ class Server:
     def prepare_rsa(self):
         keylen = self.config["security"]["rsa-keylen"]
         self.rsa_privkey = RSA.generate(keylen)
-        print("RSA PRIVKEY: " + self.rsa_privkey)
+        print("RSA PRIVKEY: " + self.rsa_privkey) # ! DEBUG NOT FOR PRODUCTION
         self.rsa_pubkey = self.rsa_privkey.publickey(
         ).exportKey('DER')[-5 - keylen:-5]
+        print("RSA PRIVKEY: " + self.rsa_privkey) # ! DEBUG NOT FOR PRODUCTION
         if not len(self.rsa_pubkey) == keylen:
             raise Exception("Critical RSA error. Server dev is an ID10T.")
 
