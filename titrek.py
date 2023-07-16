@@ -46,7 +46,7 @@ class Server:
     ######################################
     def __init__(self):
         # initiate core stuff
-        # ! no try/catch... if any of this fails, server should fail to start
+        #! no try/catch... if any of this fails, server should fail to start
         random.seed()
         self.load_config()
         self.start_logging()
@@ -157,14 +157,18 @@ class Server:
                 raise Exception(
                     f"AES key length invalid. Must be 128, 192, or 256, not {self.config['security']['aes-keylen']}")
 
-    def prepare_rsa(self):
+    def prepare_rsa(self):        
         keylen = self.config["security"]["rsa-keylen"]
-        self.rsa_privkey = RSA.generate(keylen)
-        print("RSA PRIVKEY: " + self.rsa_privkey) # ! DEBUG NOT FOR PRODUCTION
-        self.rsa_pubkey = self.rsa_privkey.publickey(
-        ).exportKey('DER')[-5 - keylen:-5]
-        print("RSA PRIVKEY: " + self.rsa_privkey) # ! DEBUG NOT FOR PRODUCTION
-        if not len(self.rsa_pubkey) == keylen:
+        rsa_key = RSA.generate(keylen)
+        self.rsa_privkey = rsa_key.export_key()  # export to PEM format
+        self.rsa_pubkey = rsa_key.publickey().export_key()  # public key in PEM format
+        rsa_key_len = len(bin(rsa_key.n)[2:])
+
+        #! NOT FOR PRODUCTION
+        print("EXPECTED KEYLEN: " + str(keylen))
+        print("RSA key length:", rsa_key_len)
+
+        if rsa_key_len != keylen:
             raise Exception("Critical RSA error. Server dev is an ID10T.")
 
     def listener(self):
@@ -374,9 +378,10 @@ class Client:
 
             # authenticate message BEFORE decrypting. Reject immediately if fails.
             hmac_verify = hmac.HMAC(self.hmac_key, iv +
-                                   ct, hashlib.sha256).digest()
+                                    ct, hashlib.sha256).digest()
             hmac_key = secrets.token_hex(16)
-            hmac_digest = hmac.digest(key=hmac_key.encode(), msg=data.encode(), digest="sha3_256")
+            hmac_digest = hmac.digest(
+                key=hmac_key.encode(), msg=data.encode(), digest="sha3_256")
 
             if not hmac.compare_digest(hmac_digest, hmac_verify):
                 raise LoginError("HMAC validation error")
@@ -393,7 +398,7 @@ class Client:
                 privkey = f.read()
             token_verify = hashlib.pbkdf2_hmac(
                 'sha256', token, privkey[-16], 1000, dklen=64)
-            if not hmac_compare_digest(token_verify, privkey[:-16]):
+            if not hmac.compare_digest(token_verify, privkey[:-16]):
                 raise LoginError("Pubkey invalid.")
 
             self.user = username
