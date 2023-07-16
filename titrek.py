@@ -61,7 +61,7 @@ class Server:
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.sock.settimeout(None)
-        self.sock.bind(self.config["bindaddress"], self.config["port"])
+        self.sock.bind((self.config["bindaddress"], self.config["port"]))
 
         # lets give Client global access to server attributes so i don't have to
         # pass it to each dang client
