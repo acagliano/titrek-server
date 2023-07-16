@@ -1,3 +1,6 @@
-###COMPLETE REWRITE OF THE TI-TREK SERVER
+# TITREK server rewrite.
 
-We are actively working on it!!
+TODO:
+[ ] Space generation
+[ ] TInyAuth authentication
+[ ] Send map to client
