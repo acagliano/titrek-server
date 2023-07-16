@@ -164,10 +164,6 @@ class Server:
         self.rsa_pubkey = rsa_key.publickey().export_key()  # public key in PEM format
         rsa_key_len = len(bin(rsa_key.n)[2:])
 
-        #! NOT FOR PRODUCTION
-        print("EXPECTED KEYLEN: " + str(keylen))
-        print("RSA key length:", rsa_key_len)
-
         if rsa_key_len != keylen:
             raise Exception("Critical RSA error. Server dev is an ID10T.")
 
