@@ -63,6 +63,10 @@ class Server:
         self.sock.settimeout(None)
         self.sock.bind((self.config["bindaddress"], self.config["port"]))
 
+        # Configure server vars
+        self.meta = None
+        self.map = None
+
         # lets give Client global access to server attributes so i don't have to
         # pass it to each dang client
         Client.server = self
@@ -74,11 +78,14 @@ class Server:
 
         # start listener thread
         self.thread_listen = threading.Thread(target=self.listener)
+        self.thread_listen.name = "ListenThread"
         self.thread_listen.start()
         self.online = True
 
         # start autosave handler
-        threading.Thread(target=self.autosave_handler).start()
+        self.thread_autosave = threading.Thread(target=self.autosave_handler)
+        self.thread_autosave.name = "AutoSaveHandlerThread"
+        self.thread_autosave.start()
 
         # start console thread
         self.start_console()
@@ -86,9 +93,11 @@ class Server:
     def load_graphics(self):
         return
 
-    def autosave(self):
+    def autosave_handler(self):
         while self.online:
-            threading.Thread(target=self.space.save).start()
+            thread = threading.Thread(target=self.space.save)
+            thread.name = "SpaceSaveThread"
+            thread.start()
             time.sleep(600)
 
     def start_console(self):
@@ -206,7 +215,7 @@ class GZipRotator:
 class DiscordHandler(Handler):
     ######################################
     def __init__(self):
-        self.channel_url = f"https://discord.com/api/webhooks/{self.config['security']['discord-alerts']['channel-id']}"
+        self.channel_url = self.config["security"]["discord-alerts"]["webhook-url"]
         self.level = logging.IDS_WARN
         self.username = "TI-Trek IDS Warning"
         self.color = 131724
