@@ -2,7 +2,7 @@ import os, yaml, logging, sys, gzip, datetime, traceback, socket, ctypes, hashli
 from Cryptodome.Cipher import AES
 from Cryptodome.Cipher import PKCS1_OAEP
 from Cryptodome.Hash import SHA256
-import hmac, asn1
+import hmac, asn1, requests
 
 class ClientDisconnect(Exception):
 	pass
@@ -10,7 +10,7 @@ class ClientDisconnect(Exception):
 class PacketFilter(Exception):
 	pass
 
-class LoginError(Exception):
+class PacketError(Exception):
 	pass
 
 # class to handle incoming client connections
@@ -145,9 +145,7 @@ class Client:
 	# receive AES key and HMAC key, RSA decrypt, and save
 	def aes_recv(self, data):
 		cipher = PKCS1_OAEP.new(Client.server.rsa_privkey, hashAlgo=SHA256)
-		data_decrypted = cipher.decrypt(bytes(data[1:]))
-		self.aes_key = data_decrypted[0:32]		# should be 32 bytes
-		self.hmac_key = data_decrypted[32:]			# should be 16 bytes
+		self.aes_key = cipher.decrypt(bytes(data[1:]))	# should be 32 bytes
 		ctl = Client.packets["RECV_AES_KEY"]["id"].to_bytes(1, 'little')
 		self.send_bytes(ctl)
 		
@@ -157,45 +155,48 @@ class Client:
 		try:
 			# extract IV, ciphertext, and auth tag from packet
 			iv = data[0:16]
-			ct = data[16:-32]
-			hmac_digest = data[-32:]
+			ct = data[16:-16]
+			gcm_tag = data[-16:]
 		
 			# set response CTL code
 			ctl = Client.packets["RECV_LOGIN_TOKEN"]["id"].to_bytes(1, 'little')
 		
-			# authenticate message before decryption. Discard if fails.
-			hmac_verify = hmac.new(self.hmac_key, iv + ct, hashlib.sha256).digest()
-			if not hmac.compare_digest(hmac_digest, hmac_verify):
-				raise LoginError("HMAC validation error")
-			
-			# decrypt message and strip padding
-			cipher = AES.new(self.aes_key, AES.MODE_CBC, iv=iv)
-			token = cipher.decrypt(ct)
-			padding = token[len(token)-1]	# expect PKCS7 padding
-			token = token[0:-padding]		# strip padding
-		
-			# retrieve user to verify
-			hostname_len = int.from_bytes(token[7:10], "little")
-			user_field_pos = 7 + 3 + hostname_len
-			username_len = int.from_bytes(token[user_field_pos:user_field_pos+3], "little")
-			username = token[user_field_pos+3:user_field_pos+3+username_len]
-			with open(f"{Client.path}/{username}/TrekId00.8xv", 'rb') as f:
-				saved_key = f.read()[74:-2]
-				if not hmac.compare_digest(token, saved_key):
-					raise LoginError("Invalid login token")
-					
-				self.user = username
-				self.logged_in = True
-				self.log(logging.DEBUG, f"Key match for user {self.user}!")
-				self.broadcast(f"{self.user} logged in")
-				self.send(ctl + b"\x00")   # Log in successful
-				self.playerdir = f"{Client.path}/{self.user}"
-				self.playerfile = f"{self.playerdir}/player.json"
-				self.shipfile = f"{self.playerdir}/ships.json"
-				self.load_player()
+			try:
+				cipher = AES.new(self.aes_key, AES.MODE_GCM, nonce=iv)
+				userinfo = cipher.decrypt_and_verify(ct, gcm_tag)
+				credentials = userinfo.split("\0", maxsplit=2)
+			except (ValueError, KeyError):
+				# invalid decryption
+				msg = f"Invalid login packet from {self.addr}"
+				self.log(logging.ERROR, msg)
+				raise LoginError(msg)
 				return
+			
+			uri = "https://tinyauth.cagstech.com/authenticate.php"
+			response = requests.get(
+				uri,
+				params={'user':credentials[0], 'token':credentials[1]},
+			)
+
+			if response.json["success"] == True:
+				# login user
+			elif response.json["error"] == False:
+				# invalid credentials
+				msg = f"User:{credentials[0]}, bad login."
+				raise LoginError(msg)
+			else:
+				raise LoginError(response.json[["error"]])
+				
+				
+
+
+			
+		
+		
+			
 				
 		except LoginError as e:
+			ctl = Client.packets["RECV_LOGIN_TOKEN"]["id"].to_bytes(1, 'little')
 			self.log(logging.INFO, e)
 			self.send(ctl + b"\x01" + e)   	# ctl + login resp error + msg
 			self.connected = False

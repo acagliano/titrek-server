@@ -121,28 +121,14 @@ class Server:
         try:
             with open(f'server.properties', 'r') as f:
                 self.config = yaml.safe_load(f)
-                if self.config["security"]["rsa_keylen"] not in range(1024, 2048):
-                    self.logger.log(
-                        logging.ERROR, "RSA key length invalid. Must be in range 1024-2048.")
-                    sys.exit(1)
-                if self.config["security"]["aes_keylen"] not in range(128, 256, 64):
-                    self.logger.log(
-                        logging.ERROR, "AES key length invalid. Must be 128, 192, or 256.")
-                    sys.exit(1)
         except:
             self.log(logging.ERROR, traceback.format_exc(
                 limit=None, chain=True))
 
     def prepare_rsa(self):
         try:
-            keylen = self.config["security"]["rsa_keylen"]
-            self.rsa_privkey = RSA.generate(keylen)
-            self.rsa_pubkey = self.rsa_privkey.publickey(
-            ).exportKey('DER')[-5 - keylen:-5]
-            if not len(self.rsa_pubkey) == keylen:
-                raise Exception(
-                    "Critical RSA error. Server dev is an ID10T. Shutting down server.")
-                sys.exit(1)
+            self.rsa_privkey = RSA.generate(2048)
+			self.rsa_pubkey = self.rsa_privkey.publickey().exportKey('DER')
         except:
             self.log(logging.ERROR, traceback.format_exc(
                 limit=None, chain=True))
@@ -153,7 +139,7 @@ class Server:
         self.log(logging.INFO, "Server is up and running.")
         while self.online:
             try:
-                self.sock.listen(3)
+                self.sock.listen(5)
                 conn, addr = self.sock.accept()
                 self.clients[conn] = client = Client(conn, addr, self)
                 thread = threading.Thread(target=client.listener)
@@ -162,7 +148,7 @@ class Server:
             except:
                 self.log(logging.ERROR, traceback.format_exc(
                     limit=None, chain=True))
-            time.sleep(0.002)
+            time.sleep(0.025)
 
     def broadcast(self):
         # sends a message to all connected clients
