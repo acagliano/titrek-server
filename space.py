@@ -139,7 +139,7 @@ class Space:
                     # Check if the celestial object is within the desired range
                     if -100 <= xpos <= 100 and -100 <= ypos <= 100 and -100 <= zpos <= 100:
                         # Calculate the scaling factor based on distance and size
-                        distance = self.calculate_xyz_distance(
+                        distance = self.calculate_xyz_distance_from_origin(
                             xpos - x, ypos - y, zpos - z)
                         # Adjust the denominator as needed
                         scaling_factor = 1 - (distance / 50)
