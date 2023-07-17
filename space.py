@@ -7,9 +7,6 @@ import json
 import math
 from PIL import Image
 
-IMAGES_GENERATED = 0
-
-
 class Space:
     def __init__(self):
         self.path = "data/space"
@@ -126,7 +123,6 @@ class Space:
         self.map_time["current"] = timer()
 
     def generate_picture(self, x, y, z):
-        global IMAGES_GENERATED
         os.makedirs("data/space/images", exist_ok=True)
         image_size = self.calculate_map_size()
         image = Image.new("RGBA", image_size, "black")
@@ -177,7 +173,6 @@ class Space:
                                     adjusted_paste_coords, resized_texture)
 
         image.save(f"data/space/images/{x}_{y}_{z}.png")
-        IMAGES_GENERATED += 1
 
     def remove_old_map(self):
         if os.path.exists("data/space/map.json"):
