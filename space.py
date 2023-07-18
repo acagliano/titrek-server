@@ -6,6 +6,8 @@ from timeit import default_timer as timer
 import json
 import math
 from PIL import Image
+import io
+import numpy as np
 
 class Space:
     def __init__(self):
@@ -122,11 +124,11 @@ class Space:
     def tick(self):
         self.map_time["current"] = timer()
 
-    def generate_picture(self, x, y, z):
+    def generate_picture(self, x, y, z, returnType):
         os.makedirs("data/space/images", exist_ok=True)
         image_size = self.calculate_map_size()
-        image = Image.new("RGBA", image_size, "black")
-        bezos_texture = Image.open("data/textures/bezos.png").convert("RGBA")
+        image = np.zeros((image_size[1], image_size[0], 3), dtype=np.uint8)
+        bezos_texture = Image.open("data/textures/bezos.png").convert("RGB")
 
         for galaxy in self.galaxies:
             for system in galaxy.systems:
@@ -136,43 +138,42 @@ class Space:
                     zpos = celestial_object.zpos
                     size = celestial_object.size
 
-                    # Check if the celestial object is within the desired range
                     if -100 <= xpos <= 100 and -100 <= ypos <= 100 and -100 <= zpos <= 100:
-                        # Calculate the scaling factor based on distance and size
                         distance = self.calculate_xyz_distance_from_origin(
                             xpos - x, ypos - y, zpos - z)
-                        # Adjust the denominator as needed
                         scaling_factor = 1 - (distance / 50)
 
-                        # Adjust the scaling factor if the size exceeds a certain threshold
-                        max_size = 5000  # Adjust the maximum size as needed
+                        max_size = 5000
                         if size > max_size:
                             scaling_factor *= max_size / size
 
-                        # Calculate the adjusted size based on the scaling factor and object's size
                         adjusted_size = int(size * scaling_factor)
 
-                        # Check if the resized width and height are zero or negative
                         if adjusted_size <= 0:
-                            continue  # Skip this celestial object
+                            continue
 
-                        # Resize the texture image based on the adjusted size
                         resized_texture = bezos_texture.resize(
                             (adjusted_size, adjusted_size))
 
-                        # Calculate the adjusted position for the pasted image
                         texture_width, texture_height = resized_texture.size
                         adjusted_xpos = int(
                             (xpos + 100) / 200 * image_size[0]) - texture_width // 2
                         adjusted_ypos = int(
                             (ypos + 100) / 200 * image_size[1]) - texture_height // 2
-                        adjusted_paste_coords = (adjusted_xpos, adjusted_ypos)
 
-                        # Paste the resized texture image onto the background image
-                        image.paste(resized_texture,
-                                    adjusted_paste_coords, resized_texture)
+                        image[
+                            adjusted_ypos: adjusted_ypos + texture_height,
+                            adjusted_xpos: adjusted_xpos + texture_width
+                        ] = np.array(resized_texture)
 
-        image.save(f"data/space/images/{x}_{y}_{z}.png")
+        pil_image = Image.fromarray(image)
+        if returnType == "save":
+            pil_image.save(f"data/space/images/{x}_{y}_{z}.jpg")
+        elif returnType == "stream":
+            image_stream = io.BytesIO()
+            pil_image.save(image_stream, format='JPEG')
+            image_stream.seek(0)
+            return image_stream
 
     def remove_old_map(self):
         if os.path.exists("data/space/map.json"):
