@@ -6,16 +6,6 @@ from timeit import default_timer as timer
 import json
 import math
 from PIL import Image
-import time
-import threading
-from tqdm import tqdm
-
-IMAGES_GENERATED = 0
-
-def calculate_distance(x, y, z):
-    distance = math.sqrt(x**2 + y**2 + z**2)
-    return distance
-
 
 class Space:
     def __init__(self):
@@ -85,13 +75,17 @@ class Space:
         if self.max_galaxies == 0:
             galaxy = Galaxy(self.path)
             galaxy.generate(
-                self.current_size, self.config["MAP CONFIG"].getint("systems-per-galaxy"))
+                self.current_size, self.config["MAP CONFIG"].getint(
+                    "systems-per-galaxy"),
+                self.config["MAP CONFIG"].getint("objects-per-system"))
             self.galaxies.append(galaxy)
         else:
             while self.current_size <= self.max_galaxies:
                 galaxy = Galaxy(self.path)
                 galaxy.generate(
-                    self.current_size, self.config["MAP CONFIG"].getint("systems-per-galaxy"))
+                    self.current_size, self.config["MAP CONFIG"].getint(
+                        "systems-per-galaxy"),
+                    self.config["MAP CONFIG"].getint("objects-per-system"))
                 self.galaxies.append(galaxy)
                 galaxy_idx += 1
                 self.current_size += 1
@@ -129,7 +123,6 @@ class Space:
         self.map_time["current"] = timer()
 
     def generate_picture(self, x, y, z):
-        global IMAGES_GENERATED
         os.makedirs("data/space/images", exist_ok=True)
         image_size = self.calculate_map_size()
         image = Image.new("RGBA", image_size, "black")
@@ -146,8 +139,10 @@ class Space:
                     # Check if the celestial object is within the desired range
                     if -100 <= xpos <= 100 and -100 <= ypos <= 100 and -100 <= zpos <= 100:
                         # Calculate the scaling factor based on distance and size
-                        distance = calculate_distance(xpos - x, ypos - y, zpos - z)
-                        scaling_factor = 1 - (distance / 50)  # Adjust the denominator as needed
+                        distance = self.calculate_xyz_distance_from_origin(
+                            xpos - x, ypos - y, zpos - z)
+                        # Adjust the denominator as needed
+                        scaling_factor = 1 - (distance / 50)
 
                         # Adjust the scaling factor if the size exceeds a certain threshold
                         max_size = 5000  # Adjust the maximum size as needed
@@ -162,36 +157,53 @@ class Space:
                             continue  # Skip this celestial object
 
                         # Resize the texture image based on the adjusted size
-                        resized_texture = bezos_texture.resize((adjusted_size, adjusted_size))
+                        resized_texture = bezos_texture.resize(
+                            (adjusted_size, adjusted_size))
 
                         # Calculate the adjusted position for the pasted image
                         texture_width, texture_height = resized_texture.size
-                        adjusted_xpos = int((xpos + 100) / 200 * image_size[0]) - texture_width // 2
-                        adjusted_ypos = int((ypos + 100) / 200 * image_size[1]) - texture_height // 2
+                        adjusted_xpos = int(
+                            (xpos + 100) / 200 * image_size[0]) - texture_width // 2
+                        adjusted_ypos = int(
+                            (ypos + 100) / 200 * image_size[1]) - texture_height // 2
                         adjusted_paste_coords = (adjusted_xpos, adjusted_ypos)
 
                         # Paste the resized texture image onto the background image
-                        image.paste(resized_texture, adjusted_paste_coords, resized_texture)
+                        image.paste(resized_texture,
+                                    adjusted_paste_coords, resized_texture)
 
         image.save(f"data/space/images/{x}_{y}_{z}.png")
-        IMAGES_GENERATED += 1
 
     def remove_old_map(self):
         if os.path.exists("data/space/map.json"):
             os.remove("data/space/map.json")
-        
+
         map_folder = "data/space/images"
-        for filename in os.listdir(map_folder):
-            if filename.endswith(".png"):
-                os.remove(os.path.join(map_folder, filename))
+        if os.path.exists(map_folder):
+            for filename in os.listdir(map_folder):
+                if filename.endswith(".png"):
+                    os.remove(os.path.join(map_folder, filename))
 
     def calculate_map_size(self):
         max_galaxies = self.config["MAP CONFIG"].getint("max-galaxies")
         # Adjust the scaling factor as needed
         scaling_factor = 1 + (max_galaxies - 1) * 0.1
         base_size = (320, 240)  # Adjust the base size as needed
-        map_size = (int(base_size[0] * scaling_factor), int(base_size[1] * scaling_factor))
+        map_size = (int(base_size[0] * scaling_factor),
+                    int(base_size[1] * scaling_factor))
         return map_size
+
+    def calculate_xyz_distance_from_origin(self, x, y, z):
+        self.map_origin = (self.config["MAP CONFIG"].getint(
+            "map-origin-x"), self.config["MAP CONFIG"].getint("map-origin-y"), self.config["MAP CONFIG"].getint("map-origin-z"))
+        distance_from_origin = math.sqrt(
+            (x - self.map_origin[0])**2 + (y - self.map_origin[1])**2 + (z - self.map_origin[2])**2)
+        return distance_from_origin
+
+    def calculate_xyz_distance_from_point(self, x1, y1, z1, x2, y2, z2):
+        distance_from_point = math.sqrt(
+            (x2 - x1)**2 + (y2 - y1)**2 + (z2 - z1)**2)
+        return distance_from_point
 
 
 class CelestialObject:
@@ -225,11 +237,10 @@ class System:
         self.id = None
         self.celestial_objects = []
 
-    def generate(self, system_id, dist_from_origin):
+    def generate(self, system_id, dist_from_origin, obj_per_sys):
         self.id = system_id
-        num_objects = random.randint(1, 5)
 
-        for i in range(num_objects):
+        for i in range(obj_per_sys):
             celestial_object = CelestialObject()
             celestial_object.generate(dist_from_origin)
 
@@ -237,7 +248,7 @@ class System:
             celestial_object.ypos = random.uniform(-100, 100)
             celestial_object.zpos = random.uniform(-100, 100)
 
-            # Calculate the distance from the origin (0, 0, 0)
+            # Calculate the distance from origin (0, 0, 0)
             distance = math.sqrt(
                 celestial_object.xpos**2 + celestial_object.ypos**2 + celestial_object.zpos**2)
 
@@ -251,75 +262,9 @@ class Galaxy:
         self.id = None
         self.systems = []
 
-    def generate(self, galaxy_id, systems_per_galaxy):
+    def generate(self, galaxy_id, systems_per_galaxy, obj_per_sys):
         self.id = galaxy_id
         for i in range(systems_per_galaxy):
             system = System(self.id)
-            system.generate(i, galaxy_id)
+            system.generate(i, galaxy_id, obj_per_sys)
             self.systems.append(system)
-
-
-if __name__ == "__main__":
-    import argparse
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--gen", action="store_true",
-                        help="Generate a new map")
-    parser.add_argument("--image", nargs=3, type=int, metavar=("x", "y", "z"),
-                        help="Generate an image based on the provided coordinates")
-    parser.add_argument("--galaxies", action="store_true",
-                        help="See how many galaxies there are in current map")
-    parser.add_argument("--fullrender", action="store_true",
-                        help="Render all map images")
-    args = parser.parse_args()
-
-    print("Loading space..")
-    space = Space()
-    space.load()
-    print("Loaded space!")
-
-    if args.gen:
-        print("Generating...")
-        start_time = time.time()
-        space.remove_old_map()
-        space.generate()
-        space.save()
-        space.load()
-        end_time = time.time()
-        took_time = round((end_time - start_time), 2)
-        print(f"Generated map in {took_time}s!")
-
-    if args.image:
-        x, y, z = args.image
-        space.generate_picture(x, y, z)
-
-    if args.fullrender:
-        print("FULLRENDER - high CPU usage!")
-        image_count_estimated = 0
-        for x in range(-100, 101):
-            for y in range(-100, 101):
-                for z in range(-100, 101):
-                    image_count_estimated += 1
-
-        progress_bar = tqdm(total=image_count_estimated, desc="Generating Images")
-
-        for x in range(-100, 101):
-            for y in range(-100, 101):
-                for z in range(-100, 101):
-                    thread = threading.Thread(target=space.generate_picture, args=(x, y, z))
-                    thread.name = f"picture-{x}_{y}_{z}-Thread"
-                    thread.start()
-                    time.sleep(0.1)
-
-                    # Update the progress bar
-                    progress_bar.update(1)
-
-                    # Check if the user cancelled the operation
-                    if progress_bar.n >= progress_bar.total:
-                        # Handle completion logic here
-                        break
-
-        progress_bar.close()
-
-    if args.galaxies:
-        print(f"Amount of galaxies in current map: {len(space.galaxies)}")

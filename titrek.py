@@ -367,7 +367,7 @@ class Client:
                 elif data[0] == PacketIds["GFXCACHE_LOAD"]:
                     print("put something here")
                 elif data[0] == PacketIds["GFXCACHE_DONE"]:
-                    print("put something here")
+                    print("put something here too")
         except:
             self.log(logging.ERROR, traceback.format_exc(
                 limit=None, chain=True))
