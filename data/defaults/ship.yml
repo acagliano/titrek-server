@@ -1,14 +1,7 @@
-
 ship:
-	modules:
-		- hull
-		- lifesupport
-		- engine
-		- generator
-		- armor
-		- shield
-		- energyweap
-		- projectileweap
-		
+	slot-types:
+	  - main
+	  - combat
+	  - tech
 			
 			

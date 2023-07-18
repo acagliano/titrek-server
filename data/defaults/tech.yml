@@ -1,0 +1,114 @@
+tech:
+	ship:
+		hull:
+			slot-req: main
+			passive: true
+			on-fail:
+				run: destroy_ship
+				chance:
+			equip:
+			  - name: "Titanium-Plated Hull"
+				level-req: 0
+				hp: 25
+				energy: 0
+				attributes:
+					damage-resist-energy: 1
+					damage-resist-projectile: 2
+		lifesupport:
+			slot-req: main
+			passive: true
+			on-fail:
+				run: crew_death
+				chance:
+			equip:
+			  - name: "Atmospheric Control"
+				level-req: 0
+				hp: 25
+				energy: -1
+				attributes:
+					crew-sustains: 250
+		engine:
+			slot-req: main
+			passive: false
+			equip:
+			  - name: "Plasma Engine"
+				level-req: 0
+				hp: 25
+				energy: -1
+				attributes:
+					speed: 18750			# 1/16 * c
+		generator:
+			slot-req: main
+			passive: true
+			on-fail:
+				run: core_breach
+				chance:
+			equip:
+			  - name: "Fusion Reactor"
+				level-req: 0
+				hp: 25
+				energy: 10
+				on-fail: run: fusion_meltdown		# overrides core_breach
+		armor:
+			slot-req: combat
+			passive: true
+			equip:
+			  - name: "Reinforced-Titanium Armor"
+				level-req: 0
+				hp: 25
+				energy: -2
+				attributes:
+					damage-resist-energy: 1
+					damage-resist-projectile: 3
+		shield:
+			slot-req: combat
+			passive: true
+			equip:
+			  - name: "Plasma Forcefield"
+				level-req: 2
+				hp: 25
+				energy: -5
+				attributes:
+					damage-resist-energy: 3
+					damage-resist-projectile: 1
+		energyweapon:
+			slot-req: combat
+			passive: false
+			equip:
+			  - name: "Laser"
+				level-req: 0
+				hp: 25
+				energy: -5
+				attributes:
+					damage-energy: 3
+					damage-projectile: 0
+		projectileweapon:
+			slot-req: combat
+			passive: false
+			equip:
+			  - name: "Torpedo Launcher"
+				level-req: 0
+				hp: 25
+				energy: -2
+				attributes:
+					compatible-munitions:
+					  - spatial-charge
+					  - proton-torpedo
+		
+	munitions:
+		spatial-charge:
+			damage-energy: 0
+			damage-projectile: 3
+			energy: 0
+		proton-torpedo:
+			damage-energy: 1
+			damage-projectile: 3
+			energy: 1
+			
+			
+		
+
+		
+  
+		
+	  
