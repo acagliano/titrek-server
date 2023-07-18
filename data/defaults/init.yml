@@ -1,0 +1,10 @@
+# sets defaults for player and AI ships
+
+player:
+	ship:
+		modules:
+		  - hull
+		  - lifesupport
+		  - engine
+		  - projectileweap
+		
