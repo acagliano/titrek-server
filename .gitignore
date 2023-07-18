@@ -2,6 +2,7 @@
 /cache
 /logs
 /data/players
+data/space
 */__pycache__
 /.idea
 *.pyc
