@@ -1,0 +1,7 @@
+# sets defaults for player and AI ships
+
+player:
+	- hull
+	- lifesupport
+	- engine
+		

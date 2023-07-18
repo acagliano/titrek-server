@@ -1,7 +1,7 @@
 /backups
 /cache
 /logs
-/data
+/data/players
 */__pycache__
 /.idea
 *.pyc

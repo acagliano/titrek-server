@@ -1,0 +1,54 @@
+
+ships:
+	modules:
+		hull:
+			name: "HULL"
+			hp: 25
+			energy: 0
+			passive: true
+			level: 0
+		lifesupport:
+			name: "LSUP"
+			hp: 25
+			energy: -1
+			passive: true
+			level: 0
+		engine:
+			name: "ENGN"
+			hp: 25
+			energy: -1
+			passive: false
+			level: 0
+		generator:
+			name: "CORE"
+			hp: 25
+			energy: 10
+			passive: true
+			level: 0
+		armor:
+			name: "ARMOR"
+			hp: 25
+			energy: -1
+			passive: true
+			level: 0
+		shield:
+			name: "SHIELD"
+			hp: 25
+			energy: -5
+			passive: true
+			level: 0
+		energyweap:
+			name: "WPN ENRG"
+			hp: 25
+			energy: -5
+			passive: false
+			level: 0
+		projectileweap:
+			name: "WPN PROJ"
+			hp: 25
+			energy: -5
+			passive: false
+			level: 0
+		
+			
+			
