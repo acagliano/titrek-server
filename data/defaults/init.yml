@@ -3,8 +3,8 @@
 player:
 	ship:
 		modules:
-		  - hull
-		  - lifesupport
-		  - engine
-		  - projectileweap
+			main: 4
+			combat: 2
+		assign: ["hull", "lifesupport", "engine", "projectileweapon"]
+		  
 		
