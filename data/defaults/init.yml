@@ -5,6 +5,7 @@ player:
         modules:
             main: 4
             combat: 2
-        assign: ["hull", "lifesupport", "engine", "projectileweapon"]
+        assign: ["hull", "lifesupport", "engine", "generator", "projectileweapon"]
+
 
 
