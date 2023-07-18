@@ -179,7 +179,9 @@ class Client:
 			)
 
 			if response.json["success"] == True:
-				# login user
+				del self.aes_key
+				self.log_in()
+				return
 			elif response.json["error"] == False:
 				# invalid credentials
 				msg = f"User:{credentials[0]}, bad login."
@@ -188,28 +190,30 @@ class Client:
 				raise LoginError(response.json[["error"]])
 				
 				
-
-
-			
-		
-		
-			
-				
 		except LoginError as e:
 			ctl = Client.packets["RECV_LOGIN_TOKEN"]["id"].to_bytes(1, 'little')
 			self.log(logging.INFO, e)
 			self.send(ctl + b"\x01" + e)   	# ctl + login resp error + msg
 			self.connected = False
 			return
-		except IOError:
-			self.log(logging.ERROR, "Failed to open user keyfile")
-			self.connected = False
-			return
 		except: self.log(logging.ERROR, traceback.format_exc(limit=None, chain=True))
 			
-		
-		
 	
+	def log_in(self):
+		try:
+			self.logged_in = True
+			self.directory = f"data/players/{credentials[0]}"
+			try:
+				with open(f"{self.directory}/playerdata.json") as f:
+					self.playerdata = json.load(f)
+			except IOError:
+				# save file does not exist
+				self.create_player()
+
+		
+	def create_player(self):
+		jdata = {}
+		
 	
 	def disconnect(self):
 		Client.count -= 1

@@ -1,0 +1,10 @@
+# sets defaults for player and AI ships
+
+player:
+    ship:
+        modules:
+            main: 4
+            combat: 2
+        assign: ["hull", "lifesupport", "engine", "projectileweapon"]
+
+

@@ -1,0 +1,7 @@
+ship:
+	slot-types:
+	  - main
+	  - combat
+	  - tech
+			
+			
