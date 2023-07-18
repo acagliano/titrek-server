@@ -1,13 +1,17 @@
 import tkinter as tk
 from PIL import Image, ImageTk
 from space import Space
+import time
 
 class GameWindow:
     def __init__(self):
         self.root = tk.Tk()
-        self.canvas = tk.Canvas(self.root, width=800, height=600)
+        self.canvas = tk.Canvas(self.root, width=800, height=600, bg="black")
         self.canvas.pack()
         self.current_image = None
+
+        self.fps_label = tk.Label(self.root, text="", fg="white", bg="black")
+        self.fps_label.pack()
 
         self.space = Space()  # Create an instance of the Space class
         self.space.load_config()
@@ -26,15 +30,16 @@ class GameWindow:
         self.root.bind("<Down>", self.move_backward)
         self.root.bind("<Left>", self.move_left)
         self.root.bind("<Right>", self.move_right)
-
+        
+        self.last_update_time = time.time()
         self.root.after(1000, self.update_image)  # Start updating the image every 1 second
 
     def generate_map_image(self):
         # Generate the map image based on player coordinates (e.g., x, y, z)
-        self.space.generate_picture(self.player_x, self.player_y, self.player_z)
+        image_stream = self.space.generate_picture(self.player_x, self.player_y, self.player_z, "stream")
 
-        # Load the generated image using PIL
-        image = Image.open(f"data/space/images/{self.player_x}_{self.player_y}_{self.player_z}.png")
+        # Create a Tkinter-compatible image object from the image stream
+        image = Image.open(image_stream)
 
         # Resize the image to fit the canvas size
         resized_image = image.resize((800, 600))
@@ -43,13 +48,17 @@ class GameWindow:
         self.current_image = ImageTk.PhotoImage(resized_image)
 
     def update_image(self):
-        # Generate a new map image based on the updated player coordinates
-        self.generate_map_image()
+        current_time = time.time()
+        elapsed_time = current_time - self.last_update_time
+        self.last_update_time = current_time
 
-        # Update the canvas with the new image
+        fps = 1 / elapsed_time
+
+        self.generate_map_image()
         self.canvas.create_image(0, 0, anchor=tk.NW, image=self.current_image)
 
-        # Schedule the next image update after 1 second
+        self.fps_label.config(text=f"FPS: {fps:.2f}")  # Update the text of the FPS label
+
         self.root.after(1000, self.update_image)
 
     def move_forward(self, event):

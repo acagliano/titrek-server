@@ -73,7 +73,7 @@ if __name__ == "__main__":
             for y in range(-100, 101):
                 for z in range(-100, 101):
                     thread = threading.Thread(
-                        target=space.generate_picture, args=(x, y, z))
+                        target=space.generate_picture, args=(x, y, z, "save"))
                     thread.name = f"picture-{x}_{y}_{z}-Thread"
                     thread.start()
                     time.sleep(0.1)
