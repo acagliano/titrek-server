@@ -179,6 +179,7 @@ class Client:
 			)
 
 			if response.json["success"] == True:
+				del self.aes_key
 				self.log_in()
 				return
 			elif response.json["error"] == False:
