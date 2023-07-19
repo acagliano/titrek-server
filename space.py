@@ -20,6 +20,8 @@ class Space:
             self.download_default_config()
             self.load_config()
 
+        self.map_size = self.calculate_map_size()
+
     def load_config(self):
         self.config = configparser.ConfigParser()
         self.config.read(self.config_file)
@@ -126,8 +128,7 @@ class Space:
 
     def generate_picture(self, x, y, z, returnType):
         os.makedirs("data/space/images", exist_ok=True)
-        image_size = self.calculate_map_size()
-        image = np.zeros((image_size[1], image_size[0], 3), dtype=np.uint8)
+        image = np.zeros((self.map_size[1], self.map_size[0], 3), dtype=np.uint8)
         bezos_texture = Image.open("data/textures/bezos.png").convert("RGB")
 
         for galaxy in self.galaxies:
@@ -157,9 +158,9 @@ class Space:
 
                         texture_width, texture_height = resized_texture.size
                         adjusted_xpos = int(
-                            (xpos + 100) / 200 * image_size[0]) - texture_width // 2
+                            (xpos + 100) / 200 * self.map_size[0]) - texture_width // 2
                         adjusted_ypos = int(
-                            (ypos + 100) / 200 * image_size[1]) - texture_height // 2
+                            (ypos + 100) / 200 * self.map_size[1]) - texture_height // 2
 
                         image[
                             adjusted_ypos: adjusted_ypos + texture_height,
