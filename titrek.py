@@ -22,6 +22,7 @@ import time
 from discord_webhook import DiscordWebhook, DiscordEmbed
 import sched
 import secrets
+from core.logging import TrekLogger
 
 from space import *
 
@@ -43,13 +44,13 @@ PacketIds = {
 # Server class for main functionality
 ######################################
 class Server:
-    ######################################
+######################################
     def __init__(self):
         # initiate core stuff
         #! no try/catch... if any of this fails, server should fail to start
         random.seed()
+        TrekLogger()
         self.load_config()
-        self.start_logging()
         self.prepare_rsa()
         self.space = Space()
         self.space.load()
@@ -115,71 +116,25 @@ class Server:
             except KeyboardInterrupt:
                 break
             except Exception as e:
-                self.log(traceback.format_exc(limit=None, chain=True))
+                TrekLogger.log(traceback.format_exc(limit=None, chain=True))
 
-    def start_logging(self):
-        os.makedirs("logs", exist_ok=True)
-        server_log = f"logs/server-{round(time.time())}.log"
-        log_name = os.path.basename(os.path.normpath(server_log))
-        self.log_handle = logging.getLogger(f"titrek.{log_name}")
-        formatter = logging.Formatter(
-            '%(asctime)s: %(levelname)s: %(message)s')
+		def load_config(self):
+			try:
+				with open(f"server.properties", "r") as f:
+					self.config = yaml.safe_load(f)
+			except:
+				TrekLogger.log(logging.ERROR, traceback.format_exc(limit=None, chain=True))
+				
 
-        # set handler for output to logfile
-        file_handler = TimedRotatingFileHandler(
-            server_log, when="midnight", interval=1, backupCount=5)
-        file_handler.setFormatter(formatter)
-        file_handler.setLevel(logging.DEBUG)
-        file_handler.rotator = GZipRotator()
-        self.log_handle.addHandler(file_handler)
-
-        # set handler for stream to console
-        console_handler = logging.StreamHandler()
-        console_handler.setFormatter(formatter)
-        self.log_handle.addHandler(console_handler)
-
-        if self.config["debug-mode"] == True:
-            self.log_handle.setLevel(logging.DEBUG)
-        else:
-            self.log_handle.setLevel(logging.INFO)
-
-        # enable Discord output for IDS warnings
-        if self.config["security"]["discord-alerts"]["enable"] == True:
-            try:
-                logging.addLevelName(logging.IDS_WARN, "IDS Warning")
-                discord_handler = DiscordHandler()
-                discord_handler.setFormatter(formatter)
-                discord_handler.setLevel(logging.IDS_WARN)
-                self.log_handle.addHandler(discord_handler)
-            except:
-                print("Error loading discord webhook. Proceeding with this disabled.")
-
-    def log(self, lvl, msg):
-        self.log_handle.log(lvl, msg)
-
-    def load_config(self):
-        with open(f"server.properties", "r") as f:
-            self.config = yaml.safe_load(f)
-            if self.config["security"]["rsa-keylen"] not in [1024, 2048]:
-                raise Exception(
-                    "RSA key length invalid. Must be in range 1024-2048.")
-            if self.config["security"]["aes-keylen"] not in [64, 128, 256]:
-                raise Exception(
-                    f"AES key length invalid. Must be 128, 192, or 256, not {self.config['security']['aes-keylen']}")
-
-    def prepare_rsa(self):        
-        keylen = self.config["security"]["rsa-keylen"]
-        rsa_key = RSA.generate(keylen)
+    def prepare_rsa(self):
+        rsa_key = RSA.generate(2048)
         self.rsa_privkey = rsa_key.export_key()  # export to PEM format
         self.rsa_pubkey = rsa_key.publickey().export_key()  # public key in PEM format
-        rsa_key_len = len(bin(rsa_key.n)[2:])
-
-        if rsa_key_len != keylen:
-            raise Exception("Critical RSA error. Server dev is an ID10T.")
+        
 
     def listener(self):
         self.clients = {}
-        self.log(logging.INFO, "Server is up.")
+        self.log(logging.INFO, "Server load complete, waiting for users...")
         while self.online:
             try:
                 self.sock.listen(1)
@@ -190,14 +145,14 @@ class Server:
             except:
                 self.log(logging.ERROR, traceback.format_exc(
                     limit=None, chain=True))
-            time.sleep(0.01)
+            time.sleep(0.05)
 
 # supporting class for logging module
 ######################################
 
 
 class GZipRotator:
-    ######################################
+######################################
     def __call__(self, source, dest):
         try:
             os.rename(source, dest)
@@ -248,7 +203,7 @@ class LoginError(Exception):
 
 
 class Client:
-    #####################################
+#####################################
     count = 0
     server = None
     config = None
