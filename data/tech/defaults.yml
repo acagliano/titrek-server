@@ -3,9 +3,25 @@
 player:
     ship:
         modules:
-            main: 4
-            combat: 2
-        assign: ["hull", "lifesupport", "engine", "generator", "projectileweapon"]
+            - type: main
+            - type: main
+            - type: main
+            - type: main
+            - type: combat
+            - type: combat
+        assign:
+					- tech: hull
+						num: 0
+					- tech: lifesupport
+						num: 0
+					- tech: engine
+						num: 0
+					- tech: generator
+						num: 0
+					- tech: projectileweapon
+						num: 0
+        
+        "hull", "lifesupport", "engine", "generator", "projectileweapon"]
 
 
 

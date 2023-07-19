@@ -44,6 +44,8 @@ class Server:
         Client.log_handle = self.log_handle
         Client.meta = self.meta
         Client.map = self.map
+        
+        Module.log_handle = self.log_handle
 
         # start listener thread
         self.thread_listen = threading.Thread(target=self.listener)

@@ -212,7 +212,20 @@ class Client:
 
 		
 	def create_player(self):
-		jdata = {}
+		
+		try:
+			with open("data/tech/defaults.yml") as f:
+				defaults = yaml.safe_load(f)
+		except: IOError:
+			self.log(logging.ERROR, "unable to load defaults file for ship configuration.")
+			return
+		
+		self.ship = []
+		for m in defaults["player"]["ship"]["modules"]:
+			self.ship.append(Module(m["type"]))
+		
+		
+				
 		
 	
 	def disconnect(self):
