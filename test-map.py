@@ -5,6 +5,7 @@ import time
 
 class GameWindow:
     def __init__(self):
+        print("Initing..")
         self.root = tk.Tk()
         self.canvas = tk.Canvas(self.root, width=800, height=600, bg="black")
         self.canvas.pack()
@@ -13,38 +14,47 @@ class GameWindow:
         self.fps_label = tk.Label(self.root, text="", fg="white", bg="black")
         self.fps_label.pack()
 
-        self.space = Space()  # Create an instance of the Space class
+        # Entry widgets to input movement values
+        self.x_entry = tk.Entry(self.root, width=8)
+        self.x_entry.insert(0, "1")
+        self.y_entry = tk.Entry(self.root, width=8)
+        self.y_entry.insert(0, "1")
+        self.z_entry = tk.Entry(self.root, width=8)
+        self.z_entry.insert(0, "1")
+
+        self.x_entry.pack(side=tk.LEFT, padx=5, pady=5)
+        self.y_entry.pack(side=tk.LEFT, padx=5, pady=5)
+        self.z_entry.pack(side=tk.LEFT, padx=5, pady=5)
+
+        # Label to display messages
+        self.message_label = tk.Label(self.root, text="", fg="red", bg="black")
+        self.message_label.pack()
+
+        self.space = Space()
         self.space.load_config()
         self.space.load()
 
-        # Set the initial player coordinates
         self.player_x = 0
         self.player_y = 0
         self.player_z = 0
 
-        # Generate the initial map image
         self.generate_map_image()
 
-        # Set up keyboard bindings for player movement
         self.root.bind("<Up>", self.move_forward)
         self.root.bind("<Down>", self.move_backward)
         self.root.bind("<Left>", self.move_left)
         self.root.bind("<Right>", self.move_right)
         
         self.last_update_time = time.time()
-        self.root.after(1000, self.update_image)  # Start updating the image every 1 second
+        self.root.after(1, self.update_image)
 
     def generate_map_image(self):
-        # Generate the map image based on player coordinates (e.g., x, y, z)
         image_stream = self.space.generate_picture(self.player_x, self.player_y, self.player_z, "stream")
 
-        # Create a Tkinter-compatible image object from the image stream
         image = Image.open(image_stream)
 
-        # Resize the image to fit the canvas size
         resized_image = image.resize((800, 600))
 
-        # Create a Tkinter-compatible image object
         self.current_image = ImageTk.PhotoImage(resized_image)
 
     def update_image(self):
@@ -54,32 +64,37 @@ class GameWindow:
 
         fps = 1 / elapsed_time
 
-        self.generate_map_image()
-        self.canvas.create_image(0, 0, anchor=tk.NW, image=self.current_image)
+        self.fps_label.config(text=f"FPS: {fps:.2f} | Time since last input: {elapsed_time * 1000:.2f} ms")
 
-        self.fps_label.config(text=f"FPS: {fps:.2f}")  # Update the text of the FPS label
-
-        self.root.after(1000, self.update_image)
+        try:
+            self.generate_map_image()
+            self.canvas.create_image(0, 0, anchor=tk.NW, image=self.current_image)
+        except ValueError:
+            self.message_label.config(text="Out of map!")
+            pass
+        else:
+            self.message_label.config(text="")
+            self.root.after(1, self.update_image)
 
     def move_forward(self, event):
-        # Update the player's Z coordinate to move forward
-        self.player_z += 1
+        self.player_z += int(self.z_entry.get())
+        print(f"Move forward; Z = {self.player_z}")
 
     def move_backward(self, event):
-        # Update the player's Z coordinate to move backward
-        self.player_z -= 1
+        self.player_z -= int(self.y_entry.get())
+        print(f"Move back; Z = {self.player_z}")
     
     def move_left(self, event):
-        # Update the player's X coordinate to move left
-        self.player_x -= 1
+        self.player_x -= int(self.x_entry.get())
+        print(f"Move left; X = {self.player_x}")
 
     def move_right(self, event):
-        # Update the player's X coordinate to move right
-        self.player_x += 1
+        self.player_x += int(self.z_entry.get())
+        print(f"Move right; X = {self.player_x}")
 
     def start(self):
         self.root.mainloop()
 
-# Create an instance of the GameWindow class and start the game
-game = GameWindow()
-game.start()
+if __name__ == '__main__':
+    game = GameWindow()
+    game.start()

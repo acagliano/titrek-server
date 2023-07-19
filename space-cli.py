@@ -56,7 +56,11 @@ if __name__ == "__main__":
 
     if args.genimg:
         x, y, z = args.genimg
-        space.generate_picture(x, y, z)
+        start_time = time.time()
+        space.generate_picture(x, y, z, "save")
+        end_time = time.time()
+        took_time = round((end_time - start_time), 2)
+        print(f"Generated image in {took_time}s!")
 
     if args.fullrender:
         print("FULLRENDER - high CPU usage!")
