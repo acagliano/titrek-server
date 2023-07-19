@@ -1,0 +1,45 @@
+upgrades:
+	general:
+	- name: "Energy-Efficiency Upgrade"
+		desc: "Reduces module base power consumption."
+		upgrade-target: energy
+		upgrade-amount: [5, 15, 45, 100]
+		cost-per-level:
+			currency: 2500		# this is an in-game currency, not P2W garbage
+			fabrication: ???
+	- name "Construction Integrity Upgrade"
+		desc: "Increases maximum health."
+		upgrade-target: hp
+		upgrade-amount: [5, 15, 45, 100]
+		cost-per-level:
+			currency: 2500		# this is an in-game currency, not P2W garbage
+			fabrication: ???
+	- name: "Functional Efficiency Upgrade"
+		desc: "Improves module function. Ex: Increase weapon damage, engine top speed, etc."
+		upgrade-target: attributes
+		upgrade-amount: [5, 15, 45, 100]
+		cost-per-level:
+			currency: 2500		# this is an in-game currency, not P2W garbage
+			fabrication: ???
+	defense:
+	- name: "Armor Absorption Upgrade"
+		desc: "Increases effective damage reduction of an equipped armor module."
+		upgrade-target: armor-resistance
+		upgrade-amount: [10, 25]
+		cost-per-level:
+			currency: 5000
+			fabrication: ???
+	- name: "Shield Energy-Deflection Upgrade"
+		desc: "Improves ability of shield to repel incoming energy damage."
+		upgrade-target: shield-energy-resistance
+		upgrade-amount: [10, 25]
+		cost-per-level:
+			currency: 3000
+			fabrication: ???
+	- name: "Shield Projectile-Deflection Upgrade"
+		desc: "Improves ability of shield to repel incoming projectile damage."
+		upgrade-target: shield-projectile-resistance
+		upgrade-amount: [10, 25]
+		cost-per-level:
+			currency: 3000
+			fabrication: ???
