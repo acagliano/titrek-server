@@ -1,27 +1,12 @@
-import os
-import yaml
-import logging
-import sys
-import gzip
-import datetime
-import traceback
-import socket
-import threading
-import ctypes
-import hashlib
+import os, sys, traceback, logging, gzip, socket, threading, ctypes
+import hashlib, hmac, asn1, secrets, sched, yaml, time, requests
 from datetime import datetime
 from logging.handlers import TimedRotatingFileHandler
-from logging import Handler
+from core.loghelpers import GZipRotator, DiscordHandler
 from Cryptodome.PublicKey import RSA
 from Cryptodome.Cipher import AES
 from Cryptodome.Cipher import PKCS1_OAEP
 from Cryptodome.Hash import SHA256
-import hmac
-import asn1
-import time
-from discord_webhook import DiscordWebhook, DiscordEmbed
-import sched
-import secrets
 
 from space import *
 
@@ -43,13 +28,38 @@ PacketIds = {
 # Server class for main functionality
 ######################################
 class Server:
-    ######################################
+######################################
     def __init__(self):
         # initiate core stuff
         #! no try/catch... if any of this fails, server should fail to start
         random.seed()
         self.load_config()
-        self.start_logging()
+        
+        # initialize logging
+        file_handler = TimedRotatingFileHandler(server_log, when="midnight", interval=1, backupCount=5)
+        file_handler.rotator = GZipRotator()
+        console_handler = logging.StreamHandler()
+        handlers = [file_handler, console_handler]
+        loglevel = logging.INFO
+        
+        if self.config["discord-logging"]["enabled"] == True:
+					try:
+						from discord_webhook import DiscordWebhook, DiscordEmbed
+						logging.addLevelName(logging.IDS_WARN, "IDS Warning")
+						discord_handler = DiscordHandler()
+						discord_handler.setLevel(logging.IDS_WARN)
+						handlers.append(discord_handler)
+					except:
+						print("Error loading discord webhook. Proceeding with this disabled.\nTo use this functionality run `python3 -m pip install discord-webhook` on your server.")
+				
+				if self.config["debug-mode"]: loglevel = logging.DEBUG
+				
+				logging.basicConfig(
+					format='%(asctime)s: %(levelname)s: %(message)s',
+					level=loglevel,
+					handlers=handlers
+				)
+						
         self.prepare_rsa()
         self.space = Space()
         self.space.load()
@@ -115,71 +125,25 @@ class Server:
             except KeyboardInterrupt:
                 break
             except Exception as e:
-                self.log(traceback.format_exc(limit=None, chain=True))
+                logging.log(traceback.format_exc(limit=None, chain=True))
 
-    def start_logging(self):
-        os.makedirs("logs", exist_ok=True)
-        server_log = f"logs/server-{round(time.time())}.log"
-        log_name = os.path.basename(os.path.normpath(server_log))
-        self.log_handle = logging.getLogger(f"titrek.{log_name}")
-        formatter = logging.Formatter(
-            '%(asctime)s: %(levelname)s: %(message)s')
+		def load_config(self):
+			try:
+				with open(f"server.properties", "r") as f:
+					self.config = yaml.safe_load(f)
+			except:
+				print(traceback.format_exc(limit=None, chain=True))
+				
 
-        # set handler for output to logfile
-        file_handler = TimedRotatingFileHandler(
-            server_log, when="midnight", interval=1, backupCount=5)
-        file_handler.setFormatter(formatter)
-        file_handler.setLevel(logging.DEBUG)
-        file_handler.rotator = GZipRotator()
-        self.log_handle.addHandler(file_handler)
-
-        # set handler for stream to console
-        console_handler = logging.StreamHandler()
-        console_handler.setFormatter(formatter)
-        self.log_handle.addHandler(console_handler)
-
-        if self.config["debug-mode"] == True:
-            self.log_handle.setLevel(logging.DEBUG)
-        else:
-            self.log_handle.setLevel(logging.INFO)
-
-        # enable Discord output for IDS warnings
-        if self.config["security"]["discord-alerts"]["enable"] == True:
-            try:
-                logging.addLevelName(logging.IDS_WARN, "IDS Warning")
-                discord_handler = DiscordHandler()
-                discord_handler.setFormatter(formatter)
-                discord_handler.setLevel(logging.IDS_WARN)
-                self.log_handle.addHandler(discord_handler)
-            except:
-                print("Error loading discord webhook. Proceeding with this disabled.")
-
-    def log(self, lvl, msg):
-        self.log_handle.log(lvl, msg)
-
-    def load_config(self):
-        with open(f"server.properties", "r") as f:
-            self.config = yaml.safe_load(f)
-            if self.config["security"]["rsa-keylen"] not in [1024, 2048]:
-                raise Exception(
-                    "RSA key length invalid. Must be in range 1024-2048.")
-            if self.config["security"]["aes-keylen"] not in [64, 128, 256]:
-                raise Exception(
-                    f"AES key length invalid. Must be 128, 192, or 256, not {self.config['security']['aes-keylen']}")
-
-    def prepare_rsa(self):        
-        keylen = self.config["security"]["rsa-keylen"]
-        rsa_key = RSA.generate(keylen)
+    def prepare_rsa(self):
+        rsa_key = RSA.generate(2048)
         self.rsa_privkey = rsa_key.export_key()  # export to PEM format
         self.rsa_pubkey = rsa_key.publickey().export_key()  # public key in PEM format
-        rsa_key_len = len(bin(rsa_key.n)[2:])
-
-        if rsa_key_len != keylen:
-            raise Exception("Critical RSA error. Server dev is an ID10T.")
+        
 
     def listener(self):
         self.clients = {}
-        self.log(logging.INFO, "Server is up.")
+        logging.log(logging.INFO, "Server load complete, waiting for users...")
         while self.online:
             try:
                 self.sock.listen(1)
@@ -188,48 +152,10 @@ class Server:
                 thread = threading.Thread(client.listener)
                 thread.start()
             except:
-                self.log(logging.ERROR, traceback.format_exc(
+                logging.log(logging.ERROR, traceback.format_exc(
                     limit=None, chain=True))
-            time.sleep(0.01)
+            time.sleep(0.05)
 
-# supporting class for logging module
-######################################
-
-
-class GZipRotator:
-    ######################################
-    def __call__(self, source, dest):
-        try:
-            os.rename(source, dest)
-            log_archive = f"logs/{datetime.now().year}-{datetime.now().month}_server.log.gz"
-            with open(dest, 'rb') as f_in:
-                with gzip.open(f"{log_archive}", 'ab') as f_out:
-                    f_out.writelines(f_in)
-            os.remove(dest)
-        except:
-            pass
-
-# supporting class for discord output
-######################################
-
-
-class DiscordHandler(Handler):
-    ######################################
-    def __init__(self):
-        self.channel_url = self.config["security"]["discord-alerts"]["webhook-url"]
-        self.level = logging.IDS_WARN
-        self.username = "TI-Trek IDS Warning"
-        self.color = 131724
-        Handler.__init__(self)
-
-    def emit(self, record):
-        if not record.levelno == self.level:
-            return False
-        msg = self.format(record)
-        webhook = DiscordWebhook(url=self.channel_url, username=self.username)
-        embed = DiscordEmbed(description=msg, color=self.color)
-        webhook.add_embed(embed)
-        return webhook.execute()
 
 
 class ClientDisconnect(Exception):
@@ -243,12 +169,11 @@ class PacketFilter(Exception):
 class LoginError(Exception):
     pass
 
+
 # Client class for user-specific fns
 #####################################
-
-
 class Client:
-    #####################################
+#####################################
     count = 0
     server = None
     config = None
@@ -286,16 +211,16 @@ class Client:
                     f"Send error, Packet ID {data[0]}: Bytes written did not match input.")
 
             # if we make it this far, print debug msg
-            self.log(
+            logging.log(
                 logging.DEBUG, f"Packet ID {data[0]}: {written} bytes sent successfully.")
             return written
 # return bytes_sent
 
         except (BrokenPipeError, OSError):
-            self.log(logging.ERROR,
+            logging.log(logging.ERROR,
                      "Send error, Packet ID {data[0]}: Connection invalid.")
         except Exception as e:
-            self.log(logging.ERROR, e)
+            logging.log(logging.ERROR, e)
 
     def listener(self):
         self.data_size = 0
@@ -337,11 +262,11 @@ class Client:
             raise ClientDisconnect()
 
         except (socket.timeout, ClientDisconnect):
-            self.log(logging.INFO, f"{self.ip}:{self.port} has disconnected.")
+            logging.log(logging.INFO, f"{self.ip}:{self.port} has disconnected.")
             del Client.server.clients[self.conn]
             return
         except:
-            self.log(logging.ERROR, traceback.format_exc(
+            logging.log(logging.ERROR, traceback.format_exc(
                 limit=None, chain=True))
 
     def parse_packet(self, data):
@@ -369,64 +294,62 @@ class Client:
                 elif data[0] == PacketIds["GFXCACHE_DONE"]:
                     print("put something here too")
         except:
-            self.log(logging.ERROR, traceback.format_exc(
+            logging.log(logging.ERROR, traceback.format_exc(
                 limit=None, chain=True))
 
     def login(self, data):
         try:
-            # decrypt login token, authenticate hmac
-            iv = data[0:16]
-            ct = data[16:-32]
-            auth = data[-32:]
+						iv = data[0:16]
+						ct = data[16:-16]
+						gcm_tag = data[-16:]
 
             # prepare CTL code
             ctl = PacketIds["LOGIN"].to_bytes(1, 'little')
 
             # authenticate message BEFORE decrypting. Reject immediately if fails.
-            hmac_verify = hmac.HMAC(self.hmac_key, iv +
-                                    ct, hashlib.sha256).digest()
-            hmac_key = secrets.token_hex(16)
-            hmac_digest = hmac.digest(
-                key=hmac_key.encode(), msg=data.encode(), digest="sha3_256")
+            try:
+							cipher = AES.new(self.aes_key, AES.MODE_GCM, nonce=iv)
+							userinfo = cipher.decrypt_and_verify(ct, gcm_tag)
+							credentials = userinfo.split("\0", maxsplit=2)
+						except (ValueError, KeyError):
+							# invalid decryption
+							msg = f"Invalid login packet from {self.addr}"
+							logging.log(logging.ERROR, msg)
+							raise LoginError(msg)
+							return
 
-            if not hmac.compare_digest(hmac_digest, hmac_verify):
-                raise LoginError("HMAC validation error")
+            uri = "https://tinyauth.cagstech.com/authenticate.php"
+						response = requests.get(
+							uri,
+							params={'user':credentials[0], 'token':credentials[1]},
+						)
 
-            cipher = AES.new(self.aes_key, AES.MODE_CTR,
-                             nonce=iv[:8], initial_value=iv[8:])
-            credentials = cipher.decrypt(ct)
-            token = credentials[:64]
-            username = credentials[64:]
+						if response.json["success"] == True:
+							del self.aes_key
+							self.user = credentials[0]
+							self.logged_in = True
+							logging.log(logging.DEBUG, f"Key match for user {self.user}!")
+							self.broadcast(f"{self.user} logged in!")
+							self.send(ctl + b"\00")
+							self.playerdir = f"{Client.path}/{self.user}"
+							self.playerfile = f"{self.playerdir}/player.json"
+							self.shipfile = f"{self.playerdir}/ships.json"
+							self.load_player()
+							return
+						elif response.json["error"] == False:
+							# invalid credentials
+							msg = f"User:{credentials[0]}, bad login."
+							raise LoginError(msg)
+						else:
+							raise LoginError(response.json[["error"]])
+							
+				except LoginError as e:
+					logging.log(logging.INFO, e)
+					self.send_bytes(ctl + b"\x01" + e)   	# ctl + login resp error + msg
+					self.connected = False
+					return
+				except: logging.log(logging.ERROR, traceback.format_exc(limit=None, chain=True))
 
-            target_dir = f"{Client.path}/{username}"
-            pem_file = f"{target_dir}/privkey.pem"
-            with open(pem_file, "rb") as f:
-                privkey = f.read()
-            token_verify = hashlib.pbkdf2_hmac(
-                'sha256', token, privkey[-16], 1000, dklen=64)
-            if not hmac.compare_digest(token_verify, privkey[:-16]):
-                raise LoginError("Pubkey invalid.")
-
-            self.user = username
-            self.logged_in = True
-            self.log(logging.DEBUG, f"Key match for user {self.user}!")
-            self.broadcast(f"{self.user} logged in!")
-            self.send(ctl + b"\00")
-            self.playerdir = f"{Client.path}/{self.user}"
-            self.playerfile = f"{self.playerdir}/player.json"
-            self.shipfile = f"{self.playerdir}/ships.json"
-            self.load_player()
-            return
-
-        except LoginError as e:
-            self.send_bytes(ctl + b"\x01" + e)
-            self.log(logging.ERROR, "Host " + str(self.ip) + ":" +
-                     str(self.port) + " failed to login, " + str(e) + ".")
-            return
-        except IOError:
-            self.send_bytes(ctl + b"\x01Unable to read private key.")
-            self.log(logging.ERROR, "Unable to read private key.")
-            return
 
 
 Server()
