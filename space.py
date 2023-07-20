@@ -8,6 +8,9 @@ import math
 from PIL import Image
 import io
 import numpy as np
+import numba
+from numba import jit
+
 
 class Space:
     def __init__(self):
@@ -128,7 +131,8 @@ class Space:
 
     def generate_picture(self, x, y, z, returnType):
         os.makedirs("data/space/images", exist_ok=True)
-        image = np.zeros((self.map_size[1], self.map_size[0], 3), dtype=np.uint8)
+        image = Image.new("RGB", (self.map_size[0], self.map_size[1]))
+
         bezos_texture = Image.open("data/textures/bezos.png").convert("RGB")
 
         for galaxy in self.galaxies:
@@ -142,9 +146,10 @@ class Space:
                     if -100 <= xpos <= 100 and -100 <= ypos <= 100 and -100 <= zpos <= 100:
                         distance = self.calculate_xyz_distance_from_origin(
                             xpos - x, ypos - y, zpos - z)
-                        scaling_factor = 1 - (distance / 50)
 
+                        scaling_factor = 1 - (distance / 50)
                         max_size = 5000
+
                         if size > max_size:
                             scaling_factor *= max_size / size
 
@@ -162,17 +167,14 @@ class Space:
                         adjusted_ypos = int(
                             (ypos + 100) / 200 * self.map_size[1]) - texture_height // 2
 
-                        image[
-                            adjusted_ypos: adjusted_ypos + texture_height,
-                            adjusted_xpos: adjusted_xpos + texture_width
-                        ] = np.array(resized_texture)
+                        image.paste(resized_texture,
+                                    (adjusted_xpos, adjusted_ypos))
 
-        pil_image = Image.fromarray(image)
         if returnType == "save":
-            pil_image.save(f"data/space/images/{x}_{y}_{z}.jpg")
+            image.save(f"data/space/images/{x}_{y}_{z}.jpg")
         elif returnType == "stream":
             image_stream = io.BytesIO()
-            pil_image.save(image_stream, format='JPEG')
+            image.save(image_stream, format='JPEG')
             image_stream.seek(0)
             return image_stream
 
@@ -196,15 +198,15 @@ class Space:
         return map_size
 
     def calculate_xyz_distance_from_origin(self, x, y, z):
-        self.map_origin = (self.config["MAP CONFIG"].getint(
-            "map-origin-x"), self.config["MAP CONFIG"].getint("map-origin-y"), self.config["MAP CONFIG"].getint("map-origin-z"))
+        map_origin = (self.config["MAP CONFIG"].getint("map-origin-x"), self.config["MAP CONFIG"].getint(
+            "map-origin-y"), self.config["MAP CONFIG"].getint("map-origin-z"))
         distance_from_origin = math.sqrt(
-            (x - self.map_origin[0])**2 + (y - self.map_origin[1])**2 + (z - self.map_origin[2])**2)
+            (x - map_origin[0]) ** 2 + (y - map_origin[1]) ** 2 + (z - map_origin[2]) ** 2)
         return distance_from_origin
 
     def calculate_xyz_distance_from_point(self, x1, y1, z1, x2, y2, z2):
         distance_from_point = math.sqrt(
-            (x2 - x1)**2 + (y2 - y1)**2 + (z2 - z1)**2)
+            (x2 - x1) ** 2 + (y2 - y1) ** 2 + (z2 - z1) ** 2)
         return distance_from_point
 
 

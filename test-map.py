@@ -70,10 +70,11 @@ class GameWindow:
             self.generate_map_image()
             self.canvas.create_image(0, 0, anchor=tk.NW, image=self.current_image)
         except ValueError:
+            print("OUT OF MAP")
             self.message_label.config(text="Out of map!")
             pass
         else:
-            self.message_label.config(text="")
+            self.message_label.config(text="In map")
             self.root.after(1, self.update_image)
 
     def move_forward(self, event):
