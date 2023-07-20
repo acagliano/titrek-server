@@ -159,12 +159,28 @@ class Space:
     def tick(self):
         self.map_time["current"] = timer()
 
-    def generate_picture(self, x, y, z, returnType):
-        player_screen = Image.new("RGBA", (320, 240), "black")
+    def generate_picture(self, x, y, z, yaw, pitch, returnType):
+        player_screen = Image.new("RGBA", self.map_size, "black")
 
         # Set player position and facing direction
         player_position = np.array([x, y, z])
         player_facing_direction = np.array([0, 0, 1])
+
+        # Calculate rotation matrices for yaw and pitch
+        yaw_matrix = np.array([
+            [math.cos(math.radians(yaw)), 0, -math.sin(math.radians(yaw))],
+            [0, 1, 0],
+            [math.sin(math.radians(yaw)), 0, math.cos(math.radians(yaw))]
+        ])
+
+        pitch_matrix = np.array([
+            [1, 0, 0],
+            [0, math.cos(math.radians(pitch)), math.sin(math.radians(pitch))],
+            [0, -math.sin(math.radians(pitch)), math.cos(math.radians(pitch))]
+        ])
+
+        # Combine the yaw and pitch rotations
+        rotation_matrix = np.dot(yaw_matrix, pitch_matrix)
 
         for galaxy in self.galaxies:
             for system in galaxy.systems:
@@ -180,9 +196,13 @@ class Space:
                         [celestial_object.xpos, celestial_object.ypos, celestial_object.zpos]
                     )
 
-                    object_direction = celestial_object_position - player_position
-                    object_direction /= np.linalg.norm(object_direction)
-                    dot_product = np.dot(player_facing_direction, object_direction)
+                    # Apply yaw and pitch rotations to the object's position
+                    celestial_object_position_rotated = np.dot(rotation_matrix, celestial_object_position)
+
+                    # Calculate the object's direction after rotation
+                    object_direction_rotated = celestial_object_position_rotated - player_position
+                    object_direction_rotated /= np.linalg.norm(object_direction_rotated)
+                    dot_product = np.dot(player_facing_direction, object_direction_rotated)
 
                     if dot_product < 0:
                         continue
@@ -207,32 +227,22 @@ class Space:
                             combined_texture = Image.alpha_composite(
                                 composition_texture, atmosphere)
                             adjusted_xpos = int(
-                                (celestial_object.xpos + 100) / 200 * player_screen.width) - combined_texture.width // 2
+                                (celestial_object_position_rotated[0] + 100) / 200 * player_screen.width) - combined_texture.width // 2
                             adjusted_ypos = int(
-                                (celestial_object.ypos + 100) / 200 * player_screen.height) - combined_texture.height // 2
+                                (celestial_object_position_rotated[1] + 100) / 200 * player_screen.height) - combined_texture.height // 2
                             player_screen.paste(
                                 combined_texture, (adjusted_xpos, adjusted_ypos), mask=combined_texture)
                         else:
                             adjusted_xpos = int(
-                                (celestial_object.xpos + 100) / 200 * player_screen.width) - composition_texture.width // 2
+                                (celestial_object_position_rotated[0] + 100) / 200 * player_screen.width) - composition_texture.width // 2
                             adjusted_ypos = int(
-                                (celestial_object.ypos + 100) / 200 * player_screen.height) - composition_texture.height // 2
+                                (celestial_object_position_rotated[1] + 100) / 200 * player_screen.height) - composition_texture.height // 2
 
                             player_screen.paste(
                                 composition_texture, (adjusted_xpos, adjusted_ypos), mask=composition_texture)
 
-                    t = np.dot(celestial_object_position - player_position, object_direction)
-                    intersection_point = player_position + t * object_direction
-
-                    distance_from_intersection = np.linalg.norm(
-                        intersection_point - celestial_object_position)
-
-                    if distance_from_intersection <= size:
-                        message = f"Inside {celestial_object.name}, which is a {celestial_object.type} with ID {celestial_object.id}, and size {celestial_object.size}"
-                        print(message)
-
         if returnType == "save":
-            player_screen.save(f"data/space/images/{x}_{y}_{z}.png")
+            player_screen.save(f"data/space/images/{x}_{y}_{z}_{yaw}_{pitch}.png")
         elif returnType == "stream":
             image_stream = io.BytesIO()
             player_screen.save(image_stream, format='PNG')

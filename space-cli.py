@@ -28,8 +28,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--gen", action="store_true",
                         help="Generate a new map")
-    parser.add_argument("--genimg", nargs=3, type=int, metavar=("x", "y", "z"),
-                        help="Generate an image based on the provided coordinates")
+    parser.add_argument("--genimg", nargs=5, type=int, metavar=("x", "y", "z", "yaw", "pitch"),
+                        help="Generate an image based on the provided coordinates, yaw and pitch)")
     parser.add_argument("--galaxies", action="store_true",
                         help="See how many galaxies there are in current map")
     parser.add_argument("--fullrender", action="store_true",
@@ -59,12 +59,12 @@ if __name__ == "__main__":
 
     if args.genimg:
         loadMap()
-        x, y, z = args.genimg
+        x, y, z, yaw, pitch = args.genimg
         print("Loading textures..")
         space.load_textures()
         print("Loaded textures!")
         start_time = time.time()
-        space.generate_picture(x, y, z, "save")
+        space.generate_picture(x, y, z, yaw, pitch, "save")
         end_time = time.time()
         took_time = round((end_time - start_time), 2)
         print(f"Generated image in {took_time}s!")
@@ -84,16 +84,17 @@ if __name__ == "__main__":
         for x in range(-100, 101):
             for y in range(-100, 101):
                 for z in range(-100, 101):
-                    thread = threading.Thread(
-                        target=space.generate_picture, args=(x, y, z, "save"))
-                    thread.name = f"picture-{x}_{y}_{z}-Thread"
-                    thread.start()
-                    time.sleep(0.1)
+                    for yaw in range(-100, 101):
+                        for pitch in range(-100, 101):
+                            thread = threading.Thread(target=space.generate_picture, args=(x, y, z, yaw, pitch "save"))
+                            thread.name = f"picture-{x}_{y}_{z}-Thread"
+                            thread.start()
+                            time.sleep(0.1)
 
-                    progress_bar.update(1)
+                            progress_bar.update(1)
 
-                    if progress_bar.n >= progress_bar.total:
-                        break
+                            if progress_bar.n >= progress_bar.total:
+                                break
 
         progress_bar.close()
 
