@@ -172,12 +172,7 @@ class Client:
 				raise LoginError(msg)
 				return
 			
-			uri = "https://tinyauth.cagstech.com/authenticate.php"
-			response = requests.get(
-				uri,
-				params={'user':credentials[0], 'token':credentials[1]},
-			)
-
+			
 			if response.json["success"] == True:
 				del self.aes_key
 				self.log_in()
