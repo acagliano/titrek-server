@@ -143,32 +143,32 @@ class Space:
                     zpos = celestial_object.zpos
                     size = celestial_object.size
 
-                    if -100 <= xpos <= 100 and -100 <= ypos <= 100 and -100 <= zpos <= 100:
-                        distance = self.calculate_xyz_distance_from_origin(
-                            xpos - x, ypos - y, zpos - z)
+#                    if -100 <= xpos <= 100 and -100 <= ypos <= 100 and -100 <= zpos <= 100:
+                    distance = self.calculate_xyz_distance_from_origin(
+                        xpos - x, ypos - y, zpos - z)
 
-                        scaling_factor = 1 - (distance / 50)
-                        max_size = 5000
+                    scaling_factor = 1 - (distance / 50)
+                    max_size = 5000
 
-                        if size > max_size:
-                            scaling_factor *= max_size / size
+                    if size > max_size:
+                        scaling_factor *= max_size / size
 
-                        adjusted_size = int(size * scaling_factor)
+                    adjusted_size = int(size * scaling_factor)
 
-                        if adjusted_size <= 0:
-                            continue
+                    if adjusted_size <= 0:
+                        continue
 
-                        resized_texture = bezos_texture.resize(
-                            (adjusted_size, adjusted_size))
+                    resized_texture = bezos_texture.resize(
+                        (adjusted_size, adjusted_size))
 
-                        texture_width, texture_height = resized_texture.size
-                        adjusted_xpos = int(
-                            (xpos + 100) / 200 * self.map_size[0]) - texture_width // 2
-                        adjusted_ypos = int(
-                            (ypos + 100) / 200 * self.map_size[1]) - texture_height // 2
+                    texture_width, texture_height = resized_texture.size
+                    adjusted_xpos = int(
+                        (xpos + 100) / 200 * self.map_size[0]) - texture_width // 2
+                    adjusted_ypos = int(
+                        (ypos + 100) / 200 * self.map_size[1]) - texture_height // 2
 
-                        image.paste(resized_texture,
-                                    (adjusted_xpos, adjusted_ypos))
+                    image.paste(resized_texture,
+                                (adjusted_xpos, adjusted_ypos))
 
         if returnType == "save":
             image.save(f"data/space/images/{x}_{y}_{z}.jpg")
