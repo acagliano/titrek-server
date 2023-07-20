@@ -5,16 +5,15 @@ import configparser
 from timeit import default_timer as timer
 import json
 import math
-from PIL import Image
+from PIL import Image, ImageDraw
 import io
 import numpy as np
-import numba
-from numba import jit
 
 
 class Space:
     def __init__(self):
         self.path = "data/space"
+        self.textures_dir = "data/assets/space/"
         self.config_file = f"{self.path}/space.conf"
         os.makedirs(self.path, exist_ok=True)
         try:
@@ -24,6 +23,18 @@ class Space:
             self.load_config()
 
         self.map_size = self.calculate_map_size()
+        self.render_distance = self.config['RENDERING'].getint(
+            'render-distance')
+        self.enable_atmosphere_render = self.config['RENDERING'].getboolean(
+            'enable-atmosphere-render')
+
+        self.planet_compositions = [filename.replace(
+            ".png", "") for filename in os.listdir(self.textures_dir)]
+
+        self.planet_atmospheres = self.config["CELESTIAL OBJECTS"].get(
+            "atmospheres").split(",")
+
+        self.load_textures()
 
     def load_config(self):
         self.config = configparser.ConfigParser()
@@ -53,18 +64,35 @@ class Space:
                 system.celestial_objects = []
                 for celestial_object_data in system_data["Celestial Objects"]:
                     celestial_object = CelestialObject()
+                    celestial_object.id = celestial_object_data["id"]
                     celestial_object.xpos = celestial_object_data["Xpos"]
                     celestial_object.ypos = celestial_object_data["Ypos"]
                     celestial_object.zpos = celestial_object_data["Zpos"]
-                    celestial_object.name = celestial_object_data["Name"]
+                    celestial_object.name = celestial_object_data["name"]
+                    celestial_object.type = celestial_object_data["type"]
                     celestial_object.originDistance = celestial_object_data[
                         "originDistance"]
-                    celestial_object.size = celestial_object_data["Size"]
-                    celestial_object.composition = celestial_object_data["Composition"]
-                    celestial_object.atmosphere = celestial_object_data["Atmosphere"]
+                    celestial_object.size = celestial_object_data["size"]
+                    celestial_object.composition = celestial_object_data["composition"]
+                    celestial_object.atmosphere = celestial_object_data["atmosphere"]
                     system.celestial_objects.append(celestial_object)
                 galaxy.systems.append(system)
             self.galaxies.append(galaxy)
+
+    def load_textures(self):
+        self.cached_textures = {}
+        self.cached_textures["Default"] = Image.open(
+            "data/assets/space/Default.png").convert("RGBA").resize((500, 500))
+        for planet_composition in self.planet_compositions:
+            texture_path = f"{self.textures_dir}{planet_composition}.png"
+            try:
+                texture = Image.open(texture_path).convert(
+                    "RGBA").resize((500, 500))
+                self.cached_textures[planet_composition] = texture
+            except FileNotFoundError:
+                print(
+                    f"Warning: Texture file '{texture_path}' not found. Using default texture.")
+                self.cached_textures[planet_composition] = self.cached_textures["Default"]
 
     def generate(self):
         self.max_galaxies = self.config["MAP CONFIG"].getint("max-galaxies")
@@ -109,14 +137,16 @@ class Space:
                 system_data = {"System": system.id, "Celestial Objects": []}
                 for celestial_object in system.celestial_objects:
                     celestial_object_data = {
+                        "id": celestial_object.id,
                         "Xpos": celestial_object.xpos,
                         "Ypos": celestial_object.ypos,
                         "Zpos": celestial_object.zpos,
-                        "Name": celestial_object.name,
+                        "name": celestial_object.name,
+                        "type": celestial_object.type,
                         "originDistance": celestial_object.originDistance,
-                        "Size": celestial_object.size,
-                        "Composition": celestial_object.composition,
-                        "Atmosphere": celestial_object.atmosphere
+                        "size": celestial_object.size,
+                        "composition": celestial_object.composition,
+                        "atmosphere": celestial_object.atmosphere
                     }
                     system_data["Celestial Objects"].append(
                         celestial_object_data)
@@ -130,51 +160,82 @@ class Space:
         self.map_time["current"] = timer()
 
     def generate_picture(self, x, y, z, returnType):
-        os.makedirs("data/space/images", exist_ok=True)
-        image = Image.new("RGB", (self.map_size[0], self.map_size[1]))
+        player_screen = Image.new("RGBA", (320, 240), "black")
 
-        bezos_texture = Image.open("data/textures/bezos.png").convert("RGB")
+        # Set player position and facing direction
+        player_position = np.array([x, y, z])
+        player_facing_direction = np.array([0, 0, 1])
 
         for galaxy in self.galaxies:
             for system in galaxy.systems:
                 for celestial_object in system.celestial_objects:
-                    xpos = celestial_object.xpos
-                    ypos = celestial_object.ypos
-                    zpos = celestial_object.zpos
-                    size = celestial_object.size
+                    distance = self.calculate_xyz_distance_from_point(
+                        celestial_object.xpos, celestial_object.ypos, celestial_object.zpos, x, y, z
+                    )
 
-#                    if -100 <= xpos <= 100 and -100 <= ypos <= 100 and -100 <= zpos <= 100:
-                    distance = self.calculate_xyz_distance_from_origin(
-                        xpos - x, ypos - y, zpos - z)
-
-                    scaling_factor = 1 - (distance / 50)
-                    max_size = 5000
-
-                    if size > max_size:
-                        scaling_factor *= max_size / size
-
-                    adjusted_size = int(size * scaling_factor)
-
-                    if adjusted_size <= 0:
+                    if distance > self.render_distance:
                         continue
 
-                    resized_texture = bezos_texture.resize(
-                        (adjusted_size, adjusted_size))
+                    celestial_object_position = np.array(
+                        [celestial_object.xpos, celestial_object.ypos, celestial_object.zpos]
+                    )
 
-                    texture_width, texture_height = resized_texture.size
-                    adjusted_xpos = int(
-                        (xpos + 100) / 200 * self.map_size[0]) - texture_width // 2
-                    adjusted_ypos = int(
-                        (ypos + 100) / 200 * self.map_size[1]) - texture_height // 2
+                    object_direction = celestial_object_position - player_position
+                    object_direction /= np.linalg.norm(object_direction)
+                    dot_product = np.dot(player_facing_direction, object_direction)
 
-                    image.paste(resized_texture,
-                                (adjusted_xpos, adjusted_ypos))
+                    if dot_product < 0:
+                        continue
+
+                    size = celestial_object.size
+                    scaling_factor = max(1 - (distance / 50), size / 5000)
+                    adjusted_size = int(max(size * scaling_factor, 1))
+
+                    if celestial_object.type == "Planet":
+                        composition_texture = self.cached_textures[celestial_object.composition].copy(
+                        )
+                        composition_texture = composition_texture.resize(
+                            (adjusted_size, adjusted_size))
+
+                        if self.enable_atmosphere_render:
+                            atmosphere_size = adjusted_size
+                            atmosphere = Image.new(
+                                "RGBA", (atmosphere_size, atmosphere_size), (0, 0, 0, 0))
+                            draw = ImageDraw.Draw(atmosphere)
+                            draw.ellipse(
+                                (0, 0, atmosphere_size, atmosphere_size), fill=(0, 0, 0, 100))
+                            combined_texture = Image.alpha_composite(
+                                composition_texture, atmosphere)
+                            adjusted_xpos = int(
+                                (celestial_object.xpos + 100) / 200 * player_screen.width) - combined_texture.width // 2
+                            adjusted_ypos = int(
+                                (celestial_object.ypos + 100) / 200 * player_screen.height) - combined_texture.height // 2
+                            player_screen.paste(
+                                combined_texture, (adjusted_xpos, adjusted_ypos), mask=combined_texture)
+                        else:
+                            adjusted_xpos = int(
+                                (celestial_object.xpos + 100) / 200 * player_screen.width) - composition_texture.width // 2
+                            adjusted_ypos = int(
+                                (celestial_object.ypos + 100) / 200 * player_screen.height) - composition_texture.height // 2
+
+                            player_screen.paste(
+                                composition_texture, (adjusted_xpos, adjusted_ypos), mask=composition_texture)
+
+                    t = np.dot(celestial_object_position - player_position, object_direction)
+                    intersection_point = player_position + t * object_direction
+
+                    distance_from_intersection = np.linalg.norm(
+                        intersection_point - celestial_object_position)
+
+                    if distance_from_intersection <= size:
+                        message = f"Inside {celestial_object.name}, which is a {celestial_object.type} with ID {celestial_object.id}, and size {celestial_object.size}"
+                        print(message)
 
         if returnType == "save":
-            image.save(f"data/space/images/{x}_{y}_{z}.jpg")
+            player_screen.save(f"data/space/images/{x}_{y}_{z}.png")
         elif returnType == "stream":
             image_stream = io.BytesIO()
-            image.save(image_stream, format='JPEG')
+            player_screen.save(image_stream, format='PNG')
             image_stream.seek(0)
             return image_stream
 
@@ -205,9 +266,60 @@ class Space:
         return distance_from_origin
 
     def calculate_xyz_distance_from_point(self, x1, y1, z1, x2, y2, z2):
-        distance_from_point = math.sqrt(
-            (x2 - x1) ** 2 + (y2 - y1) ** 2 + (z2 - z1) ** 2)
+        position1 = np.array([x1, y1, z1])
+        position2 = np.array([x2, y2, z2])
+        distance_from_point = np.linalg.norm(position2 - position1)
         return distance_from_point
+
+    def generate_planet_name(self, seed=None):
+        if seed is None:
+            seed = random.randint(0, 0xFFFF), random.randint(
+                0, 0xFFFF), random.randint(0, 0xFFFF)
+        pairs = "..LEXEGEZACEBISOUSESARMAINDIREA.ERATENBERALAVETIEDORQUANTEISRION"
+
+        def size16Num(value):
+            mask = (1 << 16) - 1
+            return value & mask
+
+        def rotate1(x):
+            temp = x & 128
+            return (2 * (x & 127)) + (temp >> 7)
+
+        def twist(x):
+            return (256 * rotate1(x >> 8)) + rotate1(x & 255)
+
+        longnameflag = seed[0] & 64
+
+        pair1 = 2 * (((seed[2]) >> 8) & 31)
+        seed = size16Num(twist(seed[0])), size16Num(
+            twist(seed[1])), size16Num(twist(seed[2]))
+        pair2 = 2 * (((seed[2]) >> 8) & 31)
+        seed = size16Num(twist(seed[0])), size16Num(
+            twist(seed[1])), size16Num(twist(seed[2]))
+
+        pair3 = 2 * (((seed[2]) >> 8) & 31)
+        seed = size16Num(twist(seed[0])), size16Num(
+            twist(seed[1])), size16Num(twist(seed[2]))
+
+        pair4 = 2 * (((seed[2]) >> 8) & 31)
+        seed = size16Num(twist(seed[0])), size16Num(
+            twist(seed[1])), size16Num(twist(seed[2]))
+
+        name = []
+        name.append(pairs[pair1])
+        name.append(pairs[pair1 + 1])
+        name.append(pairs[pair2])
+        name.append(pairs[pair2 + 1])
+        name.append(pairs[pair3])
+        name.append(pairs[pair3 + 1])
+
+        if longnameflag:
+            name.append(pairs[pair4])
+            name.append(pairs[pair4 + 1])
+
+        planet_name = "".join(name).replace('.', '')
+        planet_name = planet_name.capitalize()
+        return planet_name
 
 
 class CelestialObject:
@@ -216,23 +328,26 @@ class CelestialObject:
         self.ypos = None
         self.zpos = None
 
-    def generate(self, dist_from_origin):
-        self.name = "Planet"
+    def generate(self, dist_from_origin, id):
+        name = space.generate_planet_name()
+        if name == "":
+            name = space.generate_planet_name()
+        self.id = id
+        self.name = name
+        self.type = "Planet"
         self.originDistance = dist_from_origin
         self.size = self.generate_size()
         self.composition = self.generate_composition()
         self.atmosphere = self.generate_atmosphere()
 
     def generate_size(self):
-        return random.randint(2, 300)
+        return random.randint(50, 300)
 
     def generate_composition(self):
-        compositions = ["Rocky", "Gaseous", "Icy"]
-        return random.choice(compositions)
+        return random.choice(space.planet_compositions)
 
     def generate_atmosphere(self):
-        atmospheres = ["None", "Thin", "Thick"]
-        return random.choice(atmospheres)
+        return random.choice(space.planet_atmospheres)
 
 
 class System:
@@ -246,13 +361,12 @@ class System:
 
         for i in range(obj_per_sys):
             celestial_object = CelestialObject()
-            celestial_object.generate(dist_from_origin)
+            celestial_object.generate(dist_from_origin, i)
 
-            celestial_object.xpos = random.uniform(-100, 100)
-            celestial_object.ypos = random.uniform(-100, 100)
-            celestial_object.zpos = random.uniform(-100, 100)
+            celestial_object.xpos = random.uniform(-500, 500)
+            celestial_object.ypos = random.uniform(-500, 500)
+            celestial_object.zpos = random.uniform(-500, 500)
 
-            # Calculate the distance from origin (0, 0, 0)
             distance = math.sqrt(
                 celestial_object.xpos**2 + celestial_object.ypos**2 + celestial_object.zpos**2)
 
@@ -272,3 +386,6 @@ class Galaxy:
             system = System(self.id)
             system.generate(i, galaxy_id, obj_per_sys)
             self.systems.append(system)
+
+
+space = Space()

@@ -31,8 +31,8 @@ class GameWindow:
         self.message_label.pack()
 
         self.space = Space()
-        self.space.load_config()
         self.space.load()
+        self.space.load_textures()
 
         self.player_x = 0
         self.player_y = 0
@@ -44,18 +44,22 @@ class GameWindow:
         self.root.bind("<Down>", self.move_backward)
         self.root.bind("<Left>", self.move_left)
         self.root.bind("<Right>", self.move_right)
+
+        self.fps_accumulator = 0
+        self.frames_counted = 0
+        self.last_fps_update_time = time.time()
         
         self.last_update_time = time.time()
-        self.root.after(1, self.update_image)
+        self.root.after(10, self.update_image)
 
     def generate_map_image(self):
         image_stream = self.space.generate_picture(self.player_x, self.player_y, self.player_z, "stream")
 
         image = Image.open(image_stream)
 
-        resized_image = image.resize((800, 600))
+        #resized_image = image.resize((800, 600))
 
-        self.current_image = ImageTk.PhotoImage(resized_image)
+        self.current_image = ImageTk.PhotoImage(image)
 
     def update_image(self):
         current_time = time.time()

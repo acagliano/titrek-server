@@ -18,6 +18,11 @@ def noConf():
     
     print("Successfully downloaded default config!")
 
+def loadMap():
+        print("Loading map..")
+        space.load()
+        print("Loaded map!")
+
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
@@ -34,10 +39,8 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    print("Loading space..")
     space = Space()
-    space.load()
-    print("Loaded space!")
+
     try:
         mapconf = space.config["MAP CONFIG"]
     except KeyError:
@@ -55,7 +58,11 @@ if __name__ == "__main__":
         print(f"Generated map in {took_time}s!")
 
     if args.genimg:
+        loadMap()
         x, y, z = args.genimg
+        print("Loading textures..")
+        space.load_textures()
+        print("Loaded textures!")
         start_time = time.time()
         space.generate_picture(x, y, z, "save")
         end_time = time.time()
@@ -63,6 +70,7 @@ if __name__ == "__main__":
         print(f"Generated image in {took_time}s!")
 
     if args.fullrender:
+        loadMap()
         print("FULLRENDER - high CPU usage!")
         image_count_estimated = 0
         for x in range(-100, 101):
