@@ -8,7 +8,7 @@ class GameWindow:
     def __init__(self):
         print("Initing..")
         self.root = tk.Tk()
-        self.canvas = tk.Canvas(self.root, width=800, height=600, bg="black")
+        self.canvas = tk.Canvas(self.root, width=320, height=240, bg="black")
         self.canvas.pack()
         self.current_image = None
         self.canvas_image = None
@@ -63,13 +63,10 @@ class GameWindow:
             self.player_x, self.player_y, self.player_z, self.rotation_yaw, self.rotation_pitch, "stream"
         )
 
-        # Open the image using PIL
         image = Image.open(image_stream)
 
-        # Resize the image to fit the canvas size (800x600)
-        image = image.resize((800, 600))
+        # image = image.resize((320, 240))
 
-        # Convert the resized image to PhotoImage
         self.current_image = ImageTk.PhotoImage(image)
 
         if self.canvas_image is None:

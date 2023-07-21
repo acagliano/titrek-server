@@ -161,7 +161,7 @@ class Space:
         self.map_time["current"] = timer()
 
     def generate_picture(self, x, y, z, yaw, pitch, returnType):
-        player_screen = Image.new("RGBA", self.map_size, "black")
+        player_screen = Image.new("RGBA", (320, 240))
 
         player_position = np.array([x, y, z])
         player_facing_direction = np.array([0, 0, 1])
