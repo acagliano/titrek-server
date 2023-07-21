@@ -40,7 +40,7 @@ class GameWindow:
         self.rotation_yaw = 0
         self.rotation_pitch = 0
 
-        self.desired_fps = 20
+        self.desired_fps = 10
         self.update_delay = int(1000 / self.desired_fps)
 
         self.generate_map_image()

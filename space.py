@@ -73,7 +73,7 @@ class Space:
                     celestial_object.type = celestial_object_data["type"]
                     celestial_object.originDistance = celestial_object_data[
                         "originDistance"]
-                    celestial_object.size = celestial_object_data["size"]
+                    celestial_object.radius = celestial_object_data["radius"]
                     celestial_object.composition = celestial_object_data["composition"]
                     celestial_object.atmosphere = celestial_object_data["atmosphere"]
                     system.celestial_objects.append(celestial_object)
@@ -145,7 +145,7 @@ class Space:
                         "name": celestial_object.name,
                         "type": celestial_object.type,
                         "originDistance": celestial_object.originDistance,
-                        "size": celestial_object.size,
+                        "radius": celestial_object.radius,
                         "composition": celestial_object.composition,
                         "atmosphere": celestial_object.atmosphere
                     }
@@ -164,58 +164,51 @@ class Space:
         player_screen = Image.new("RGBA", (320, 240))
 
         player_position = np.array([x, y, z])
-        player_facing_direction = np.array([0, 0, 1])
-
-        yaw_matrix = np.array([
-            [math.cos(math.radians(yaw)), 0, -math.sin(math.radians(yaw))],
-            [0, 1, 0],
-            [math.sin(math.radians(yaw)), 0, math.cos(math.radians(yaw))]
+        player_facing_direction = np.array([
+            math.cos(math.radians(yaw)) * math.cos(math.radians(pitch)),
+            math.sin(math.radians(pitch)),
+            math.sin(math.radians(yaw)) * math.cos(math.radians(pitch))
         ])
-
-        pitch_matrix = np.array([
-            [1, 0, 0],
-            [0, math.cos(math.radians(pitch)), math.sin(math.radians(pitch))],
-            [0, -math.sin(math.radians(pitch)), math.cos(math.radians(pitch))]
-        ])
-
-        rotation_matrix = np.dot(yaw_matrix, pitch_matrix)
 
         for galaxy in self.galaxies:
             for system in galaxy.systems:
                 for celestial_object in system.celestial_objects:
-                    distance = self.calculate_xyz_distance_from_point(
-                        celestial_object.xpos, celestial_object.ypos, celestial_object.zpos, x, y, z
-                    )
+                    celestial_object_position = np.array([
+                        celestial_object.xpos, celestial_object.ypos, celestial_object.zpos
+                    ])
+
+                    object_direction = celestial_object_position - player_position
+                    distance = np.linalg.norm(object_direction)
+                    object_direction /= distance
 
                     if distance > self.render_distance:
                         continue
 
-                    celestial_object_position = np.array(
-                        [celestial_object.xpos, celestial_object.ypos,
-                            celestial_object.zpos]
-                    )
+                    # Calculate the dot product of the object's direction and the player's facing direction
+                    dot_product = np.dot(player_facing_direction, object_direction)
 
-                    celestial_object_position_rotated = np.dot(
-                        rotation_matrix, celestial_object_position)
-
-                    object_direction_rotated = celestial_object_position_rotated - player_position
-                    object_direction_rotated /= np.linalg.norm(
-                        object_direction_rotated)
-                    dot_product = np.dot(
-                        player_facing_direction, object_direction_rotated)
-
+                    # Only render objects in front of the player
                     if dot_product < 0:
                         continue
 
-                    size = celestial_object.size
+                    # Calculate the position of the celestial object on the player screen
+                    # by projecting it onto the player's plane of view
+                    screen_x = np.dot(object_direction, np.array([1, 0, 0]))
+                    screen_y = np.dot(object_direction, np.array([0, 1, 0]))
+
+                    # Scale the screen position to fit within the player screen
+                    adjusted_xpos = int((screen_x + 1) * player_screen.width / 2)
+                    adjusted_ypos = int((1 - screen_y) * player_screen.height / 2)
+
+                    # Render the celestial object at the adjusted position
+                    size = celestial_object.radius
                     scaling_factor = max(1 - (distance / 50), size / 5000)
                     adjusted_size = int(max(size * scaling_factor, 1))
 
                     if celestial_object.type == "Planet":
-                        composition_texture = self.cached_textures[celestial_object.composition].copy(
-                        )
-                        composition_texture = composition_texture.resize(
-                            (adjusted_size, adjusted_size))
+                        composition_texture = self.cached_textures[celestial_object.composition].copy()
+                        adjusted_size = int(max(celestial_object.radius * scaling_factor, 1))
+                        composition_texture = composition_texture.resize((adjusted_size * 2, adjusted_size * 2))
 
                         if self.enable_atmosphere_render:
                             atmosphere_size = adjusted_size
@@ -226,30 +219,56 @@ class Space:
                                 (0, 0, atmosphere_size, atmosphere_size), fill=(0, 0, 0, 100))
                             combined_texture = Image.alpha_composite(
                                 composition_texture, atmosphere)
-                            adjusted_xpos = int(
-                                (celestial_object_position_rotated[0] + 100) / 200 * player_screen.width) - combined_texture.width // 2
-                            adjusted_ypos = int(
-                                (celestial_object_position_rotated[1] + 100) / 200 * player_screen.height) - combined_texture.height // 2
                             player_screen.paste(
-                                combined_texture, (adjusted_xpos, adjusted_ypos), mask=combined_texture)
+                                combined_texture, (adjusted_xpos - composition_texture.width // 2, adjusted_ypos - composition_texture.height // 2), mask=combined_texture)
                         else:
-                            adjusted_xpos = int(
-                                (celestial_object_position_rotated[0] + 100) / 200 * player_screen.width) - composition_texture.width // 2
-                            adjusted_ypos = int(
-                                (celestial_object_position_rotated[1] + 100) / 200 * player_screen.height) - composition_texture.height // 2
-
                             player_screen.paste(
-                                composition_texture, (adjusted_xpos, adjusted_ypos), mask=composition_texture)
+                                composition_texture, (adjusted_xpos - composition_texture.width // 2, adjusted_ypos - composition_texture.height // 2), mask=composition_texture)
 
         if returnType == "save":
-            player_screen.save(
-                f"data/space/images/{x}_{y}_{z}_{yaw}_{pitch}.png")
+            player_screen.save(f"data/space/images/{x}_{y}_{z}_{yaw}_{pitch}.png")
         elif returnType == "stream":
             image_stream = io.BytesIO()
             player_screen.save(image_stream, format='PNG')
             image_stream.seek(0)
             return image_stream
 
+    def is_inside_planet(self, x, y, z):
+        player_position = np.array([x, y, z])
+        player_facing_direction = np.array([0, 0, 1])
+
+        for galaxy in self.galaxies:
+            for system in galaxy.systems:
+                for celestial_object in system.celestial_objects:
+                    distance = self.calculate_xyz_distance_from_point(
+                        celestial_object.xpos, celestial_object.ypos, celestial_object.zpos, x, y, z
+                    )
+
+                    if celestial_object.type == "Planet" and distance <= celestial_object.radius:
+                        celestial_object_position = np.array(
+                            [celestial_object.xpos, celestial_object.ypos, celestial_object.zpos]
+                        )
+                        object_direction = celestial_object_position - player_position
+                        object_direction /= np.linalg.norm(object_direction)
+                        angle = np.arccos(np.dot(player_facing_direction, object_direction))
+
+                        angle_degrees = np.degrees(angle)
+
+                        if 0 <= angle_degrees < 45 or 315 <= angle_degrees <= 360:
+                            relative_side = "front"
+                        elif 45 <= angle_degrees < 135:
+                            relative_side = "right"
+                        elif 135 <= angle_degrees < 225:
+                            relative_side = "back"
+                        elif 225 <= angle_degrees < 315:
+                            relative_side = "left"
+                        else:
+                            relative_side = "unknown"
+
+                        return True, celestial_object.name, relative_side
+
+        return False, None, None
+    
     def remove_old_map(self):
         if os.path.exists("data/space/map.json"):
             os.remove("data/space/map.json")
@@ -346,12 +365,12 @@ class CelestialObject:
         self.name = name
         self.type = "Planet"
         self.originDistance = dist_from_origin
-        self.size = self.generate_size()
+        self.radius = self.generate_radius()
         self.composition = self.generate_composition()
         self.atmosphere = self.generate_atmosphere()
 
-    def generate_size(self):
-        return random.randint(50, 300)
+    def generate_radius(self):
+        return random.randint(300, 700)
 
     def generate_composition(self):
         planet_compositions = [
@@ -375,9 +394,9 @@ class System:
             celestial_object = CelestialObject()
             celestial_object.generate(dist_from_origin, i)
 
-            celestial_object.xpos = random.uniform(-500, 500)
-            celestial_object.ypos = random.uniform(-500, 500)
-            celestial_object.zpos = random.uniform(-500, 500)
+            celestial_object.xpos = random.uniform(-5000, 5000)
+            celestial_object.ypos = random.uniform(-5000, 5000)
+            celestial_object.zpos = random.uniform(-5000, 5000)
 
             distance = math.sqrt(
                 celestial_object.xpos**2 + celestial_object.ypos**2 + celestial_object.zpos**2)
