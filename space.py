@@ -163,11 +163,9 @@ class Space:
     def generate_picture(self, x, y, z, yaw, pitch, returnType):
         player_screen = Image.new("RGBA", self.map_size, "black")
 
-        # Set player position and facing direction
         player_position = np.array([x, y, z])
         player_facing_direction = np.array([0, 0, 1])
 
-        # Calculate rotation matrices for yaw and pitch
         yaw_matrix = np.array([
             [math.cos(math.radians(yaw)), 0, -math.sin(math.radians(yaw))],
             [0, 1, 0],
@@ -180,12 +178,7 @@ class Space:
             [0, -math.sin(math.radians(pitch)), math.cos(math.radians(pitch))]
         ])
 
-        # Combine the yaw and pitch rotations
         rotation_matrix = np.dot(yaw_matrix, pitch_matrix)
-
-        # Load the default texture image
-        default_texture_path = "data/assets/space/Default.png"
-        default_texture = Image.open(default_texture_path).convert("RGBA").resize((500, 500))
 
         for galaxy in self.galaxies:
             for system in galaxy.systems:
@@ -198,16 +191,18 @@ class Space:
                         continue
 
                     celestial_object_position = np.array(
-                        [celestial_object.xpos, celestial_object.ypos, celestial_object.zpos]
+                        [celestial_object.xpos, celestial_object.ypos,
+                            celestial_object.zpos]
                     )
 
-                    # Apply yaw and pitch rotations to the object's position
-                    celestial_object_position_rotated = np.dot(rotation_matrix, celestial_object_position)
+                    celestial_object_position_rotated = np.dot(
+                        rotation_matrix, celestial_object_position)
 
-                    # Calculate the object's direction after rotation
                     object_direction_rotated = celestial_object_position_rotated - player_position
-                    object_direction_rotated /= np.linalg.norm(object_direction_rotated)
-                    dot_product = np.dot(player_facing_direction, object_direction_rotated)
+                    object_direction_rotated /= np.linalg.norm(
+                        object_direction_rotated)
+                    dot_product = np.dot(
+                        player_facing_direction, object_direction_rotated)
 
                     if dot_product < 0:
                         continue
@@ -216,30 +211,39 @@ class Space:
                     scaling_factor = max(1 - (distance / 50), size / 5000)
                     adjusted_size = int(max(size * scaling_factor, 1))
 
-                    if celestial_object.composition in self.cached_textures:
-                        composition_texture = self.cached_textures[celestial_object.composition]
-                    else:
-                        print(f"Warning: Texture for '{celestial_object.composition}' not found. Using default texture.")
-                        composition_texture = default_texture.copy()
+                    if celestial_object.type == "Planet":
+                        composition_texture = self.cached_textures[celestial_object.composition].copy(
+                        )
+                        composition_texture = composition_texture.resize(
+                            (adjusted_size, adjusted_size))
 
-                    composition_texture = composition_texture.resize((adjusted_size, adjusted_size))
+                        if self.enable_atmosphere_render:
+                            atmosphere_size = adjusted_size
+                            atmosphere = Image.new(
+                                "RGBA", (atmosphere_size, atmosphere_size), (0, 0, 0, 0))
+                            draw = ImageDraw.Draw(atmosphere)
+                            draw.ellipse(
+                                (0, 0, atmosphere_size, atmosphere_size), fill=(0, 0, 0, 100))
+                            combined_texture = Image.alpha_composite(
+                                composition_texture, atmosphere)
+                            adjusted_xpos = int(
+                                (celestial_object_position_rotated[0] + 100) / 200 * player_screen.width) - combined_texture.width // 2
+                            adjusted_ypos = int(
+                                (celestial_object_position_rotated[1] + 100) / 200 * player_screen.height) - combined_texture.height // 2
+                            player_screen.paste(
+                                combined_texture, (adjusted_xpos, adjusted_ypos), mask=combined_texture)
+                        else:
+                            adjusted_xpos = int(
+                                (celestial_object_position_rotated[0] + 100) / 200 * player_screen.width) - composition_texture.width // 2
+                            adjusted_ypos = int(
+                                (celestial_object_position_rotated[1] + 100) / 200 * player_screen.height) - composition_texture.height // 2
 
-                    if self.enable_atmosphere_render:
-                        atmosphere_size = adjusted_size
-                        atmosphere = Image.new("RGBA", (atmosphere_size, atmosphere_size), (0, 0, 0, 0))
-                        draw = ImageDraw.Draw(atmosphere)
-                        draw.ellipse((0, 0, atmosphere_size, atmosphere_size), fill=(0, 0, 0, 100))
-                        combined_texture = Image.alpha_composite(composition_texture, atmosphere)
-                        adjusted_xpos = int((celestial_object_position_rotated[0] + 100) / 200 * player_screen.width) - combined_texture.width // 2
-                        adjusted_ypos = int((celestial_object_position_rotated[1] + 100) / 200 * player_screen.height) - combined_texture.height // 2
-                        player_screen.paste(combined_texture, (adjusted_xpos, adjusted_ypos), mask=combined_texture)
-                    else:
-                        adjusted_xpos = int((celestial_object_position_rotated[0] + 100) / 200 * player_screen.width) - composition_texture.width // 2
-                        adjusted_ypos = int((celestial_object_position_rotated[1] + 100) / 200 * player_screen.height) - composition_texture.height // 2
-                        player_screen.paste(composition_texture, (adjusted_xpos, adjusted_ypos), mask=composition_texture)
+                            player_screen.paste(
+                                composition_texture, (adjusted_xpos, adjusted_ypos), mask=composition_texture)
 
         if returnType == "save":
-            player_screen.save(f"data/space/images/{x}_{y}_{z}_{yaw}_{pitch}.png")
+            player_screen.save(
+                f"data/space/images/{x}_{y}_{z}_{yaw}_{pitch}.png")
         elif returnType == "stream":
             image_stream = io.BytesIO()
             player_screen.save(image_stream, format='PNG')
@@ -258,9 +262,8 @@ class Space:
 
     def calculate_map_size(self):
         max_galaxies = self.config["MAP CONFIG"].getint("max-galaxies")
-        # Adjust the scaling factor as needed
         scaling_factor = 1 + (max_galaxies - 1) * 0.1
-        base_size = (320, 240)  # Adjust the base size as needed
+        base_size = (320, 240)
         map_size = (int(base_size[0] * scaling_factor),
                     int(base_size[1] * scaling_factor))
         return map_size
@@ -351,7 +354,9 @@ class CelestialObject:
         return random.randint(50, 300)
 
     def generate_composition(self):
-        return random.choice(space.planet_compositions)
+        planet_compositions = [
+            composition for composition in space.planet_compositions if composition != "Default"]
+        return random.choice(planet_compositions)
 
     def generate_atmosphere(self):
         return random.choice(space.planet_atmospheres)

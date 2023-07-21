@@ -3,6 +3,7 @@ from PIL import Image, ImageTk
 from space import Space
 import time
 
+
 class GameWindow:
     def __init__(self):
         print("Initing..")
@@ -39,7 +40,7 @@ class GameWindow:
         self.rotation_yaw = 0
         self.rotation_pitch = 0
 
-        self.desired_fps = 30
+        self.desired_fps = 20
         self.update_delay = int(1000 / self.desired_fps)
 
         self.generate_map_image()
@@ -54,7 +55,7 @@ class GameWindow:
         self.root.bind("<Shift_L>", self.move_down)
         self.root.bind("<Prior>", self.rotate_left)
         self.root.bind("<Next>", self.rotate_right)
-        self.root.bind("<KeyPress-w>", self.rotate_up)  
+        self.root.bind("<KeyPress-w>", self.rotate_up)
         self.root.bind("<KeyPress-s>", self.rotate_down)
 
     def generate_map_image(self):
@@ -62,9 +63,18 @@ class GameWindow:
             self.player_x, self.player_y, self.player_z, self.rotation_yaw, self.rotation_pitch, "stream"
         )
 
-        self.current_image = ImageTk.PhotoImage(Image.open(image_stream))
+        # Open the image using PIL
+        image = Image.open(image_stream)
+
+        # Resize the image to fit the canvas size (800x600)
+        image = image.resize((800, 600))
+
+        # Convert the resized image to PhotoImage
+        self.current_image = ImageTk.PhotoImage(image)
+
         if self.canvas_image is None:
-            self.canvas_image = self.canvas.create_image(0, 0, anchor=tk.NW, image=self.current_image)
+            self.canvas_image = self.canvas.create_image(
+                0, 0, anchor=tk.NW, image=self.current_image)
         else:
             self.canvas.itemconfig(self.canvas_image, image=self.current_image)
 
@@ -81,7 +91,8 @@ class GameWindow:
         else:
             fps = 0
 
-        self.fps_label.config(text=f"FPS: {fps:.2f} | Time since last input: {elapsed_time * 1000:.2f} ms")
+        self.fps_label.config(
+            text=f"FPS: {fps:.2f} | Time since last input: {elapsed_time * 1000:.2f} ms")
 
         self.generate_map_image()
 
@@ -112,22 +123,22 @@ class GameWindow:
         print(f"Move down; Y = {self.player_y}")
 
     def rotate_left(self, event):
-        self.rotation_yaw -= int(self.x_entry.get())
+        self.rotation_yaw += int(self.x_entry.get())
         self.generate_map_image()
         print(f"Rotate left; Yaw = {self.rotation_yaw} degrees")
 
     def rotate_right(self, event):
-        self.rotation_yaw += int(self.x_entry.get())
+        self.rotation_yaw -= int(self.x_entry.get())
         self.generate_map_image()
         print(f"Rotate right; Yaw = {self.rotation_yaw} degrees")
 
     def rotate_up(self, event):
-        self.rotation_pitch += int(self.y_entry.get())
+        self.rotation_pitch -= int(self.y_entry.get())
         self.generate_map_image()
         print(f"Rotate up; Pitch = {self.rotation_pitch} degrees")
 
     def rotate_down(self, event):
-        self.rotation_pitch -= int(self.y_entry.get())
+        self.rotation_pitch += int(self.y_entry.get())
         self.generate_map_image()
         print(f"Rotate down; Pitch = {self.rotation_pitch} degrees")
 
