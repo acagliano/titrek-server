@@ -1,27 +1,22 @@
 # sets defaults for player and AI ships
 
 player:
-    ship:
-        modules:
-            - type: main
-            - type: main
-            - type: main
-            - type: main
-            - type: combat
-            - type: combat
-        assign:
-					- tech: hull
-						num: 0
-					- tech: lifesupport
-						num: 0
-					- tech: engine
-						num: 0
-					- tech: generator
-						num: 0
-					- tech: projectileweapon
-						num: 0
-        
-        "hull", "lifesupport", "engine", "generator", "projectileweapon"]
-
-
-
+  ship:
+    modules:
+      - type: main
+      - type: main
+      - type: main
+      - type: main
+      - type: combat
+      - type: combat
+    assign:
+      - tech: hull
+        num: 0
+      - tech: lifesupport
+        num: 0
+      - tech: engine
+        num: 0
+      - tech: generator
+        num: 0
+      - tech: projectileweapon
+        num: 0

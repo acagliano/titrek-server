@@ -1,12 +1,12 @@
 
 munitions:
-	spatial-charge:
-		damage-energy: 0
-		damage-projectile: 3
-		energy: 0
-		weight: 5
-	proton-torpedo:
-		damage-energy: 1
-		damage-projectile: 3
-		energy: 1
-		weight: 5
+  spatial-charge:
+    damage-energy: 0
+    damage-projectile: 3
+    energy: 0
+    weight: 5
+  proton-torpedo:
+    damage-energy: 1
+    damage-projectile: 3
+    energy: 1
+    weight: 5

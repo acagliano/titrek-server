@@ -1,110 +1,106 @@
 base-config:
-	warn-at-percent: 50
-	critical-at-percent: 25
-	on-critical-event:
-		perc-chance-at-critical: 1
-		perc-chance-at-zero: 100
+  warn-at-percent: 50
+  critical-at-percent: 25
+  on-critical-event:
+    perc-chance-at-critical: 1
+    perc-chance-at-zero: 100
 
 modules:
-	cargobay:
-		slot-req: main
-		passive: true
-		on-critical-event: lose_cargo
-		equip:
-		  - name: "Low-Capacity Storage"
-				level-req: 0
-				hp: 25
-				energy: 0
-				attributes:
-					capacity: 250
-	hull:
-		slot-req: main
-		passive: true
-		on-critical-event: hull_failure
-		equip:
-			- name: "Titanium-Plated Hull"
-				level-req: 0
-				hp: 25
-				energy: 0
-				attributes:
-					damage-resist-energy: 1
-					damage-resist-projectile: 2
-	lifesupport:
-		slot-req: main
-		passive: true
-		on-critical-event: vent_atmosphere
-		equip:
-			- name: "Atmospheric Control"
-				level-req: 0
-				hp: 25
-				energy: -1
-				attributes:
-					crew-sustains: 250
-	engine:
-		slot-req: main
-		passive: false
-		equip:
-			- name: "Plasma-Combustion Engine"
-				level-req: 0
-				hp: 25
-				energy: -1
-				attributes:
-					speed: 18750			# 1/16 * c
-	generator:
-		slot-req: main
-		passive: true
-		on-critical-event: breach_core
-		equip:
-			- name: "Fusion Reactor"
-				level-req: 0
-				hp: 25
-				energy: 10
-	armor:
-		slot-req: combat
-		passive: true
-		equip:
-			- name: "Reinforced-Titanium Armor"
-				level-req: 0
-				hp: 25
-				energy: -2
-				attributes:
-					damage-resist-energy: 1
-					damage-resist-projectile: 3
-	shield:
-		slot-req: combat
-		passive: true
-		equip:
-			- name: "Plasma Forcefield"
-				level-req: 2
-				hp: 25
-				energy: -5
-				attributes:
-					damage-resist-energy: 3
-					damage-resist-projectile: 1
-	energyweapon:
-		slot-req: combat
-		passive: false
-		equip:
-			- name: "Laser"
-				level-req: 0
-				hp: 25
-				energy: -5
-				attributes:
-					damage-energy: 3
-					damage-projectile: 0
-	projectileweapon:
-		slot-req: combat
-		passive: false
-		equip:
-			- name: "Torpedo Launcher"
-				level-req: 0
-				hp: 25
-				energy: -2
-				attributes:
-					compatible-munitions:
-					  - spatial-charge
-					  - proton-torpedo
-		
-  
-		
-	  
+  cargobay:
+    slot-req: main
+    passive: true
+    on-critical-event: lose_cargo
+    equip:
+      - name: "Low-Capacity Storage"
+        level-req: 0
+        hp: 25
+        energy: 0
+        attributes:
+          capacity: 250
+  hull:
+    slot-req: main
+    passive: true
+    on-critical-event: hull_failure
+    equip:
+      - name: "Titanium-Plated Hull"
+        level-req: 0
+        hp: 25
+        energy: 0
+        attributes:
+          damage-resist-energy: 1
+          damage-resist-projectile: 2
+  lifesupport:
+    slot-req: main
+    passive: true
+    on-critical-event: vent_atmosphere
+    equip:
+      - name: "Atmospheric Control"
+        level-req: 0
+        hp: 25
+        energy: -1
+        attributes:
+          crew-sustains: 250
+  engine:
+    slot-req: main
+    passive: false
+    equip:
+      - name: "Plasma-Combustion Engine"
+        level-req: 0
+        hp: 25
+        energy: -1
+        attributes:
+          speed: 18750 # 1/16 * c
+  generator:
+    slot-req: main
+    passive: true
+    on-critical-event: breach_core
+    equip:
+      - name: "Fusion Reactor"
+        level-req: 0
+        hp: 25
+        energy: 10
+  armor:
+    slot-req: combat
+    passive: true
+    equip:
+      - name: "Reinforced-Titanium Armor"
+        level-req: 0
+        hp: 25
+        energy: -2
+        attributes:
+          damage-resist-energy: 1
+          damage-resist-projectile: 3
+  shield:
+    slot-req: combat
+    passive: true
+    equip:
+      - name: "Plasma Forcefield"
+        level-req: 2
+        hp: 25
+        energy: -5
+        attributes:
+          damage-resist-energy: 3
+          damage-resist-projectile: 1
+  energyweapon:
+    slot-req: combat
+    passive: false
+    equip:
+      - name: "Laser"
+        level-req: 0
+        hp: 25
+        energy: -5
+        attributes:
+          damage-energy: 3
+          damage-projectile: 0
+  projectileweapon:
+    slot-req: combat
+    passive: false
+    equip:
+      - name: "Torpedo Launcher"
+        level-req: 0
+        hp: 25
+        energy: -2
+        attributes:
+          compatible-munitions:
+            - spatial-charge
+            - proton-torpedo
