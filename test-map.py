@@ -123,12 +123,12 @@ class GameWindow:
         print(f"Move down; Y = {self.player_y}")
 
     def rotate_left(self, event):
-        self.rotation_yaw += int(self.x_entry.get())
+        self.rotation_yaw -= int(self.x_entry.get())
         self.generate_map_image()
         print(f"Rotate left; Yaw = {self.rotation_yaw} degrees")
 
     def rotate_right(self, event):
-        self.rotation_yaw -= int(self.x_entry.get())
+        self.rotation_yaw += int(self.x_entry.get())
         self.generate_map_image()
         print(f"Rotate right; Yaw = {self.rotation_yaw} degrees")
 
