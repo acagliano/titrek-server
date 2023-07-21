@@ -43,22 +43,22 @@ class Server:
         loglevel = logging.INFO
         
         if self.config["discord-logging"]["enabled"] == True:
-					try:
-						from discord_webhook import DiscordWebhook, DiscordEmbed
-						logging.addLevelName(logging.IDS_WARN, "IDS Warning")
-						discord_handler = DiscordHandler()
-						discord_handler.setLevel(logging.IDS_WARN)
-						handlers.append(discord_handler)
-					except:
-						print("Error loading discord webhook. Proceeding with this disabled.\nTo use this functionality run `python3 -m pip install discord-webhook` on your server.")
+			try:
+		        from discord_webhook import DiscordWebhook, DiscordEmbed
+			    logging.addLevelName(logging.IDS_WARN, "IDS Warning")
+			    discord_handler = DiscordHandler()
+			    discord_handler.setLevel(logging.IDS_WARN)
+			    handlers.append(discord_handler)
+			sexcept:
+				print("Error loading discord webhook. Proceeding with this disabled.\nTo use this functionality run `python3 -m pip install discord-webhook` on your server.")
 				
-				if self.config["debug-mode"]: loglevel = logging.DEBUG
+		if self.config["debug-mode"]: loglevel = logging.DEBUG
 				
-				logging.basicConfig(
-					format='%(asctime)s: %(levelname)s: %(message)s',
-					level=loglevel,
-					handlers=handlers
-				)
+		logging.basicConfig(
+			format='%(asctime)s: %(levelname)s: %(message)s',
+			level=loglevel,
+			handlers=handlers
+		)
 						
         self.prepare_rsa()
         self.space = Space()
@@ -278,12 +278,14 @@ class Client:
             elif data[0] == PacketIds["AES_SECRET_ACK"]:
                 # decrypt the secrets for AES and HMAC, then tell calc ready for login
                 ctl = PacketIds["AES_SECRET_ACK"].to_bytes(1, 'little')
-                cipher = PKCS1_OAEP.new(
-                    Client.server.rsa_privkey, hashAlgo=SHA256)
-                data_decrypted = cipher.decrypt(bytes(data[1:]))
-                self.aes_key = data_decrypted[0:32]
-                self.hmac_key = data_decrypted[32:]
-                self.send_bytes(ctl)
+                cipher = PKCS1_OAEP.new(Client.server.rsa_privkey, hashAlgo=SHA256)
+				try:
+					self.aes_key = cipher.decrypt(bytes(data[1:]))
+					self.send_bytes(ctl + b"\x00")
+				except ValueError:
+					msg = f"Invalid session secret packet from {self.addr}""
+					self.send_bytes(ctl + b"\x01" + msg)
+									
             elif data[0] == PacketIds["LOGIN"]:
                 self.login(data)
             elif self.logged_in == True:
@@ -299,57 +301,62 @@ class Client:
 
     def login(self, data):
         try:
-						iv = data[0:16]
-						ct = data[16:-16]
-						gcm_tag = data[-16:]
+			iv = data[0:16]
+			ct = data[16:-16]
+			gcm_tag = data[-16:]
 
             # prepare CTL code
             ctl = PacketIds["LOGIN"].to_bytes(1, 'little')
 
             # authenticate message BEFORE decrypting. Reject immediately if fails.
             try:
-							cipher = AES.new(self.aes_key, AES.MODE_GCM, nonce=iv)
-							userinfo = cipher.decrypt_and_verify(ct, gcm_tag)
-							credentials = userinfo.split("\0", maxsplit=2)
-						except (ValueError, KeyError):
-							# invalid decryption
-							msg = f"Invalid login packet from {self.addr}"
-							logging.log(logging.ERROR, msg)
-							raise LoginError(msg)
-							return
+				cipher = AES.new(self.aes_key, AES.MODE_GCM, nonce=iv)
+				userinfo = cipher.decrypt_and_verify(ct, gcm_tag)
+				credentials = userinfo.split("\0", maxsplit=2)
+			except (ValueError, KeyError):
+				# invalid decryption
+				msg = f"Invalid login packet from {self.addr}"
+				logging.log(logging.ERROR, msg)
+				raise LoginError(msg)
+				return
 
             uri = "https://tinyauth.cagstech.com/authenticate.php"
-						response = requests.get(
-							uri,
-							params={'user':credentials[0], 'token':credentials[1]},
-						)
+			response = requests.get(
+				uri,
+				params={'user':credentials[0], 'token':credentials[1]},
+			)
 
-						if response.json["success"] == True:
-							del self.aes_key
-							self.user = credentials[0]
-							self.logged_in = True
-							logging.log(logging.DEBUG, f"Key match for user {self.user}!")
-							self.broadcast(f"{self.user} logged in!")
-							self.send(ctl + b"\00")
-							self.playerdir = f"{Client.path}/{self.user}"
-							self.playerfile = f"{self.playerdir}/player.json"
-							self.shipfile = f"{self.playerdir}/ships.json"
-							self.load_player()
-							return
-						elif response.json["error"] == False:
-							# invalid credentials
-							msg = f"User:{credentials[0]}, bad login."
-							raise LoginError(msg)
-						else:
-							raise LoginError(response.json[["error"]])
+			if response.json["success"] == True:
+				# login successful
+				del self.aes_key
+				self.user = credentials[0]
+				self.logged_in = True
+				logging.log(logging.DEBUG, f"Key match for user {self.user}!")
+				self.broadcast(f"{self.user} logged in!")
+				self.send(ctl + b"\00")
+				self.playerdir = f"data/players/{self.user}"
+				self.load_player()
+				return
+			elif response.json["error"] == False:
+				# invalid credentials
+				msg = f"User:{credentials[0]}, invalid login."
+				raise LoginError(msg)
+			else:
+				raise LoginError(response.json[["error"]])
 							
-				except LoginError as e:
-					logging.log(logging.INFO, e)
-					self.send_bytes(ctl + b"\x01" + e)   	# ctl + login resp error + msg
-					self.connected = False
-					return
-				except: logging.log(logging.ERROR, traceback.format_exc(limit=None, chain=True))
+		except LoginError as e:
+			logging.log(logging.INFO, e)
+			self.send_bytes(ctl + b"\x01" + e)   	# ctl + login resp error + msg
+			self.connected = False
+			return
+		except: logging.log(logging.ERROR, traceback.format_exc(limit=None, chain=True))
 
+	def load_player(self):
+		try:
+			with open(f"{self.playerdir}/ships.save") as f:
+				self.ships = json.load(f)
+		except IOError:
+			self.create_player()
 
 
 Server()
