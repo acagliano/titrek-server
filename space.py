@@ -184,17 +184,23 @@ class Space:
                     if distance > self.render_distance:
                         continue
 
+                    # Calculate the dot product of the object's direction and the player's facing direction
                     dot_product = np.dot(player_facing_direction, object_direction)
 
+                    # Only render objects in front of the player
                     if dot_product < 0:
                         continue
 
+                    # Calculate the position of the celestial object on the player screen
+                    # by projecting it onto the player's plane of view
                     screen_x = np.dot(object_direction, np.array([1, 0, 0]))
                     screen_y = np.dot(object_direction, np.array([0, 1, 0]))
 
+                    # Scale the screen position to fit within the player screen
                     adjusted_xpos = int((screen_x + 1) * player_screen.width / 2)
                     adjusted_ypos = int((1 - screen_y) * player_screen.height / 2)
 
+                    # Render the celestial object at the adjusted position
                     size = celestial_object.radius
                     scaling_factor = max(1 - (distance / 50), size / 5000)
                     adjusted_size = int(max(size * scaling_factor, 1))
