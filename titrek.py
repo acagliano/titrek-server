@@ -50,8 +50,7 @@ class Server:
 			    discord_handler.setLevel(logging.IDS_WARN)
 			    handlers.append(discord_handler)
 			sexcept:
-				print("Error loading discord webhook. Proceeding with this disabled.\nTo use this functionality run `python3 -m pip install discord-webhook` on your server.")
-				
+				print("Error loading discord webhook. Proceeding with this disabled.\nTo use this functionality run `python3 -m pip install discord-webhook` on your server.")				
 		if self.config["debug-mode"]: loglevel = logging.DEBUG
 				
 		logging.basicConfig(
