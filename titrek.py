@@ -50,10 +50,10 @@ class Server:
         self.load_config()
         # initialize logging
         logs_dir = "logs/"
-        os.makedirs(logs_dir)
-        server_log = f"{logs_dir}server-{round(time.time(), 0)}"
+        os.makedirs(logs_dir, exist_ok=True)
+        server_logfile = f"{logs_dir}server-{round(time.time(), -1)}"
         file_handler = TimedRotatingFileHandler(
-            server_log, when="midnight", interval=1, backupCount=5)
+            server_logfile, when="midnight", interval=1, backupCount=5)
         file_handler.rotator = GZipRotator()
         console_handler = logging.StreamHandler()
         handlers = [file_handler, console_handler]
@@ -78,6 +78,8 @@ class Server:
             handlers=handlers
         )
 
+        # Store the instance-specific logger in the log_handle attribute
+        self.log_handle = logging.getLogger("server")
         self.prepare_rsa()
         self.space = Space()
         self.space.load()
