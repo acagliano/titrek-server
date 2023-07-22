@@ -7,6 +7,7 @@ tqdm==4.65.0
 tk==0.1.0
 numpy==1.24.4
 numba==0.57.1
-pyopengl==3.1.7
 glfw==2.6.2
 pyglet==2.0.8
+pyopengl-wheels/win64/pyopengl-3.1.6-cp311-cp311-win_amd64.whl
+pyopengl-wheels/win64/pyopengl_accelerate-3.1.6-cp311-cp311-win_amd64.whl
