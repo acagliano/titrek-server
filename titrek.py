@@ -49,6 +49,9 @@ class Server:
         random.seed()
         self.load_config()
         # initialize logging
+        logs_dir = "logs/"
+        os.makedirs(logs_dir)
+        server_log = f"{logs_dir}server-{round(time.time(), 0)}"
         file_handler = TimedRotatingFileHandler(
             server_log, when="midnight", interval=1, backupCount=5)
         file_handler.rotator = GZipRotator()
