@@ -5,10 +5,11 @@ import configparser
 from timeit import default_timer as timer
 import json
 import math
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageOps
 import io
 import numpy as np
 import concurrent.futures
+import hashlib
 
 
 class Space:
@@ -34,6 +35,14 @@ class Space:
 
         self.planet_atmospheres = self.config["CELESTIAL OBJECTS"].get(
             "atmospheres").split(",")
+        self.render_stars = self.config['RENDERING'].getboolean(
+            'enable-stars-render')
+        self.use_render_distance = self.config['RENDERING'].getboolean(
+            'use-render-distance')
+        self.draw_ship_bezel = self.config['RENDERING'].getboolean(
+            'draw-ship-bezel')
+        self.use_ship_texture_bezel = self.config['RENDERING'].getboolean(
+            'use-ship-texture-bezel')
 
         self.load_textures()
 
@@ -160,74 +169,120 @@ class Space:
     def tick(self):
         self.map_time["current"] = timer()
 
-    def generate_picture(self, x, y, z, yaw, pitch, returnType):
-        player_screen = Image.new("RGBA", (320, 240))
-
-        player_position = np.array([x, y, z])
-        player_facing_direction = np.array([
-            math.cos(math.radians(yaw)) * math.cos(math.radians(pitch)),
-            math.sin(math.radians(pitch)),
-            math.sin(math.radians(yaw)) * math.cos(math.radians(pitch))
-        ])
-
+    def generate_star_seed(self):
+        map_data = ""
         for galaxy in self.galaxies:
             for system in galaxy.systems:
                 for celestial_object in system.celestial_objects:
-                    celestial_object_position = np.array([
-                        celestial_object.xpos, celestial_object.ypos, celestial_object.zpos
-                    ])
+                    data_str = f"{celestial_object.xpos},{celestial_object.ypos},{celestial_object.zpos},{celestial_object.radius},{celestial_object.composition},{celestial_object.atmosphere};"
+                    map_data += data_str
 
-                    object_direction = celestial_object_position - player_position
-                    distance = np.linalg.norm(object_direction)
-                    object_direction /= distance
+        star_seed = hashlib.sha256(map_data.encode()).hexdigest()
+        return star_seed
 
-                    if distance > self.render_distance:
-                        continue
+    def generate_starfield(self, seed=None):
+        if seed is not None:
+            random.seed(seed)
+        starfield = Image.new("RGBA", (320, 240), (0, 0, 0, 0))
+        draw = ImageDraw.Draw(starfield)
+        for _ in range(200):
+            star_x = random.randint(0, starfield.width - 1)
+            star_y = random.randint(0, starfield.height - 1)
+            star_brightness = random.randint(150, 255)
+            draw.point((star_x, star_y), fill=(star_brightness,) * 3)
+        return starfield
 
-                    # Calculate the dot product of the object's direction and the player's facing direction
-                    dot_product = np.dot(player_facing_direction, object_direction)
+    def generate_picture(self, x, y, z, yaw, pitch, returnType):
+        player_screen = Image.new("RGBA", (320, 240), (0, 0, 0, 0))
 
-                    # Only render objects in front of the player
-                    if dot_product < 0:
-                        continue
+        player_position = np.array([x, y, z])
+        cos_yaw = math.cos(math.radians(yaw))
+        sin_yaw = math.sin(math.radians(yaw))
+        cos_pitch = math.cos(math.radians(pitch))
+        sin_pitch = math.sin(math.radians(pitch))
+        player_facing_direction = np.array([
+            cos_yaw * cos_pitch,
+            sin_pitch,
+            sin_yaw * cos_pitch
+        ])
 
-                    # Calculate the position of the celestial object on the player screen
-                    # by projecting it onto the player's plane of view
-                    screen_x = np.dot(object_direction, np.array([1, 0, 0]))
-                    screen_y = np.dot(object_direction, np.array([0, 1, 0]))
+        def render_object(celestial_object):
+            celestial_object_position = np.array([
+                celestial_object.xpos, celestial_object.ypos, celestial_object.zpos
+            ])
 
-                    # Scale the screen position to fit within the player screen
-                    adjusted_xpos = int((screen_x + 1) * player_screen.width / 2)
-                    adjusted_ypos = int((1 - screen_y) * player_screen.height / 2)
+            object_direction = celestial_object_position - player_position
+            distance = np.linalg.norm(object_direction)
+            object_direction /= distance
 
-                    # Render the celestial object at the adjusted position
-                    size = celestial_object.radius
-                    scaling_factor = max(1 - (distance / 50), size / 5000)
-                    adjusted_size = int(max(size * scaling_factor, 1))
+            if self.use_render_distance is True and distance > self.render_distance:
+                return
 
-                    if celestial_object.type == "Planet":
-                        composition_texture = self.cached_textures[celestial_object.composition].copy()
-                        adjusted_size = int(max(celestial_object.radius * scaling_factor, 1))
-                        composition_texture = composition_texture.resize((adjusted_size * 2, adjusted_size * 2))
+            dot_product = np.dot(player_facing_direction, object_direction)
 
-                        if self.enable_atmosphere_render:
-                            atmosphere_size = adjusted_size
-                            atmosphere = Image.new(
-                                "RGBA", (atmosphere_size, atmosphere_size), (0, 0, 0, 0))
-                            draw = ImageDraw.Draw(atmosphere)
-                            draw.ellipse(
-                                (0, 0, atmosphere_size, atmosphere_size), fill=(0, 0, 0, 100))
-                            combined_texture = Image.alpha_composite(
-                                composition_texture, atmosphere)
-                            player_screen.paste(
-                                combined_texture, (adjusted_xpos - composition_texture.width // 2, adjusted_ypos - composition_texture.height // 2), mask=combined_texture)
-                        else:
-                            player_screen.paste(
-                                composition_texture, (adjusted_xpos - composition_texture.width // 2, adjusted_ypos - composition_texture.height // 2), mask=composition_texture)
+            if dot_product < 0:
+                return
+
+            forward = np.array([0, 0, 1])
+            right = np.cross(forward, player_facing_direction)
+            up = np.cross(right, player_facing_direction)
+            screen_x = np.dot(object_direction, right)
+            screen_y = np.dot(object_direction, up)
+
+            adjusted_xpos = int((screen_x + 1) * player_screen.width / 2)
+            adjusted_ypos = int((screen_y + 1) * player_screen.height / 2)
+
+            size = celestial_object.radius
+            scaling_factor = max(1 - (distance / 50), size / 5000)
+            adjusted_size = int(max(size * scaling_factor, 1))
+
+            if celestial_object.type == "Planet":
+                composition_texture = self.cached_textures[celestial_object.composition].copy(
+                )
+                adjusted_size = int(
+                    max(celestial_object.radius * scaling_factor, 1))
+                composition_texture = composition_texture.resize(
+                    (adjusted_size * 2, adjusted_size * 2))
+
+                if self.enable_atmosphere_render:
+                    atmosphere_size = adjusted_size
+                    atmosphere = Image.new(
+                        "RGBA", (atmosphere_size, atmosphere_size), (0, 0, 0, 0))
+                    draw = ImageDraw.Draw(atmosphere)
+                    draw.ellipse(
+                        (0, 0, atmosphere_size, atmosphere_size), fill=(0, 0, 0, 100))
+                    combined_texture = Image.alpha_composite(
+                        composition_texture, atmosphere)
+                    player_screen.paste(
+                        combined_texture, (adjusted_xpos - composition_texture.width // 2, adjusted_ypos - composition_texture.height // 2), mask=combined_texture)
+                else:
+                    player_screen.paste(
+                        composition_texture, (adjusted_xpos - composition_texture.width // 2, adjusted_ypos - composition_texture.height // 2), mask=composition_texture)
+
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            for galaxy in self.galaxies:
+                for system in galaxy.systems:
+                    executor.map(render_object, system.celestial_objects)
+
+        if self.render_stars:
+            starfield = self.generate_starfield(self.generate_star_seed())
+            player_screen = Image.alpha_composite(player_screen, starfield)
+
+        if self.draw_ship_bezel:
+            if self.use_ship_texture_bezel:
+                print("Not implemented yet!")
+            else:
+                lens_effect = Image.new("RGBA", (320, 240), (0, 0, 0, 0))
+                lens_effect_draw = ImageDraw.Draw(lens_effect)
+                lens_effect_draw.ellipse(
+                    (60, 30, 260, 210), outline=(255, 255, 255, 255), width=3)
+                player_screen.paste(lens_effect, (0, 0), mask=lens_effect)
 
         if returnType == "save":
-            player_screen.save(f"data/space/images/{x}_{y}_{z}_{yaw}_{pitch}.png")
+            player_screen.save(
+                f"data/space/images/{x}_{y}_{z}_{yaw}_{pitch}.png")
         elif returnType == "stream":
+
             image_stream = io.BytesIO()
             player_screen.save(image_stream, format='PNG')
             image_stream.seek(0)
@@ -246,11 +301,13 @@ class Space:
 
                     if celestial_object.type == "Planet" and distance <= celestial_object.radius:
                         celestial_object_position = np.array(
-                            [celestial_object.xpos, celestial_object.ypos, celestial_object.zpos]
+                            [celestial_object.xpos, celestial_object.ypos,
+                                celestial_object.zpos]
                         )
                         object_direction = celestial_object_position - player_position
                         object_direction /= np.linalg.norm(object_direction)
-                        angle = np.arccos(np.dot(player_facing_direction, object_direction))
+                        angle = np.arccos(
+                            np.dot(player_facing_direction, object_direction))
 
                         angle_degrees = np.degrees(angle)
 
@@ -268,7 +325,7 @@ class Space:
                         return True, celestial_object.name, relative_side
 
         return False, None, None
-    
+
     def remove_old_map(self):
         if os.path.exists("data/space/map.json"):
             os.remove("data/space/map.json")

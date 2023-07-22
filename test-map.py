@@ -6,8 +6,8 @@ import time
 
 class GameWindow:
     def __init__(self):
-        print("Initing..")
         self.root = tk.Tk()
+        self.root.title("Space Visualization")
         self.canvas = tk.Canvas(self.root, width=320, height=240, bg="black")
         self.canvas.pack()
         self.current_image = None
@@ -40,7 +40,7 @@ class GameWindow:
         self.rotation_yaw = 0
         self.rotation_pitch = 0
 
-        self.desired_fps = 10
+        self.desired_fps = 20
         self.update_delay = int(1000 / self.desired_fps)
 
         self.generate_map_image()
@@ -60,13 +60,10 @@ class GameWindow:
 
     def generate_map_image(self):
         image_stream = self.space.generate_picture(
-            self.player_x, self.player_y, self.player_z, self.rotation_yaw, self.rotation_pitch, "stream"
+            self.player_x, self.player_y, self.player_z, self.rotation_pitch, self.rotation_yaw, "stream"
         )
 
         image = Image.open(image_stream)
-
-        # image = image.resize((320, 240))
-
         self.current_image = ImageTk.PhotoImage(image)
 
         if self.canvas_image is None:
@@ -89,7 +86,7 @@ class GameWindow:
             fps = 0
 
         self.fps_label.config(
-            text=f"FPS: {fps:.2f} | Time since last input: {elapsed_time * 1000:.2f} ms")
+            text=f"FPS: {fps:.2f} | Time since last update: {elapsed_time * 1000:.2f} ms")
 
         self.generate_map_image()
 
