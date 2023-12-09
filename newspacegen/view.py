@@ -99,8 +99,15 @@ def view_space_map(stars_texture, planets_texture, atmospheres_texture):
                 star_position = Vec3(cell['x'], cell['y'], cell['z'])
                 distance_to_player = distance(star_position, player.world_position)
                 if distance_to_player < 10000:
-                    star = Entity(model='sphere', color=color.white, texture=stars_texture, scale=cell['size'])
+                    star = Entity(model='sphere', color=color.white, texture=stars_texture, scale=0.05)
                     star.position = star_position
+            elif cell['type'] == 'Planet':
+                planet_position = Vec3(cell['x'], cell['y'], cell['z'])
+                distance_to_player = distance(planet_position, player.world_position)
+                if distance_to_player < 10000:
+                    planet_type = cell['planet_type']
+                    planet = Entity(model='sphere', color=color.white, texture=planets_texture[planet_type], scale=cell['size'])
+                    planet.position = planet_position
 
     Sky(texture='textures/space_background.jpg')
 
