@@ -3,6 +3,8 @@ from ursina.prefabs.first_person_controller import FirstPersonController
 import pickle
 import os
 
+RENDER_DISTANCE = 300
+
 app = Ursina()
 
 player = FirstPersonController(
@@ -14,10 +16,38 @@ player = FirstPersonController(
     cursor_locked=False,
 )
 
+camera.clip_plane_far = 1000
+
 map_file = 'map-123.dat'
 
 with open(map_file, 'rb') as f:
     space_map = pickle.load(f)
+
+
+def load_space_textures():
+    texture_path = 'textures/'
+    stars_texture = load_texture(texture_path + 'stars.png')
+    planets_texture = {
+        'Earth-like': load_texture(texture_path + 'earth-like.png'),
+        'Gas giant': load_texture(texture_path + 'gas-giant.png'),
+        'Ice planet': load_texture(texture_path + 'ice-planet.png'),
+    }
+    atmospheres_texture = {
+        'Blue': load_texture(texture_path + 'atmosphere-blue.png'),
+        'Red': load_texture(texture_path + 'atmosphere-red.png'),
+        'Green': load_texture(texture_path + 'atmosphere-green.png'),
+    }
+    return stars_texture, planets_texture, atmospheres_texture
+
+
+stars_texture, planets_texture, atmospheres_texture = load_space_textures()
+rendered_objects = []
+
+
+def clear_objects():
+    for entity in rendered_objects:
+        destroy(entity)
+    rendered_objects.clear()
 
 
 def load_space_textures():
@@ -53,6 +83,20 @@ def find_closest_planet(space_map, player_position):
     return closest_planet, min_distance
 
 
+class Planet(Entity):
+    def __init__(self, position, planet_type, texture, scale):
+        super().__init__(
+            model='sphere',
+            color=color.white,
+            texture=texture,
+            scale=scale,
+            position=position
+        )
+
+    def update(self):
+        self.rotation_y += time.dt * 5
+
+
 class FindClosestPlanetEntity(Entity):
     def update(self):
         closest_planet, min_distance = find_closest_planet(space_map, player.world_position)
@@ -63,61 +107,28 @@ class FindClosestPlanetEntity(Entity):
             print(f"Approaching {planet_type} | Distance: {min_distance:.2f} meters")
 
 
-class Projectile(Entity):
-    def __init__(self):
-        super().__init__(
-            model='sphere',
-            color=color.red,
-            scale=0.1,
-            collider='box',
-            origin_y=-0.5
-        )
+def view_space_map():
+    global player, rendered_objects
 
-    def update(self):
-        if self.x > 500 or self.x < -500 or self.z > 500 or self.z < -500:
-            destroy(self)
-
-
-projectiles = []
-
-
-def input(key):
-    global projectiles
-    if key == 'left mouse down':
-        projectile = Projectile()
-        projectile.position = player.position + (0, 1, 0)
-        projectile.rotation = player.rotation
-        projectile.world_parent = scene
-        projectiles.append(projectile)
-
-
-def view_space_map(stars_texture, planets_texture, atmospheres_texture):
-    global player, projectiles
+    player_position = player.world_position
     for row in space_map:
         for cell in row:
             if cell['type'] == 'Star':
                 star_position = Vec3(cell['x'], cell['y'], cell['z'])
-                distance_to_player = distance(star_position, player.world_position)
-                if distance_to_player < 10000:
-                    star = Entity(model='sphere', color=color.white, texture=stars_texture, scale=0.05)
-                    star.position = star_position
+                star = Entity(model='sphere', color=color.white, texture=stars_texture, scale=0.05)
+                star.position = star_position
+                rendered_objects.append(star)
             elif cell['type'] == 'Planet':
                 planet_position = Vec3(cell['x'], cell['y'], cell['z'])
-                distance_to_player = distance(planet_position, player.world_position)
-                if distance_to_player < 10000:
-                    planet_type = cell['planet_type']
-                    planet = Entity(model='sphere', color=color.white, texture=planets_texture[planet_type], scale=cell['size'])
-                    planet.position = planet_position
-
-    Sky(texture='textures/space_background.jpg')
-
-    FindClosestPlanetEntity()
-
-    app.run()
+                planet_type = cell['planet_type']
+                planet = Planet(position=planet_position, planet_type=planet_type,
+                                texture=planets_texture[planet_type], scale=cell['size'])
+                rendered_objects.append(planet)
 
 
 def update():
-    global player, projectiles
+    global player
+
     speed = player.speed
 
     if held_keys['space']:
@@ -141,5 +152,7 @@ if __name__ == "__main__":
         app.clear_color = color.black
         app.ambient_light = color.black
         app.time_of_day = 24
-        stars_texture, planets_texture, atmospheres_texture = load_space_textures()
-        view_space_map(stars_texture, planets_texture, atmospheres_texture)
+        Sky(texture='textures/space_background.jpg')
+        view_space_map()
+        FindClosestPlanetEntity()
+        app.run()

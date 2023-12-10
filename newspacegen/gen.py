@@ -1,28 +1,28 @@
 import numpy as np
 import random
 import pickle
-import time
 from tqdm import tqdm
+from concurrent.futures import ProcessPoolExecutor
+import signal
+import sys
+import time
+
+space_map = []
+star_positions = []
+planet_positions = []
 
 
-def generate_space_map(seed=None, map_size=20, min_distance=50):
-    if seed is None:
-        seed = int(time.time())
-
+def generate_space_map(start, end, map_size, min_distance, seed, max_time_per_gen, thread_id):
     random.seed(seed)
     np.random.seed(seed)
 
-    space_map = []
-    star_positions = []
-    planet_positions = []
-
-    for i in tqdm(range(map_size), desc="Generating Space Map"):
-        row = []
+    row = []
+    for i in tqdm(range(start, end), desc=f"Thread {thread_id}: Generating Space Map", position=thread_id):
         for j in range(map_size):
+            gen_start_time = time.time()
             celestial_body = random.random()
             x, y, z = np.random.uniform(0, map_size * 10, size=3)
 
-            # Check distances within the existing positions
             while any(((x - pos[0]) ** 2 + (y - pos[1]) ** 2 + (z - pos[2]) ** 2) ** 0.5 < min_distance
                       for pos in star_positions + planet_positions):
                 x, y, z = np.random.uniform(0, map_size * 10, size=3)
@@ -47,13 +47,20 @@ def generate_space_map(seed=None, map_size=20, min_distance=50):
                             'x': x, 'y': y, 'z': z, 'size': size})
                 planet_positions.append((x, y, z))
 
-        space_map.append(row)
+            if time.time() - gen_start_time > max_time_per_gen != -1:
+                break
 
-    with open(f'map-{seed}.dat', 'wb') as f:
-        pickle.dump(space_map, f)
+    return row
+
+
+def signal_handler(sig, frame):
+    print("\nCTRL-C received. Stopping gracefully...")
+    sys.exit(0)
 
 
 if __name__ == "__main__":
+    signal.signal(signal.SIGINT, signal_handler)
+
     seed_input = input("Enter seed (press Enter for a random seed): ")
 
     if seed_input:
@@ -61,4 +68,25 @@ if __name__ == "__main__":
     else:
         seed = None
 
-    generate_space_map(seed, map_size=2000, min_distance=500)
+    map_size = 1500
+    min_distance = 150
+    num_processes = 4  # number of cores
+
+    chunk_size = map_size // num_processes
+
+    start_time = time.time()
+    with ProcessPoolExecutor(max_workers=num_processes) as executor:
+        futures = []
+        for i in range(num_processes):
+            start = i * chunk_size
+            end = (i + 1) * chunk_size if i != num_processes - 1 else map_size
+            futures.append(executor.submit(generate_space_map, start, end, map_size, min_distance, seed, 40, i + 1))
+
+        for future in tqdm(futures, desc="Collecting Results"):
+            space_map.extend(future.result())
+
+    elapsed_time = time.time() - start_time
+    print(f"\nTotal Elapsed Time: {elapsed_time:.2f} seconds")
+
+    with open(f'map-{seed}.dat', 'wb') as f:
+        pickle.dump(space_map, f)
