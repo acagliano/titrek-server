@@ -7,14 +7,11 @@ RENDER_DISTANCE = 300
 
 app = Ursina()
 
-player = FirstPersonController(
-    gravity=False,
-    jump_height=1,
-    speed=20,
-    jump_duration=0.25,
-    cursor_visible=True,
-    cursor_locked=False,
-)
+player = FirstPersonController()
+player.gravity = False
+player.jump_height = 1
+player.speed = 10
+player.jump_up_duration = 0.25
 
 camera.clip_plane_far = 1000
 
