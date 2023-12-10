@@ -2,6 +2,7 @@ from ursina import *
 from ursina.prefabs.first_person_controller import FirstPersonController
 import pickle
 import os
+import random
 
 RENDER_DISTANCE = 300
 
@@ -15,7 +16,7 @@ player.jump_up_duration = 0.25
 
 camera.clip_plane_far = 1000
 
-map_file = 'map-123.dat'
+map_file = 'map-123.pickle'
 
 with open(map_file, 'rb') as f:
     space_map = pickle.load(f)
@@ -91,7 +92,11 @@ class Planet(Entity):
         )
 
     def update(self):
-        self.rotation_y += time.dt * 5
+        self.rotation_y += time.dt * 2
+
+    def explode(self):
+        # Implement explosion effect code here
+        destroy(self)
 
 
 class FindClosestPlanetEntity(Entity):
@@ -100,7 +105,6 @@ class FindClosestPlanetEntity(Entity):
 
         if closest_planet:
             planet_type = closest_planet['planet_type']
-            atmosphere_color = closest_planet['atmosphere_color']
             print(f"Approaching {planet_type} | Distance: {min_distance:.2f} meters")
 
 
@@ -123,6 +127,32 @@ def view_space_map():
                 rendered_objects.append(planet)
 
 
+def update_planet_positions():
+    for planet in rendered_objects:
+        planet.x += random.uniform(-0.1, 0.1)
+        planet.y += random.uniform(-0.1, 0.1)
+        planet.z += random.uniform(-0.1, 0.1)
+        planet.position = (planet.x, planet.y, planet.z)
+
+
+def check_collisions():
+    num_objects = len(rendered_objects)
+    for i in range(num_objects):
+        for j in range(i + 1, num_objects):
+            planet_i = rendered_objects[i]
+            planet_j = rendered_objects[j]
+
+            distance_squared = (
+                    (planet_i.x - planet_j.x) ** 2 +
+                    (planet_i.y - planet_j.y) ** 2 +
+                    (planet_i.z - planet_j.z) ** 2
+            )
+
+            if distance_squared < 1:
+                planet_i.explode()
+                planet_j.explode()
+
+
 def update():
     global player
 
@@ -140,6 +170,9 @@ def update():
         player.x -= speed * time.dt
     if held_keys['d']:
         player.x += speed * time.dt
+
+    # update_planet_positions()
+    # check_collisions()
 
 
 if __name__ == "__main__":

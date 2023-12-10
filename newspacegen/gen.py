@@ -49,7 +49,7 @@ def generate_space_map(seed=None, map_size=20, min_distance=50):
 
         space_map.append(row)
 
-    with open(f'map-{seed}.dat', 'wb') as f:
+    with open(f'map-{seed}.pickle', 'wb') as f:
         pickle.dump(space_map, f)
 
 
@@ -61,4 +61,4 @@ if __name__ == "__main__":
     else:
         seed = None
 
-    generate_space_map(seed, map_size=300, min_distance=75)
+    generate_space_map(seed, map_size=1000, min_distance=200)
