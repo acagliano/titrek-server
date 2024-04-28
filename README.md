@@ -1,6 +1,6 @@
 # TITREK server rewrite.
 
 TODO:  
-[ ] Space generation  
+[x] Space generation  
 [ ] TInyAuth authentication  
 [ ] Send map to client  
