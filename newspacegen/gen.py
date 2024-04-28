@@ -1,10 +1,11 @@
 import numpy as np
 import random
 from scipy.spatial import cKDTree
-from tqdm import tqdm
 import json
 import time
 import os
+from multiprocessing import Pool, cpu_count
+from tqdm import tqdm
 
 DEFAULT_MAP_SIZE = 50000
 DEFAULT_DISTANCE = 1000
@@ -13,18 +14,19 @@ STAR_COLORS = ['Yellow', 'Red', 'Blue']
 ATMOSPHERE_COLORS = ['Blue', 'Red', 'Green']
 PLANET_TYPES = ['Earth-like', 'Gas giant', 'Ice planet']
 
-def generate_space_map(seed=None, map_size=20, min_star_distance=200, min_planet_distance=780, star_prob=0.5):
+def generate_space_map_worker(args):
+    map_size, min_star_distance, min_planet_distance, star_prob, seed = args
     random.seed(seed)
     np.random.seed(seed)
 
     space_map = []
     star_positions = []
     planet_positions = []
-    
+
     star_count = 0
     planet_count = 0
 
-    for _ in tqdm(range(map_size), desc="Generating Space Map"):
+    for _ in range(map_size):
         position = np.random.uniform(0, map_size * 10, size=3)
 
         if star_positions:
@@ -58,13 +60,28 @@ def generate_space_map(seed=None, map_size=20, min_star_distance=200, min_planet
             planet_positions.append(position)
             planet_count += 1
 
+    return space_map
+
+def generate_space_map(seed=None, map_size=20, min_star_distance=200, min_planet_distance=780, star_prob=0.5):
+    num_cores = cpu_count()
+    print(f"Using {num_cores} cores for generation.")
+
+    seed = seed if seed else random.randint(0, 2**32 - 1)
+
+    args = [(map_size // num_cores, min_star_distance, min_planet_distance, star_prob, seed) for _ in range(num_cores)]
+
+    with Pool(num_cores) as p:
+        results = list(tqdm(p.imap(generate_space_map_worker, args), total=num_cores, desc="Generating Space Map"))
+
+    space_map = []
+    for result in results:
+        space_map.extend(result)
+
     return space_map, seed
 
 if __name__ == "__main__":
     seed_input = input("Enter seed (leave empty for random seed): ")
-    seed = int(seed_input) if seed_input.strip() else None
-    if seed is None:
-        seed = random.randint(0, 2**32 - 1)
+    seed = int(seed_input) if seed_input.strip() else random.randint(0, 2**32 - 1)
 
     map_size_input = input("Enter max map size (default is 50000): ")
     map_size = DEFAULT_MAP_SIZE if map_size_input == "" else int(map_size_input)
