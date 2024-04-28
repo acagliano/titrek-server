@@ -8,7 +8,6 @@ from multiprocessing import Pool, cpu_count
 from tqdm import tqdm
 
 DEFAULT_MAP_SIZE = 50000
-DEFAULT_DISTANCE = 1000
 
 STAR_COLORS = ['Yellow', 'Red', 'Blue']
 ATMOSPHERE_COLORS = ['Blue', 'Red', 'Green']
