@@ -1,64 +1,96 @@
 import numpy as np
 import random
-import pickle
-import time
+from scipy.spatial import cKDTree
 from tqdm import tqdm
+import json
+import time
+import os
 
+DEFAULT_MAP_SIZE = 50000
+DEFAULT_DISTANCE = 1000
 
-def generate_space_map(seed=None, map_size=20, min_distance=50):
-    if seed is None:
-        seed = int(time.time())
+STAR_COLORS = ['Yellow', 'Red', 'Blue']
+ATMOSPHERE_COLORS = ['Blue', 'Red', 'Green']
+PLANET_TYPES = ['Earth-like', 'Gas giant', 'Ice planet']
 
+def generate_space_map(seed=None, map_size=20, min_star_distance=200, min_planet_distance=780, star_prob=0.5):
     random.seed(seed)
     np.random.seed(seed)
 
     space_map = []
     star_positions = []
     planet_positions = []
+    
+    star_count = 0
+    planet_count = 0
 
-    for i in tqdm(range(map_size), desc="Generating Space Map"):
-        row = []
-        for j in range(map_size):
-            celestial_body = random.random()
-            x, y, z = np.random.uniform(0, map_size * 10, size=3)
+    for _ in tqdm(range(map_size), desc="Generating Space Map"):
+        position = np.random.uniform(0, map_size * 10, size=3)
 
-            # Check distances within the existing positions
-            while any(((x - pos[0]) ** 2 + (y - pos[1]) ** 2 + (z - pos[2]) ** 2) ** 0.5 < min_distance
-                      for pos in star_positions + planet_positions):
-                x, y, z = np.random.uniform(0, map_size * 10, size=3)
+        if star_positions:
+            star_tree = cKDTree(star_positions)
+            nearest_star_dist, _ = star_tree.query(position)
+            if nearest_star_dist > min_star_distance:
+                if planet_positions:
+                    planet_tree = cKDTree(planet_positions)
+                    nearest_planet_dist, _ = planet_tree.query(position)
+                    if nearest_planet_dist < min_planet_distance:
+                        continue
+                celestial_body = 'Planet' if random.random() > star_prob else 'Star'
+            else:
+                celestial_body = 'Star'
+        else:
+            celestial_body = 'Star'
 
-            if celestial_body < 0.05:
-                # Star
-                star_color = random.choice(['Yellow', 'Red', 'Blue'])
-                size = random.uniform(10, 20)
-                star_name = f'Star_{i}_{j}'
-                row.append({'type': 'Star', 'star_name': star_name, 'star_color': star_color, 'x': x, 'y': y, 'z': z,
-                            'size': size})
-                star_positions.append((x, y, z))
+        if celestial_body == 'Star':
+            star_color = random.choice(STAR_COLORS)
+            size = random.uniform(10, 20)
+            star_name = f'Star_{star_count}'
+            space_map.append({'type': 'Star', 'name': star_name, 'color': star_color, 'position': position.tolist(), 'size': size})
+            star_positions.append(position)
+            star_count += 1
+        elif celestial_body == 'Planet':
+            planet_type = random.choice(PLANET_TYPES)
+            atmosphere_color = random.choice(ATMOSPHERE_COLORS)
+            size = random.uniform(20, 100)
+            planet_name = f'Planet_{planet_count}'
+            space_map.append({'type': 'Planet', 'name': planet_name, 'planet_type': planet_type, 'atmosphere_color': atmosphere_color, 'position': position.tolist(), 'size': size})
+            planet_positions.append(position)
+            planet_count += 1
 
-            elif celestial_body < 0.2:
-                # Planet
-                planet_type = random.choice(['Earth-like', 'Gas giant', 'Ice planet'])
-                atmosphere_color = random.choice(['Blue', 'Red', 'Green'])
-                size = random.uniform(20, 100)
-                planet_name = f'Planet_{i}_{j}'
-                row.append({'type': 'Planet', 'planet_name': planet_name, 'planet_type': planet_type,
-                            'atmosphere_color': atmosphere_color,
-                            'x': x, 'y': y, 'z': z, 'size': size})
-                planet_positions.append((x, y, z))
-
-        space_map.append(row)
-
-    with open(f'map-{seed}.pickle', 'wb') as f:
-        pickle.dump(space_map, f)
-
+    return space_map, seed
 
 if __name__ == "__main__":
-    seed_input = input("Enter seed (press Enter for a random seed): ")
+    seed_input = input("Enter seed (leave empty for random seed): ")
+    seed = int(seed_input) if seed_input.strip() else None
+    if seed is None:
+        seed = random.randint(0, 2**32 - 1)
 
-    if seed_input:
-        seed = int(seed_input)
-    else:
-        seed = None
+    map_size_input = input("Enter max map size (default is 50000): ")
+    map_size = DEFAULT_MAP_SIZE if map_size_input == "" else int(map_size_input)
+    
+    star_prob_input = input("Enter probability of generating a star (default is 0.5): ")
+    star_prob = 0.5 if star_prob_input == "" else float(star_prob_input)
 
-    generate_space_map(seed, map_size=1000, min_distance=200)
+    print("Generating map with the following settings:")
+    print("Seed:", seed)
+    start_time = time.time()
+    space_map, used_seed = generate_space_map(
+        seed=seed,
+        map_size=map_size,
+        star_prob=star_prob
+    )
+
+    print("Used seed:", used_seed)
+    print("Amount of objects:", len(space_map))
+
+    print("Saving...")
+    with open('space_map.json', 'w') as f:
+        json.dump(space_map, f)
+        print("Size on disk: ", os.path.getsize('space_map.json'))
+        print("Saved!")
+    end_time = time.time()
+
+    print("Time taken:", end_time - start_time, "seconds")
+
+    print("Done.")
