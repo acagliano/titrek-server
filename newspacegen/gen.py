@@ -15,7 +15,7 @@ ATMOSPHERE_COLORS = ['Blue', 'Red', 'Green']
 PLANET_TYPES = ['Earth-like', 'Gas giant', 'Ice planet']
 
 def generate_space_map_worker(args):
-    map_size, min_star_distance, min_planet_distance, star_prob, seed = args
+    map_size, min_star_distance, min_planet_distance, star_prob, seed, core_id = args
     random.seed(seed)
     np.random.seed(seed)
 
@@ -26,6 +26,7 @@ def generate_space_map_worker(args):
     star_count = 0
     planet_count = 0
 
+    progress_bar = tqdm(total=map_size, desc=f"Core {core_id}", position=core_id, dynamic_ncols=False)
     for _ in range(map_size):
         position = np.random.uniform(0, map_size * 10, size=3)
 
@@ -60,6 +61,10 @@ def generate_space_map_worker(args):
             planet_positions.append(position)
             planet_count += 1
 
+        progress_bar.update(1)
+
+    progress_bar.close()
+
     return space_map
 
 def generate_space_map(seed=None, map_size=20, min_star_distance=200, min_planet_distance=780, star_prob=0.5):
@@ -68,16 +73,14 @@ def generate_space_map(seed=None, map_size=20, min_star_distance=200, min_planet
 
     seed = seed if seed else random.randint(0, 2**32 - 1)
 
-    args = [(map_size // num_cores, min_star_distance, min_planet_distance, star_prob, seed) for _ in range(num_cores)]
+    args = [(map_size // num_cores, min_star_distance, min_planet_distance, star_prob, seed, i) for i in range(num_cores)]
 
     with Pool(num_cores) as p:
-        results = list(tqdm(p.imap(generate_space_map_worker, args), total=num_cores, desc="Generating Space Map"))
+        results = []
+        for result in p.imap(generate_space_map_worker, args):
+            results.extend(result)
 
-    space_map = []
-    for result in results:
-        space_map.extend(result)
-
-    return space_map, seed
+    return results, seed
 
 if __name__ == "__main__":
     seed_input = input("Enter seed (leave empty for random seed): ")
@@ -97,13 +100,25 @@ if __name__ == "__main__":
         map_size=map_size,
         star_prob=star_prob
     )
+    print("\n" * 10)
 
     print("Used seed:", used_seed)
     print("Amount of objects:", len(space_map))
 
+    final_json = {
+        "metadata": {
+            "seed": used_seed,
+            "map_size": map_size,
+            "star_prob": star_prob,
+            "created_at": int(time.time()),
+            "object_count": len(space_map),
+        },
+        "objects": space_map
+    }
+
     print("Saving...")
     with open('space_map.json', 'w') as f:
-        json.dump(space_map, f)
+        json.dump(final_json, f)
         print("Size on disk: ", os.path.getsize('space_map.json'))
         print("Saved!")
     end_time = time.time()

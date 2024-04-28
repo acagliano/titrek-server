@@ -38,4 +38,11 @@ def plot_space_map_3d(space_map):
 
 if __name__ == "__main__":
     space_map = load_space_map('space_map.json')
-    plot_space_map_3d(space_map)
+    metadata = space_map['metadata']
+    print("Map metadata:")
+    print("Seed:", metadata['seed'])
+    print("Map size:", metadata['map_size'])
+    print("Star probability:", metadata['star_prob'])
+    print("Created at:", metadata['created_at'])
+    print("Object count:", metadata['object_count'])
+    plot_space_map_3d(space_map['objects'])
