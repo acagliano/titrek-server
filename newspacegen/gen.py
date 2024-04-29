@@ -6,6 +6,7 @@ import time
 import os
 from multiprocessing import Pool, cpu_count
 from tqdm import tqdm
+import string
 
 DEFAULT_MAP_SIZE = 50000
 DEFAULT_MIN_STAR_DISTANCE = 200
@@ -19,8 +20,53 @@ PLANET_TYPES = ['Earth-like', 'Gas giant', 'Ice planet']
 
 DEFAULT_MAX_OBJECTS_PER_THOUSAND_SIZE = DEFAULT_MAX_OBJECTS_PER_THOUSAND_SIZE / 250
 
+
+PLANET_NAMES = []
+with open("planet_names.txt", "r") as f:
+    raw = f.read()
+    PLANET_NAMES = raw.split("\n")
+
+total_planet_names_syllables = 0
+planet_names_syllables = []
+
+for p in PLANET_NAMES:
+    lex = p.split("-")
+    total_planet_names_syllables += len(lex)
+    for l in lex:
+        if l not in planet_names_syllables:
+            planet_names_syllables.append(l)
+
+planet_names_size = len(planet_names_syllables) + 1
+planet_names_freq = [[0] * planet_names_size for _ in range(planet_names_size)]
+
+for p in PLANET_NAMES:
+    lex = p.split("-")
+    i = 0
+    while i < len(lex) - 1:
+        planet_names_freq[planet_names_syllables.index(lex[i])][planet_names_syllables.index(lex[i+1])] += 1
+        i += 1
+    planet_names_freq[planet_names_syllables.index(lex[len(lex) - 1])][planet_names_size-1] += 1
+
+def generate_planet_name():
+    planet_name = ""
+    suffixes = ["prime", "", "B", "", "alpha", "", 'proxima', "", "IV", "", "V", "", "C", "", "VI", "", "VII", "", "VIII", "", "X", "", "IX", "", "D", "", "", ""]
+    length = random.randint(2, 3)
+    initial = random.randint(0, planet_names_size - 2)
+    while length > 0:
+        while 1 not in planet_names_freq[initial]:
+            initial = random.randint(0, planet_names_size - 2)
+        planet_name += planet_names_syllables[initial]
+        initial = planet_names_freq[initial].index(1)
+        length -= 1
+    suffix_index = random.randint(0, len(suffixes) - 1)
+    planet_name += " "
+    planet_name += suffixes[suffix_index]
+    return planet_name
+
+
 def calculate_radius(size):
     return size / 2
+
 
 def generate_space_map_worker(args):
     map_size, min_star_distance, min_planet_distance, star_prob, seed, core_id = args
@@ -62,7 +108,7 @@ def generate_space_map_worker(args):
             star_color = random.choice(STAR_COLORS)
             size = random.uniform(10, 20)
             radius = calculate_radius(size)
-            star_name = f'Star_{star_count}'
+            star_name = ''.join(random.choices(string.ascii_uppercase, k=2)) + '-' + ''.join(random.choices(string.digits, k=6))
             space_map.append({'type': 'Star', 'name': star_name, 'color': star_color, 'position': position.tolist(), 'size': size})
             star_positions.append(position)
             star_radii.append(radius)
@@ -81,7 +127,7 @@ def generate_space_map_worker(args):
                     break
             if not position_valid:
                 continue
-            planet_name = f'Planet_{planet_count}'
+            planet_name = generate_planet_name()
             space_map.append({'type': 'Planet', 'name': planet_name, 'planet_type': planet_type, 'atmosphere_color': atmosphere_color, 'position': position.tolist(), 'size': size})
             planet_positions.append(position)
             planet_count += 1
@@ -94,6 +140,7 @@ def generate_space_map_worker(args):
     worker_logs.append(f"Core {core_id} finished.")
 
     return space_map, worker_logs
+
 
 def generate_space_map(seed=None, map_size=DEFAULT_MAP_SIZE, min_star_distance=DEFAULT_MIN_STAR_DISTANCE, min_planet_distance=DEFAULT_MIN_PLANET_DISTANCE, star_prob=DEFAULT_STAR_PROB):
     num_cores = cpu_count()
@@ -109,6 +156,7 @@ def generate_space_map(seed=None, map_size=DEFAULT_MAP_SIZE, min_star_distance=D
             results.extend(result)
     
     return results, seed
+
 
 if __name__ == "__main__":
     seed_input = input("Enter seed (leave empty for random seed): ")
