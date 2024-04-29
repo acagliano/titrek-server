@@ -13,19 +13,21 @@ def plot_space_map_3d(space_map):
 
     star_positions = []
     planet_positions = []
+    planet_sizes = []
 
     for body in space_map:
         if body['type'] == 'Star':
             star_positions.append(body['position'])
         elif body['type'] == 'Planet':
             planet_positions.append(body['position'])
+            planet_sizes.append(body['size'])
 
     star_positions = list(zip(*star_positions))
     planet_positions = list(zip(*planet_positions))
 
     ax.scatter(star_positions[0], star_positions[1], star_positions[2], color='yellow', label='Stars', marker='*')
     if planet_positions:
-        ax.scatter(planet_positions[0], planet_positions[1], planet_positions[2], color='blue', label='Planets', marker='o')
+        ax.scatter(planet_positions[0], planet_positions[1], planet_positions[2], s=planet_sizes, color='blue', label='Planets', marker='o')
 
     ax.set_xlabel('X Position')
     ax.set_ylabel('Y Position')
