@@ -1,3 +1,6 @@
+# deprecation notice
+This repo is deprecated and will be moved to https://github.com/cagstech/expanse-server once TKB Studios is done rewriting it in Go.
+
 # titrek-server
 The server-side scripting for this project.
 
